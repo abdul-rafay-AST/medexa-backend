@@ -7,7 +7,7 @@ class CptLookupLoader:
         self._load(config_path)
 
     def _load(self, config_path: Path) -> None:
-        with open(config_path) as f:
+        with open(config_path, encoding="utf-8") as f:
             self._cpt_map = json.load(f)
 
     def get_cpt_for_activity(self, activity_label: str) -> str | None:

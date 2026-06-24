@@ -16,7 +16,7 @@ class NcciRulesLoader:
         self._load(config_path)
 
     def _load(self, config_path: Path) -> None:
-        with open(config_path) as f:
+        with open(config_path, encoding="utf-8") as f:
             data: list[NcciRule] = json.load(f)
             for rule in data:
                 pair1 = (rule["cpt_a"], rule["cpt_b"])
