@@ -1,0 +1,932 @@
+[
+  {
+    "_sources": {
+      "source_name": "CMS National Correct Coding Initiative (NCCI) Practitioner PTP Edit Files",
+      "version_date": "Effective April 1, 2026",
+      "url": "https://www.cms.gov/medicare/coding-billing/national-correct-coding-initiative-ncci-edits/medicare-ncci-procedure-procedure-ptp-edits"
+    }
+  },
+  {
+    "_review_needed": []
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: 97140 and 97530 are bundled per CMS PTP edits. Bypassing requires distinct, non-overlapping body regions or separate session encounters using Modifier 59."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: 97140 is bundled into 97110. Bypassing requires application to separate, distinct anatomical sites or documentation of entirely independent purposes."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: 97112 and 97110 have mutual billing limits on matching segments unless distinct operational intents or regions are proven."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Massage therapy 97124 is an integral component of manual therapy 97140. Separate entry is only allowed if executed on completely unique segments."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Gait training mechanics are bundled with dynamic therapeutic activities unless distinct intervals or independent clinical tasks are demonstrated."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: 97110 and 97530 are bundled per CMS PTP edits. Separate execution requires completely unique structural goals or body regions."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular reeducation and therapeutic activity are mutually exclusive unless performed at non-overlapping timestamps or structural locations."
+  },
+  {
+    "cpt_a": "97116",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Gait training limits therapeutic exercise entries unless separate sessions or entirely discrete muscular systems are isolated."
+  },
+  {
+    "cpt_a": "97116",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Gait parameters are bundled into neuromuscular reeducation unless separate segments or specific developmental contexts apply."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care ADL training includes therapeutic exercise unless isolated structural purposes and distinct times are justified via Modifier 59."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care training bundles neuromuscular reeducation unless specific activities of daily living are isolated from generalized coordinate training."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL performance training limits concurrent overground gait training claims unless separate operational boundaries are tracked."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual therapy and self-care cannot be billed inside identical windows or areas without modifier verification of independent clinical tasks."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care training and dynamic therapeutic activities are comprehensive conflict pairs requiring independent execution timelines."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Initial PT Evaluation (97161) incorporates component therapeutic exercises unless distinct subsequent treatment sessions are scheduled."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: PT Evaluation encompasses same-day neuromuscular interventions unless an entirely unique programmatic session event occurs."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Gait analysis elements are component to primary evaluations unless formal separated training runs are authorized via modifier."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual techniques are bundled on initial evaluation dates unless explicit, non-overlapping treatment blocks are authenticated."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: PT Evaluation bundles diagnostic functional activities unless separate dynamic treatment sessions are fully structured."
+  },
+  {
+    "cpt_a": "97161",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care intervention requires unique temporal partitioning if introduced on the same calendar day as an initial PT evaluation."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Moderate complexity PT Evaluation bundles subsequent exercise units unless discrete treatment blocks are documented."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular metrics are diagnostic components of 97162 unless separate therapeutic application timelines exist."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Moderate evaluation structures limit direct gait claims unless an independent gait treatment encounter is executed."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Same-day manual therapy during moderate evaluation requires modifier confirmation of distinct operational tracking."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic testing criteria inside 97162 restrict basic therapeutic activity coding unless explicitly partitioned."
+  },
+  {
+    "cpt_a": "97162",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care instruction lines are component items of 97162 unless unique session events are populated."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: High complexity PT Evaluation includes comprehensive target exercises unless separate service timelines are isolated."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Complex neuromuscular baseline tracking is bundled under 97163 unless separate intervention blocks are met."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Gait pattern diagnostic tests are embedded inside 97163 unless specialized separate training is managed."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: High complexity evaluation criteria include manual assessments; separate therapeutic touch requires validation."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic active procedures are component parts of complex evaluations unless explicitly run in unique session segments."
+  },
+  {
+    "cpt_a": "97163",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL testing processes within 97163 restrict baseline self-care coding unless specific separate education is proved."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: PT Re-evaluation rules encompass baseline exercises unless distinct therapeutic intervention blocks are established."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Re-evaluation parameters include neuromuscular tracking unless independent structural training is added."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Ambulation baseline tracking models are bundled into 97164 unless separate, skilled training sequences exist."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual diagnostic maneuvers match 97164 profiles; separate therapeutic manual procedures require modifier support."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic task tracking within a re-evaluation bundles basic therapeutic activities unless managed separately."
+  },
+  {
+    "cpt_a": "97164",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL re-assessments limit separate self-care codes on identical dates unless explicit temporal separation is logged."
+  },
+  {
+    "cpt_a": "97165",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Initial OT Evaluation (97165) includes therapeutic exercises unless independent post-evaluation treatment cycles occur."
+  },
+  {
+    "cpt_a": "97165",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular coordination diagnostics match 97165 sets; separate training elements require modifier tracking."
+  },
+  {
+    "cpt_a": "97165",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Same-day manual therapies during initial OT evaluation are bundled unless distinct treatment intervals are validated."
+  },
+  {
+    "cpt_a": "97165",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Functional task diagnostics within 97165 bundle therapeutic activity codes unless unique operational segments are used."
+  },
+  {
+    "cpt_a": "97165",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Low complexity OT evaluation restricts concurrent self-care training line codes unless explicitly separated."
+  },
+  {
+    "cpt_a": "97166",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Moderate OT Evaluation structures incorporate target exercises unless unique treatment milestones are recorded."
+  },
+  {
+    "cpt_a": "97166",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Movement integration metrics inside 97166 bundle neuromuscular options unless separate sessions exist."
+  },
+  {
+    "cpt_a": "97166",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Moderate OT evaluation components restrict raw manual therapy additions unless distinct segments are proved."
+  },
+  {
+    "cpt_a": "97166",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic occupational profiling bundles therapeutic activities unless individual training intervals are certified."
+  },
+  {
+    "cpt_a": "97166",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL capacity reviews limit secondary self-care claims unless unique service encounters occur."
+  },
+  {
+    "cpt_a": "97167",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: High complexity OT Evaluation bundles component target exercises unless separate session entries exist."
+  },
+  {
+    "cpt_a": "97167",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Complex neurological pathway tracking is component to 97167 lines unless separate therapy sessions are built."
+  },
+  {
+    "cpt_a": "97167",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual techniques match internal evaluation markers; separate manual treatments require modifier verification."
+  },
+  {
+    "cpt_a": "97167",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active procedure blocks are component layers of complex OT evaluations unless tracked on separate intervals."
+  },
+  {
+    "cpt_a": "97167",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Detailed environmental safety reviews inside 97167 bundle self-care training unless explicitly partitioned."
+  },
+  {
+    "cpt_a": "97168",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: OT Re-evaluation processes include general exercise lines unless clear separate session updates are mapped."
+  },
+  {
+    "cpt_a": "97168",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Coordination re-assessments bundle generic neuromuscular coding unless independent runtime tracks exist."
+  },
+  {
+    "cpt_a": "97168",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual diagnostic runs align with 97168 markers; therapeutic manual inputs require modifier safety checks."
+  },
+  {
+    "cpt_a": "97168",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic task tracking inside re-evaluations limits separate therapeutic activity codes unless run independently."
+  },
+  {
+    "cpt_a": "97168",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL framework updates bundle baseline self-care modules unless explicit temporal partitions are recorded."
+  },
+  {
+    "cpt_a": "97035",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Ultrasound deep thermal mechanics bundle superficial hot cold applications unless applied to distinct regions."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active therapeutic exercise structures bundle passive hot cold packs unless clear separate session metrics apply."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular patterns supersede passive thermal controls unless executed across completely non-overlapping sites."
+  },
+  {
+    "cpt_a": "97116",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active gait training lines fully encompass passive hot cold support unless managed on different body areas."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Hands-on manual therapy bundles passive superficial thermal agents unless unique target segment sites are used."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic active procedures limit simple hot cold bundle lines unless documented on alternative body areas."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97010",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Comprehensive self-care lines bundle basic thermal parameters unless specific separate session profiles match."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97012",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active exercise blocks limit secondary mechanical traction records unless unique mechanical regions are isolated."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97012",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Postural pattern training restricts mechanical tables unless tracked across distinct non-overlapping intervals."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97012",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual tracking forces bundle machine mechanical traction options unless separate spinal segments are handled."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97012",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic multi-joint protocols bundle basic machine setups unless independent runtime separations occur."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97014",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active strengthening modules limit generic unattended e-stim parameters unless applied to distinct muscles."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97014",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic control paths bundle passive static electrode placements unless recorded on unique structural paths."
+  },
+  {
+    "cpt_a": "97116",
+    "cpt_b": "97014",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Ambulatory training blocks restrict passive electrical placements unless monitored on separate skeletal zones."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97014",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Skilled clinical manipulation limits unattended electrical stimulation options unless localized to unique nodes."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97014",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic operational trials supersede passive standard stimulation rules unless individual tracks exist."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97032",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Therapeutic exercise targets restrict attended electrical codes unless fully separated across structural regions."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97032",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular loop targets restrict manual probe stimulation configurations unless separate muscle systems are treated."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97032",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual therapy procedures bundle manual biofeedback current sessions unless unique regional targets are validated."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97032",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Integrated dynamic tasks override concurrent attended electrical inputs unless non-overlapping setups occur."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97035",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active muscular execution lines bundle acoustic ultrasound waves unless isolated to distinct structural paths."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97035",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Coordination training sets restrict local wand ultrasound deliveries unless managed on unique regional zones."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97035",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Manual physical adjustments bundle concurrent wand ultrasound applications unless distinct body segments match."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97035",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Functional dynamic protocols restrict localized wand ultrasound setups unless individual session limits are verified."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Active kinetic tracks bundle superficial relaxation massage lines unless alternative anatomical areas are logged."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Proprioceptive pathways supersede tissue kneading massage options unless separate skeletal zones are isolated."
+  },
+  {
+    "cpt_a": "97116",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Skilful gait tracking overrides baseline relaxation strokes unless executed on independent upper lower segments."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic task sequences restrict generalized component tissue massage claims unless tracked on distinct intervals."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97124",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: ADL development modules limit superficial massage treatments unless explicit independent needs are highlighted."
+  },
+  {
+    "cpt_a": "97110",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Physical strengthening modules limit daily cognitive strategy inputs unless individual timelines are structured."
+  },
+  {
+    "cpt_a": "97112",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Neuromuscular mechanics bundle daily cognitive execution tracks unless explicit session separation is verified."
+  },
+  {
+    "cpt_a": "97140",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Hands-on structural manipulation restricts daily cognitive tracking units unless managed on distinct encounters."
+  },
+  {
+    "cpt_a": "97530",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dynamic motor activity structures bundle cognitive skill lines unless separate operational blocks are tracked."
+  },
+  {
+    "cpt_a": "97535",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Self-care ADL modules limit secondary baseline cognitive skill claims unless unique session setups occur."
+  },
+  {
+    "cpt_a": "92507",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Speech language sessions bundle general daily cognitive skill modules unless run under independent timelines."
+  },
+  {
+    "cpt_a": "92526",
+    "cpt_b": "92507",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Swallowing treatment modules restrict standard communication lines unless unique separate sessions match."
+  },
+  {
+    "cpt_a": "92526",
+    "cpt_b": "97127",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Dysphagia feeding maneuvers limit separate cognitive coding units unless unique temporal barriers exist."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Wheelchair management training loops bundle general exercises unless non-overlapping body structures are used."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Wheelchair fitting tracks limit secondary coordination claims unless explicit operational windows apply."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Wheelchair propulsion training limits standard overground gait lines unless unique tracking sets are documented."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Seating adjustments limit separate manual procedures unless localized entirely to distinct structural joints."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Wheelchair functional activities override general dynamic tasks unless independent intervals match."
+  },
+  {
+    "cpt_a": "97542",
+    "cpt_b": "97535",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Wheelchair management bundles overlapping domestic self-care modules unless alternative sessions exist."
+  },
+  {
+    "cpt_a": "97760",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Orthotic management and training includes components of therapeutic exercise unless performed on a distinct region."
+  },
+  {
+    "cpt_a": "97760",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Orthotic tracking bundles neuromuscular reeducation unless specific non-overlapping structural limbs are isolated."
+  },
+  {
+    "cpt_a": "97760",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Orthotic fitting procedures restrict manual techniques on the identical branch unless distinct target nodes apply."
+  },
+  {
+    "cpt_a": "97760",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Orthotic design sessions bundle general dynamic tasks unless specific operational steps occur independently."
+  },
+  {
+    "cpt_a": "97761",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Prosthetic training elements encompass basic conditioning exercises unless alternate extremities match."
+  },
+  {
+    "cpt_a": "97761",
+    "cpt_b": "97112",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Prosthetic gait reeducation restricts pure neuromuscular codes unless tracked via separate regional lines."
+  },
+  {
+    "cpt_a": "97761",
+    "cpt_b": "97116",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Prosthetic ambulation rules bundle generalized gait lines unless independent structural segments are timed."
+  },
+  {
+    "cpt_a": "97761",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Stump modeling checks limit localized manual touches unless executed on an entirely separate limb."
+  },
+  {
+    "cpt_a": "97761",
+    "cpt_b": "97530",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": true,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Prosthetic functional integration restricts general activity lines unless managed via unique session increments."
+  },
+  {
+    "cpt_a": "99212",
+    "cpt_b": "97161",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Office E/M 99212 includes component elements of PT Evaluation 97161. Bypassing requires a separate, identifiable diagnostic purpose supported by Modifier 25."
+  },
+  {
+    "cpt_a": "99213",
+    "cpt_b": "97161",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Office E/M 99213 bundles PT evaluation modules unless distinct, non-overlapping diagnostic reasons are certified."
+  },
+  {
+    "cpt_a": "99214",
+    "cpt_b": "97161",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Outpatient E/M paths restrict direct evaluation additions unless a modifier confirms completely independent investigations."
+  },
+  {
+    "cpt_a": "99213",
+    "cpt_b": "97110",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Standard E/M physician codes encompass therapy procedure items unless independent clinical encounters are authenticated via modifier."
+  },
+  {
+    "cpt_a": "99214",
+    "cpt_b": "97140",
+    "conflict_type": "mutually_exclusive",
+    "body_region_sensitive": false,
+    "modifier_59_possible": true,
+    "explanation": "NCCI PTP edit: Evaluation and management runs bundle physical manual therapies unless distinct, standalone physical health interventions apply."
+  }
+]
