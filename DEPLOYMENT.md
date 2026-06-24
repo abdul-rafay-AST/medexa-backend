@@ -59,6 +59,43 @@ docker run -p 8000:8000 \
 
 ---
 
+## 3b. Hugging Face Spaces (FREE, no credit card) — recommended
+
+Spaces runs your `Dockerfile` as a single long-lived container, so the in-memory
+store **and** SSE both work with **zero code changes**. The Spaces config lives in
+the YAML frontmatter at the top of `README.md` (`sdk: docker`, `app_port: 8000`).
+
+1. Create a free account at https://huggingface.co (no card required).
+2. Create a token: **Settings → Access Tokens → New token** (role: **Write**).
+3. Create a Space: **New → Space** → Name `medexa-backend`, **SDK: Docker → Blank**,
+   visibility Public or Private.
+4. Push this repo to the Space's git remote (run from the project root):
+
+```bash
+git remote add space https://huggingface.co/spaces/<HF_USERNAME>/medexa-backend
+git push space main
+# When prompted: username = your HF username, password = the Write token from step 2
+```
+
+5. The Space builds the Dockerfile automatically. When it's "Running", your API is at:
+
+```
+https://<HF_USERNAME>-medexa-backend.hf.space
+```
+
+   Verify `…/health` returns `{"status":"ok"}` and `…/docs` shows Swagger.
+
+6. Set CORS: **Space → Settings → Variables and secrets → New variable**
+   - Name: `MEDEXA_CORS_ALLOW_ORIGINS`
+   - Value: your frontend origin, e.g. `http://localhost:3000,https://<frontend>.vercel.app`
+
+The frontend then sets `NEXT_PUBLIC_MEDEXA_API_URL=https://<HF_USERNAME>-medexa-backend.hf.space`.
+
+> Free Spaces sleep after ~48h of inactivity and wake on the next request. Fine for
+> demos/integration. State resets on restart (in-memory) — run as a single Space.
+
+---
+
 ## 4. Render / Railway / Fly (no Docker required)
 
 These platforms detect Python + the `Procfile`:
