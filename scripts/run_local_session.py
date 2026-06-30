@@ -35,7 +35,22 @@ def main() -> None:
 
     current_time = now_utc()
 
-    for seq, text in enumerate(TRANSCRIPT):
+    print("Welcome to the Medexa interactive CLI.")
+    print("Type what the therapist says (or 'quit' to exit).")
+
+    seq = 0
+    while True:
+        try:
+            text = input("\n>>> Therapist: ")
+        except (EOFError, KeyboardInterrupt):
+            break
+            
+        if text.strip().lower() in ["quit", "exit", "q"]:
+            break
+            
+        if not text.strip():
+            continue
+
         chunk = TranscriptChunk(
             session_id=state.session_id,
             chunk_id=str(uuid.uuid4()),
@@ -44,15 +59,23 @@ def main() -> None:
             end_ts=float(seq + 1),
             sequence=seq,
         )
+        seq += 1
+
         _entities, suggestions = container.transcript_processor.process(state, chunk, current_time)
-        print(f"\n>>> Therapist: {text}")
+        
         for s in suggestions:
             print(f"    [suggestion] {s.title}")
             # Auto-apply for the demo: start billing the suggested CPT.
             container.timer_engine.switch_segment(state, s.cpt_code or "", s.body_region, current_time)
 
-        # Simulate that 15 minutes pass before the next action
-        current_time = current_time + datetime.timedelta(minutes=15)
+        # Ask how much time passes
+        time_input = input("    How many minutes passed since last action? (default 15): ")
+        try:
+            minutes = int(time_input.strip())
+        except ValueError:
+            minutes = 15
+            
+        current_time = current_time + datetime.timedelta(minutes=minutes)
 
         panel = container.insights_builder.build(state, current_time)
         if panel.current_cpt:
@@ -70,3 +93,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+

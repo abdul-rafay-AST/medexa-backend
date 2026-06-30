@@ -15,7 +15,14 @@ from medexa.loaders.activity_synonym_loader import ActivitySynonymLoader
 from medexa.loaders.body_region_normalizer import BodyRegionNormalizer
 from medexa.loaders.cpt_lookup_loader import CptLookupLoader
 from medexa.loaders.cpt_metadata_loader import CptMetadataLoader
+from medexa.loaders.icd_lookup_loader import IcdLookupLoader
 from medexa.loaders.ncci_rules_loader import NcciRulesLoader
+from medexa.services.providers import (
+    build_clinical_analyzer,
+    build_soap_generator,
+    build_summary_generator,
+    build_transcription_provider,
+)
 from medexa.state import (
     DynamoDbSessionStateRepository,
     InMemorySessionStateRepository,
@@ -36,6 +43,7 @@ class ServiceContainer:
         self.synonym_loader = ActivitySynonymLoader(cfg / "activity_synonyms.json")
         self.region_normalizer = BodyRegionNormalizer(cfg / "body_regions.json")
         self.ncci_loader = NcciRulesLoader(cfg / "ncci_rules.json")
+        self.icd_loader = IcdLookupLoader(cfg / "icd_lookup.json")
 
         # Core engine.
         self.entity_extractor = EntityExtractor(
@@ -63,6 +71,21 @@ class ServiceContainer:
             self.cpt_metadata_loader,
             self.timer_engine
         )
+
+        # Swappable, AWS-ready services (Strategy pattern). Local rules-based
+        # adapters by default; flip provider settings to use AWS Transcribe /
+        # Bedrock without touching any route.
+        self.clinical_analyzer = build_clinical_analyzer(
+            settings,
+            entity_extractor=self.entity_extractor,
+            cpt_metadata_loader=self.cpt_metadata_loader,
+            icd_loader=self.icd_loader,
+            ncci_loader=self.ncci_loader,
+            region_normalizer=self.region_normalizer,
+        )
+        self.soap_generator = build_soap_generator(settings)
+        self.summary_generator = build_summary_generator(settings)
+        self.transcription_provider = build_transcription_provider(settings)
 
         # Storage: in-memory locally (no AWS), DynamoDB when explicitly enabled.
         self.session_repo: SessionStateRepository = self._build_repository()

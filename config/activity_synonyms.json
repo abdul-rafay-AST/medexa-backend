@@ -390,6 +390,7 @@
   "moist heat pack": "hot_cold_pack",
   "hydrocollator pack": "hot_cold_pack",
   "cryotherapy pack": "hot_cold_pack",
+  "massage": "massage_therapy",
   "massage therapy": "massage_therapy",
   "effleurage massage": "massage_therapy",
   "petrissage massage": "massage_therapy",

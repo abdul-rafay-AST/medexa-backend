@@ -29,8 +29,7 @@ class SummaryPDF(FPDF):
         self.set_font("Helvetica", "I", 8)
         self.set_text_color(130, 130, 130)
         self.cell(0, 8, f"Page {self.page_no()}", align="C")
-
-
+    
 def sanitize(text: str) -> str:
     replacements = {
         "\u2014": "-", "\u2013": "-", "\u2192": "->", "\u2190": "<-",
@@ -129,6 +128,6 @@ def main() -> None:
     pdf.output(str(PDF_PATH))
     print(f"Wrote {PDF_PATH}")
 
-
 if __name__ == "__main__":
     main()
+

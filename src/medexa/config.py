@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
@@ -18,7 +18,21 @@ class MedexaConfig(BaseSettings):
     # API / CORS. Accepts either a JSON array (["http://a","http://b"]) or a
     # plain comma-separated string (http://a,http://b). NoDecode disables the
     # default JSON-only parsing so the validator below can handle both forms.
-    cors_allow_origins: Annotated[list[str], NoDecode] = ["*"]
+    # Default covers the local Next.js dev server out of the box.
+    cors_allow_origins: Annotated[list[str], NoDecode] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
+    # --- Pluggable service providers (Strategy pattern) ---------------------
+    # Local rules-based by default (no AWS account needed). Flip to the AWS
+    # values once Transcribe / Bedrock are provisioned -- routers are unchanged.
+    clinical_analyzer: Literal["rules", "bedrock"] = "rules"
+    soap_generator: Literal["rules", "bedrock"] = "rules"
+    summary_generator: Literal["rules", "bedrock"] = "rules"
+    transcription_provider: Literal["none", "aws_transcribe"] = "none"
+    bedrock_model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    transcribe_s3_bucket: str | None = None
 
     # Server bind settings (used by scripts/run_api_server.py). Defaults are
     # deployment-friendly: bind all interfaces, port from the platform's $PORT.

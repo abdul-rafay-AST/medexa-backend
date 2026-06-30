@@ -52,7 +52,10 @@ class EntityExtractor:
 
         # 4. Detect activities and map each to a CPT code.
         for matched_phrase, activity_label in self._synonym_loader.find_matches(text_lower):
-            possible_cpt = self._cpt_loader.get_cpt_for_activity(activity_label)
+            # CPT table is keyed by clinical phrase; activity labels are the fallback.
+            possible_cpt = self._cpt_loader.get_cpt_for_activity(matched_phrase) or (
+                self._cpt_loader.get_cpt_for_activity(activity_label)
+            )
             # Billable only when it maps to a CPT and isn't negated.
             is_billable = possible_cpt is not None and not is_negated
 

@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 
 from medexa.utils.time import now_utc
 
+Confidence = Literal["low", "medium", "high"]
+
 
 class TranscriptChunk(BaseModel):
     session_id: str
@@ -88,6 +90,178 @@ class Alert(BaseModel):
     created_at: datetime = Field(default_factory=now_utc)
 
 
+# ---------------------------------------------------------------------------
+# Clinical analysis (produced by the swappable ClinicalAnalyzer service).
+#
+# These are the *domain* representations of the rich, frontend-facing clinical
+# output. They are deliberately decoupled from the HTTP contract (see
+# ``medexa.api.contracts``) so the engine never depends on the wire format.
+# ---------------------------------------------------------------------------
+class IcdSuggestion(BaseModel):
+    phrase: str
+    code: str
+    reason: str
+    confidence: Confidence = "medium"
+
+
+class BodyRegionMention(BaseModel):
+    phrase: str
+    region: str
+
+
+class CptSuggestionDetail(BaseModel):
+    code: str
+    label: str
+    display_name: str
+    descriptor: str
+    matched_phrases: list[str] = Field(default_factory=list)
+    documentation_requirements: list[str] = Field(default_factory=list)
+    billing_caveats: dict = Field(default_factory=dict)
+    reason: str = ""
+    confidence: Confidence = "high"
+
+
+class NcciConflictDetail(BaseModel):
+    cpt_a: str
+    cpt_b: str
+    conflict_type: str
+    body_region_sensitive: bool
+    modifier_59_possible: bool
+    explanation: str
+    severity: Literal["info", "warning"] = "warning"
+
+
+class SoapUpdate(BaseModel):
+    subjective: str = ""
+    objective: str = ""
+    assessment: str = ""
+    plan: str = ""
+
+
+class ClinicalAnalysis(BaseModel):
+    """Full clinical interpretation of a transcript segment. The live billing
+    rules engine continues to run alongside this; this object adds the
+    diagnosis/ICD/SOAP layer the frontend documentation screens consume."""
+
+    summary: str = ""
+    possible_clinical_impressions: list[str] = Field(default_factory=list)
+    possible_diagnoses: list[str] = Field(default_factory=list)
+    icd10_suggestions: list[IcdSuggestion] = Field(default_factory=list)
+    body_regions: list[BodyRegionMention] = Field(default_factory=list)
+    cpt_suggestions: list[CptSuggestionDetail] = Field(default_factory=list)
+    ncci_conflicts: list[NcciConflictDetail] = Field(default_factory=list)
+    symptoms: list[str] = Field(default_factory=list)
+    soap_update: SoapUpdate = Field(default_factory=SoapUpdate)
+    billing_hints: list[str] = Field(default_factory=list)
+    confidence: Confidence = "low"
+    disclaimer: str = "AI-generated suggestions require clinician review before use."
+
+
+# ---------------------------------------------------------------------------
+# Documentation aggregate (SOAP note, patient summary, claim, billing review).
+# Stored on the session so post-session screens are server-authoritative.
+# ---------------------------------------------------------------------------
+class ProtocolInsight(BaseModel):
+    insight_id: str
+    type: Literal["protocol", "detected", "billing"]
+    label: str
+    question: str
+    description: str
+    status: Literal["pending", "approved", "ignored"] = "pending"
+
+
+class SoapSubjective(BaseModel):
+    chief_complaint: str = ""
+    pain_scale: str = ""
+    duration: str = ""
+
+
+class SoapObjective(BaseModel):
+    observation_notes: str = ""
+    range_of_motion: str = ""
+    affect: str = ""
+    vital_signs: str = ""
+
+
+class SoapAssessment(BaseModel):
+    diagnosis_summary: str = ""
+    primary_diagnosis_code: str = ""
+    severity: str = ""
+
+
+class SoapPlan(BaseModel):
+    follow_up_plan: str = ""
+
+
+class SoapNote(BaseModel):
+    subjective: SoapSubjective = Field(default_factory=SoapSubjective)
+    objective: SoapObjective = Field(default_factory=SoapObjective)
+    assessment: SoapAssessment = Field(default_factory=SoapAssessment)
+    plan: SoapPlan = Field(default_factory=SoapPlan)
+    generated: bool = False
+
+
+class PatientSummaryDoc(BaseModel):
+    summary: str = ""
+    sent: bool = False
+
+
+class ClaimLineItem(BaseModel):
+    line_id: str
+    code: str
+    description: str
+    units: str
+    duration: str
+    modifier: str = ""
+
+
+class ClaimDiagnosis(BaseModel):
+    diagnosis_id: str
+    code: str
+    description: str
+    type: Literal["Primary", "Secondary"] = "Secondary"
+
+
+class ClaimDoc(BaseModel):
+    provider: str | None = None
+    payor: str | None = None
+    session_label: str | None = None
+    extra_line_items: list[ClaimLineItem] = Field(default_factory=list)
+    diagnoses: list[ClaimDiagnosis] = Field(default_factory=list)
+    status: Literal["draft", "verified", "submitted"] = "draft"
+
+
+class BillingReviewItem(BaseModel):
+    """Human-review overrides layered on top of the rules-derived billing.
+
+    ``manual`` line items are clinician-added codes not detected by the engine.
+    """
+
+    cpt_code: str
+    status: Literal["pending", "approved", "rejected"] = "pending"
+    note: str | None = None
+    warning: str | None = None
+    manual: bool = False
+    title: str | None = None
+    units: str | None = None
+    duration: str | None = None
+
+
+class PatientDisplay(BaseModel):
+    """Non-clinical display metadata echoed back to the dashboard. Held
+    verbatim from the start-session payload; never used in billing logic."""
+
+    avatar: str = ""
+    age_sex: str = ""
+    weight: str = ""
+    payor_source: str = ""
+    care_type: str = ""
+    cpt: str = ""
+    icd: str = ""
+    session_time: str = ""
+    date_time: str = ""
+
+
 class SessionState(BaseModel):
     session_id: str
     patient_id: str | None = None
@@ -105,6 +279,18 @@ class SessionState(BaseModel):
     status: Literal["active", "paused", "ended"] = "active"
     created_at: datetime = Field(default_factory=now_utc)
     last_updated: datetime = Field(default_factory=now_utc)
+
+    # --- Frontend-facing aggregate (additive; defaults keep engine/tests intact) ---
+    patient_display: PatientDisplay = Field(default_factory=PatientDisplay)
+    transcript_text: str = ""
+    transcript_summary: str | None = None
+    client_elapsed_seconds: int | None = None
+    latest_analysis: ClinicalAnalysis | None = None
+    insights: list[ProtocolInsight] = Field(default_factory=list)
+    soap: SoapNote = Field(default_factory=SoapNote)
+    patient_summary: PatientSummaryDoc = Field(default_factory=PatientSummaryDoc)
+    claim: ClaimDoc = Field(default_factory=ClaimDoc)
+    billing_review: list[BillingReviewItem] = Field(default_factory=list)
 
 
 class InsightsPanel(BaseModel):

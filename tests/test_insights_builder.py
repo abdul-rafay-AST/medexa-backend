@@ -40,7 +40,7 @@ def test_timed_code_drives_units():
     panel = builder.build(state, start + timedelta(minutes=20))
     assert panel.eight_minute_rule is not None
     assert panel.eight_minute_rule.total_units == 1
-    assert "97010" not in panel.eight_minute_rule.minutes_by_cptSS
+    assert "97010" not in panel.eight_minute_rule.minutes_by_cpt
 
 
 def test_ncci_alert_raised_for_conflicting_pair_same_region():

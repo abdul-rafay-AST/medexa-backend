@@ -1,0 +1,341 @@
+"""HTTP wire contracts mirroring the frontend's ``src/lib/api.ts`` types.
+
+These models are the **anti-corruption boundary**: the domain (``medexa.schemas``)
+stays clean and the engine never depends on the frontend's field naming. Two
+casing conventions are intentional, matching the frontend verbatim:
+
+* Resource models (sessions, billing, claims, SOAP) are **camelCase** — emitted
+  via a Pydantic alias generator. FastAPI serializes responses ``by_alias=True``.
+* Clinical-analysis payloads are **snake_case** — the frontend declares those
+  keys in snake_case (``possible_diagnoses``, ``cpt_suggestions``, ...).
+"""
+
+from __future__ import annotations
+
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
+
+
+class CamelModel(BaseModel):
+    """Base for camelCase wire models. Accepts snake_case on input (so routers
+    can build them naturally) and emits camelCase on output."""
+
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+
+
+RecordingStatus = Literal["idle", "recording", "paused", "stopped"]
+Confidence = Literal["low", "medium", "high"]
+
+
+# ---------------------------------------------------------------------------
+# Sessions & recording state
+# ---------------------------------------------------------------------------
+class ApiSession(CamelModel):
+    id: str
+    patient_name: str = ""
+    avatar: str = ""
+    age_sex: str = ""
+    weight: str = ""
+    mrn_number: str = ""
+    payor_source: str = ""
+    care_type: str = ""
+    cpt: str = ""
+    icd: str = ""
+    session_time: str = ""
+    status: str = "Scheduled"
+    date_time: str = ""
+
+
+class ApiRecordingState(CamelModel):
+    status: RecordingStatus
+    elapsed_seconds: int = 0
+    units: int = 0
+    next_unit_at: int = 0
+    time_left: int = 0
+
+
+class StartSessionResponse(CamelModel):
+    session: ApiSession
+    state: ApiRecordingState
+
+
+class StartSessionRequest(CamelModel):
+    # Frontend posts a patient-shaped object; all fields optional. Unknown keys
+    # are ignored rather than rejected (forward-compatible with UI changes).
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    id: str | None = None
+    patient_id: str | None = None
+    patient_name: str | None = None
+    avatar: str | None = None
+    age_sex: str | None = None
+    weight: str | None = None
+    mrn_number: str | None = None
+    mrn: str | None = None
+    payor_source: str | None = None
+    care_type: str | None = None
+    cpt: str | None = None
+    icd: str | None = None
+    session_time: str | None = None
+    date_time: str | None = None
+    therapist_id: str | None = None
+    session_type: str | None = None
+
+
+class UpdateRecordingStateRequest(CamelModel):
+    status: RecordingStatus
+    elapsed_seconds: int | None = None
+
+
+# ---------------------------------------------------------------------------
+# Transcripts (recordings list)
+# ---------------------------------------------------------------------------
+class ApiTranscript(CamelModel):
+    id: str
+    patient_name: str = ""
+    avatar: str = ""
+    time: str = ""
+    status: Literal["SUMMARIZED", "SUMMARY PENDING"] = "SUMMARY PENDING"
+    summary: str = ""
+    transcript: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Live insights & suggestions
+# ---------------------------------------------------------------------------
+class ApiInsight(CamelModel):
+    id: str
+    type: Literal["protocol", "detected", "billing"]
+    label: str
+    question: str
+    description: str
+    status: Literal["pending", "approved", "ignored"] = "pending"
+
+
+class ApiSuggestion(CamelModel):
+    id: str
+    title: str
+    text: str
+    applied: bool = False
+
+
+# ---------------------------------------------------------------------------
+# Clinical analysis (snake_case payloads)
+# ---------------------------------------------------------------------------
+class ApiIcd10Suggestion(BaseModel):
+    phrase: str
+    code: str
+    reason: str
+    confidence: Confidence
+
+
+class ApiBodyRegion(BaseModel):
+    phrase: str
+    region: str
+
+
+class ApiCptSuggestion(BaseModel):
+    code: str
+    label: str
+    display_name: str
+    descriptor: str
+    matched_phrases: list[str] = []
+    documentation_requirements: list[str] = []
+    billing_caveats: dict = {}
+    reason: str
+    confidence: Confidence
+
+
+class ApiNcciConflict(BaseModel):
+    cpt_a: str
+    cpt_b: str
+    conflict_type: str
+    body_region_sensitive: bool
+    modifier_59_possible: bool
+    explanation: str
+    severity: Literal["info", "warning"]
+
+
+class ApiSoapUpdate(BaseModel):
+    subjective: str
+    objective: str
+    assessment: str
+    plan: str
+
+
+class ApiTranscriptAnalysis(BaseModel):
+    summary: str
+    possible_clinical_impressions: list[str] = []
+    possible_diagnoses: list[str] = []
+    icd10_suggestions: list[ApiIcd10Suggestion] = []
+    body_regions: list[ApiBodyRegion] = []
+    cpt_suggestions: list[ApiCptSuggestion] = []
+    ncci_conflicts: list[ApiNcciConflict] = []
+    symptoms: list[str] = []
+    soap_update: ApiSoapUpdate
+    billing_hints: list[str] = []
+    confidence: Confidence
+    disclaimer: str
+
+
+class ApiAudioSegment(BaseModel):
+    start: float
+    end: float
+    text: str
+
+
+class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
+    transcript: str
+    audio_segments: list[ApiAudioSegment] = []
+
+
+class AnalyzeTranscriptChunkRequest(BaseModel):
+    chunk_text: str
+    start_time: str = ""
+    end_time: str = ""
+
+
+# ---------------------------------------------------------------------------
+# SOAP documentation
+# ---------------------------------------------------------------------------
+class SoapSubjectiveDTO(CamelModel):
+    chief_complaint: str = ""
+    pain_scale: str = ""
+    duration: str = ""
+
+
+class SoapObjectiveDTO(CamelModel):
+    observation_notes: str = ""
+    range_of_motion: str = ""
+    affect: str = ""
+    vital_signs: str = ""
+
+
+class SoapAssessmentDTO(CamelModel):
+    diagnosis_summary: str = ""
+    primary_diagnosis_code: str = ""
+    severity: str = ""
+
+
+class SoapPlanDTO(CamelModel):
+    follow_up_plan: str = ""
+
+
+class SoapDataDTO(CamelModel):
+    subjective: SoapSubjectiveDTO = SoapSubjectiveDTO()
+    objective: SoapObjectiveDTO = SoapObjectiveDTO()
+    assessment: SoapAssessmentDTO = SoapAssessmentDTO()
+    plan: SoapPlanDTO = SoapPlanDTO()
+
+
+class PatientSummaryDTO(CamelModel):
+    summary: str = ""
+    sent: bool = False
+
+
+class UpdatePatientSummaryRequest(CamelModel):
+    summary: str
+
+
+# ---------------------------------------------------------------------------
+# Billing
+# ---------------------------------------------------------------------------
+class ApiBillingCpt(CamelModel):
+    id: str
+    code: str
+    title: str
+    units: str
+    duration: str
+    warning: str = ""
+    note: str | None = None
+    status: Literal["pending", "approved", "rejected"] = "pending"
+
+
+class ApiSnfFunctionalLogic(CamelModel):
+    section: str
+    level: str
+
+
+class ApiBilling(CamelModel):
+    session_time: str
+    units: str
+    threshold: str
+    cpt_codes: list[ApiBillingCpt] = []
+    snf_functional_logic: ApiSnfFunctionalLogic
+
+
+class AddBillingCptRequest(CamelModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    code: str
+    title: str | None = None
+    units: str | None = None
+    duration: str | None = None
+    note: str | None = None
+    warning: str | None = None
+
+
+class EditBillingCptRequest(CamelModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    code: str | None = None
+    title: str | None = None
+    units: str | None = None
+    duration: str | None = None
+    note: str | None = None
+    warning: str | None = None
+    status: Literal["pending", "approved", "rejected"] | None = None
+
+
+# ---------------------------------------------------------------------------
+# Claims
+# ---------------------------------------------------------------------------
+class ApiPatientMeta(CamelModel):
+    patient: str = ""
+    mrn: str = ""
+    provider: str = ""
+    session: str = ""
+    payor: str = ""
+
+
+class ApiClaimCpt(CamelModel):
+    id: str
+    code: str
+    description: str
+    units: str
+    duration: str
+    modifier: str = ""
+
+
+class ApiClaimDiagnosis(CamelModel):
+    id: str
+    code: str
+    description: str
+    type: Literal["Primary", "Secondary"] = "Secondary"
+
+
+class ApiClaim(CamelModel):
+    patient_meta: ApiPatientMeta
+    cpt_items: list[ApiClaimCpt] = []
+    diagnosis_codes: list[ApiClaimDiagnosis] = []
+    claim_status: Literal["draft", "verified", "submitted"] = "draft"
+
+
+class AddClaimCptRequest(CamelModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    code: str
+    description: str | None = None
+    units: str | None = None
+    duration: str | None = None
+    modifier: str | None = None
+
+
+class AddClaimDiagnosisRequest(CamelModel):
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, extra="ignore")
+
+    code: str
+    description: str | None = None
+    type: Literal["Primary", "Secondary"] = "Secondary"
