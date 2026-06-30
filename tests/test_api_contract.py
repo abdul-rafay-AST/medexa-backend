@@ -103,3 +103,41 @@ def test_legacy_transcript_chunk_still_works():
     )
     assert resp.status_code == 200
     assert resp.json()["entities_detected"] >= 1
+
+
+def test_timer_state_and_finalize_session():
+    session_id = _start_session()
+
+    timer = client.get(f"/sessions/{session_id}/timer-state").json()
+    assert timer["session_id"] == session_id
+    assert "cpt_timer" in timer
+
+    started = client.post(f"/sessions/{session_id}/timer-state/start").json()
+    assert started["recording_status"] == "recording"
+
+    cpt = client.post(
+        f"/sessions/{session_id}/cpt-timer/start",
+        json={"code": "97110", "source": "manual", "reason": "Therapeutic exercise"},
+    ).json()
+    assert cpt["cpt_timer"]["code"] == "97110"
+
+    client.post(
+        f"/sessions/{session_id}/analyze-transcript-chunk",
+        json={"chunk_text": "therapeutic exercise for shoulder pain"},
+    )
+
+    finalized = client.post(
+        f"/sessions/{session_id}/finalize-session",
+        json={
+            "transcript": "Patient completed therapeutic exercise.",
+            "total_seconds": 1200,
+            "cpt_timer": {"active": False, "code": "97110", "seconds": 1200, "units": 1},
+            "applied_suggestions": [],
+            "detected_cpt_suggestions": [],
+            "detected_icd10_suggestions": [],
+            "ncci_conflicts": [],
+        },
+    ).json()
+    assert finalized["session_id"] == session_id
+    assert finalized["soap_note"]["subjective"]["chiefComplaint"]
+    assert finalized["redirect_url"].startswith("/soap-notes")

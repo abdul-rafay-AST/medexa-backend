@@ -24,6 +24,7 @@ from medexa.api.routers import (
     legacy,
     live,
     sessions,
+    timers,
     transcripts,
 )
 from medexa.config import settings
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
     # Frontend contract routers.
     app.include_router(health.router)
     app.include_router(sessions.router)
+    app.include_router(timers.router)
     app.include_router(live.router)
     app.include_router(transcripts.router)
     app.include_router(documentation.router)

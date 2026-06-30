@@ -73,8 +73,12 @@ def recording_state(
 # ---------------------------------------------------------------------------
 # Clinical analysis
 # ---------------------------------------------------------------------------
-def analysis_to_contract(a: ClinicalAnalysis) -> c.ApiTranscriptAnalysis:
-    return c.ApiTranscriptAnalysis(
+def analysis_to_contract(
+    a: ClinicalAnalysis,
+    *,
+    state: SessionState | None = None,
+) -> c.ApiTranscriptAnalysis:
+    base = c.ApiTranscriptAnalysis(
         summary=a.summary,
         possible_clinical_impressions=a.possible_clinical_impressions,
         possible_diagnoses=a.possible_diagnoses,
@@ -120,6 +124,55 @@ def analysis_to_contract(a: ClinicalAnalysis) -> c.ApiTranscriptAnalysis:
         confidence=a.confidence,
         disclaimer=a.disclaimer,
     )
+    if state is None:
+        return base
+
+    live: list[c.ApiLiveSuggestion] = []
+    for suggestion in state.suggestions:
+        if suggestion.status == "dismissed":
+            continue
+        live.append(
+            c.ApiLiveSuggestion(
+                id=suggestion.suggestion_id,
+                type="billing",
+                title=suggestion.title,
+                description=suggestion.message,
+                action_label="Apply",
+                status="applied" if suggestion.status == "applied" else "pending",
+            )
+        )
+    for insight in state.insights:
+        live.append(
+            c.ApiLiveSuggestion(
+                id=insight.insight_id,
+                type=insight.type if insight.type != "detected" else "detected",
+                title=insight.label,
+                description=insight.description,
+                action_label="Review",
+                status={
+                    "approved": "applied",
+                    "ignored": "ignored",
+                    "pending": "pending",
+                }[insight.status],
+            )
+        )
+
+    timer_suggestion: c.ApiCptTimerSuggestion | None = None
+    for cpt in a.cpt_suggestions:
+        if cpt.confidence in ("high", "medium"):
+            timer_suggestion = c.ApiCptTimerSuggestion(
+                should_start=True,
+                code=cpt.code,
+                display_name=cpt.display_name,
+                reason=cpt.reason or "Procedure detected from transcript.",
+                confidence=cpt.confidence,
+            )
+            break
+
+    return base.model_copy(update={
+        "live_suggestions": live,
+        "cpt_timer_suggestion": timer_suggestion,
+    })
 
 
 # ---------------------------------------------------------------------------

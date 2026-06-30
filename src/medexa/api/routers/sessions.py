@@ -128,3 +128,48 @@ async def update_state(
 
     await refresh_and_publish(state, container)
     return _recording_state(state, container)
+
+
+@router.post("/{session_id}/finalize-session", response_model=c.FinalizeSessionResponse)
+async def finalize_session(
+    session_id: str,
+    body: c.FinalizeSessionRequest,
+    container: ServiceContainer = Depends(get_container),
+) -> c.FinalizeSessionResponse:
+    """End-of-session handoff: persist transcript, generate SOAP + summary, return
+    redirect target for the frontend documentation flow."""
+    state = require_state(session_id, container)
+    now = now_utc()
+
+    if body.transcript.strip():
+        state.transcript_text = body.transcript.strip()
+    if body.total_seconds > 0:
+        state.client_elapsed_seconds = body.total_seconds
+
+    container.timer_engine.stop_all_running(state, now)
+    state.status = "ended"
+    state.last_updated = now
+
+    state.soap = container.soap_generator.generate(state)
+    state.patient_summary.summary = container.summary_generator.generate(state)
+    container.session_repo.save(state)
+
+    summary = billing_summary(state, container, now)
+    active_code = state.active_cpt or (summary.line_items[0].cpt_code if summary.line_items else None)
+    active_seconds = next(
+        (item.total_seconds for item in summary.line_items if item.cpt_code == active_code),
+        0,
+    )
+
+    return c.FinalizeSessionResponse(
+        session_id=session_id,
+        soap_note=m.soap_to_dto(state.soap),
+        summary=state.patient_summary.summary,
+        billing_summary={
+            "total_seconds": sum(item.total_seconds for item in summary.line_items),
+            "cpt_code": active_code,
+            "cpt_seconds": active_seconds,
+            "units": summary.total_units,
+        },
+        redirect_url=f"/soap-notes?sessionId={session_id}",
+    )

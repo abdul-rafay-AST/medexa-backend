@@ -6,6 +6,8 @@ from datetime import datetime
 
 from fastapi import HTTPException
 
+from medexa.api import contracts as c
+from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer
 from medexa.api.sse import sse_broker
 from medexa.schemas import BillingSummary, InsightsPanel, SessionState
@@ -49,3 +51,54 @@ def recording_math(summary: BillingSummary) -> RecordingMath:
 
 def billing_summary(state: SessionState, container: ServiceContainer, now: datetime | None = None) -> BillingSummary:
     return container.billing_summary_builder.build(state, now or now_utc())
+
+
+def build_timer_state(
+    state: SessionState, container: ServiceContainer, now: datetime | None = None
+) -> c.ApiTimerState:
+    """Map domain session state to the frontend's snake_case timer contract."""
+    now = now or now_utc()
+    summary = billing_summary(state, container, now)
+    math = recording_math(summary)
+    total_seconds = max(math.elapsed_seconds, state.client_elapsed_seconds or 0)
+
+    cpt_seconds = 0
+    if state.active_cpt:
+        cpt_seconds = container.timer_engine.seconds_by_cpt(state, now).get(state.active_cpt, 0)
+
+    minutes = max(cpt_seconds // 60, 0)
+    emr = (
+        container.eight_minute_calculator.calculate({state.active_cpt: minutes})
+        if state.active_cpt and minutes > 0
+        else None
+    )
+    units = emr.units_by_cpt.get(state.active_cpt, 0) if emr and state.active_cpt else 0
+    next_unit_at = total_seconds + (emr.seconds_to_next_unit if emr else 8 * 60)
+    seconds_left = emr.seconds_to_next_unit if emr else 8 * 60
+
+    running = any(seg.stop_time is None for seg in state.timer_segments)
+    if state.status == "ended":
+        cpt_status = "stopped"
+    elif running:
+        cpt_status = "running"
+    elif state.active_cpt:
+        cpt_status = "paused"
+    else:
+        cpt_status = "idle"
+
+    return c.ApiTimerState(
+        session_id=state.session_id,
+        recording_status=m.recording_status(state),
+        total_seconds=total_seconds,
+        cpt_timer=c.ApiCptTimerState(
+            active=cpt_status == "running",
+            code=state.active_cpt,
+            seconds=cpt_seconds,
+            units=units,
+            next_unit_at_seconds=next_unit_at,
+            seconds_left_to_next_unit=seconds_left,
+            status=cpt_status,
+            source=state.cpt_timer_source,
+            reason=state.cpt_timer_reason,
+        ),
+    )

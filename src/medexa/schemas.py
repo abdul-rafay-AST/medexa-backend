@@ -291,6 +291,8 @@ class SessionState(BaseModel):
     patient_summary: PatientSummaryDoc = Field(default_factory=PatientSummaryDoc)
     claim: ClaimDoc = Field(default_factory=ClaimDoc)
     billing_review: list[BillingReviewItem] = Field(default_factory=list)
+    cpt_timer_source: Literal["manual", "ai_suggested"] | None = None
+    cpt_timer_reason: str | None = None
 
 
 class InsightsPanel(BaseModel):

@@ -59,7 +59,7 @@ async def analyze_transcript_chunk(
         "transcript_analyzed",
         extra={"extra_fields": {"session_id": session_id, "latency_ms": latency_ms}},
     )
-    return m.analysis_to_contract(analysis)
+    return m.analysis_to_contract(analysis, state=state)
 
 
 @router.post("/{session_id}/transcribe-audio", response_model=c.ApiAudioTranscriptionAnalysis)
@@ -80,7 +80,7 @@ async def transcribe_audio(
     analysis = _analyze_and_store(state, result.transcript, container)
     await refresh_and_publish(state, container)
 
-    base = m.analysis_to_contract(analysis)
+    base = m.analysis_to_contract(analysis, state=state)
     return c.ApiAudioTranscriptionAnalysis(
         **base.model_dump(),
         transcript=result.transcript,

@@ -165,6 +165,23 @@ class ApiSoapUpdate(BaseModel):
     plan: str
 
 
+class ApiCptTimerSuggestion(BaseModel):
+    should_start: bool = False
+    code: str | None = None
+    display_name: str | None = None
+    reason: str = ""
+    confidence: Confidence = "medium"
+
+
+class ApiLiveSuggestion(BaseModel):
+    id: str
+    type: Literal["billing", "protocol", "detected", "alert"]
+    title: str
+    description: str
+    action_label: str = "Review"
+    status: Literal["pending", "applied", "ignored"] = "pending"
+
+
 class ApiTranscriptAnalysis(BaseModel):
     summary: str
     possible_clinical_impressions: list[str] = []
@@ -178,6 +195,8 @@ class ApiTranscriptAnalysis(BaseModel):
     billing_hints: list[str] = []
     confidence: Confidence
     disclaimer: str
+    cpt_timer_suggestion: ApiCptTimerSuggestion | None = None
+    live_suggestions: list[ApiLiveSuggestion] = []
 
 
 class ApiAudioSegment(BaseModel):
@@ -195,6 +214,44 @@ class AnalyzeTranscriptChunkRequest(BaseModel):
     chunk_text: str
     start_time: str = ""
     end_time: str = ""
+
+
+# ---------------------------------------------------------------------------
+# Session timers (snake_case — matches frontend ``api.ts`` timer types)
+# ---------------------------------------------------------------------------
+class ApiCptTimerState(BaseModel):
+    active: bool = False
+    code: str | None = None
+    seconds: int = 0
+    units: int = 0
+    next_unit_at_seconds: int = 8 * 60
+    seconds_left_to_next_unit: int = 8 * 60
+    status: Literal["idle", "running", "paused", "stopped"] = "idle"
+    source: Literal["manual", "ai_suggested"] | None = None
+    reason: str | None = None
+
+
+class ApiTimerState(BaseModel):
+    session_id: str
+    recording_status: RecordingStatus
+    total_seconds: int
+    cpt_timer: ApiCptTimerState
+
+
+class StartCptTimerRequest(BaseModel):
+    code: str
+    source: Literal["manual", "ai_suggested"] = "manual"
+    reason: str = ""
+
+
+class FinalizeSessionRequest(BaseModel):
+    transcript: str = ""
+    total_seconds: int = 0
+    cpt_timer: dict = {}
+    applied_suggestions: list[str] = []
+    detected_cpt_suggestions: list[ApiCptSuggestion] = []
+    detected_icd10_suggestions: list[ApiIcd10Suggestion] = []
+    ncci_conflicts: list[ApiNcciConflict] = []
 
 
 # ---------------------------------------------------------------------------
@@ -228,6 +285,14 @@ class SoapDataDTO(CamelModel):
     objective: SoapObjectiveDTO = SoapObjectiveDTO()
     assessment: SoapAssessmentDTO = SoapAssessmentDTO()
     plan: SoapPlanDTO = SoapPlanDTO()
+
+
+class FinalizeSessionResponse(BaseModel):
+    session_id: str
+    soap_note: SoapDataDTO
+    summary: str
+    billing_summary: dict
+    redirect_url: str
 
 
 class PatientSummaryDTO(CamelModel):
