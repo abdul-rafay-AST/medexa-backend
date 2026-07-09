@@ -39,12 +39,14 @@ def test_switch_stops_previous_and_starts_new():
     assert len(running) == 1
 
 
-def test_seconds_by_cpt_aggregates_across_segments():
+def test_running_segment_seconds_only_counts_active_segment():
     state = _fresh_state()
     start = now_utc()
     s1 = engine.start_segment(state, "97110", None, start)
     engine.stop_segment(state, s1.segment_id, start + timedelta(seconds=600))
-    s2 = engine.start_segment(state, "97110", None, start + timedelta(seconds=600))
-    engine.stop_segment(state, s2.segment_id, start + timedelta(seconds=900))
-    totals = engine.seconds_by_cpt(state, start + timedelta(seconds=900))
-    assert totals == {"97110": 900}
+    engine.start_segment(state, "97140", None, start + timedelta(seconds=600))
+    assert engine.seconds_by_cpt(state, start + timedelta(seconds=720)) == {
+        "97110": 600,
+        "97140": 120,
+    }
+    assert engine.running_segment_seconds(state, start + timedelta(seconds=720)) == 120

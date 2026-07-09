@@ -8,11 +8,11 @@ from medexa.api import contracts as c
 from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.routers._common import (
+    billing_now,
     billing_summary,
     recording_math,
     refresh_and_publish,
     require_state,
-    session_clock,
 )
 from medexa.logging_setup import get_logger
 from medexa.domain.billing_region import normalize_billing_region
@@ -24,13 +24,11 @@ logger = get_logger("medexa.api.sessions")
 
 
 def _recording_state(state: SessionState, container: ServiceContainer) -> c.ApiRecordingState:
-    elapsed = int(state.client_elapsed_seconds or 0)
-    now = session_clock(state, elapsed)
+    now = billing_now(state)
     summary = billing_summary(state, container, now)
     billing_sec = sum(item.total_seconds for item in summary.line_items)
-    cpt_sec = 0
-    if state.active_cpt:
-        cpt_sec = container.timer_engine.seconds_by_cpt(state, now).get(state.active_cpt, 0)
+    cpt_sec = container.timer_engine.running_segment_seconds(state, now)
+    emr = summary.eight_minute_rule
     math = recording_math(
         summary,
         billing_elapsed_seconds=billing_sec,
@@ -133,24 +131,22 @@ async def update_state(
     """Recording control via a single state-machine endpoint (the frontend's
     Pause / Resume / Stop buttons map to ``paused`` / ``recording`` / ``stopped``)."""
     state = require_state(session_id, container)
-    now = now_utc()
 
     if req.elapsed_seconds is not None:
         state.client_elapsed_seconds = req.elapsed_seconds
 
     if req.status == "recording":
+        state.status = "active"
         # Resume: re-arm the CPT that was active when paused, if any.
-        if state.status != "active":
-            state.status = "active"
-            if state.active_cpt:
-                container.timer_engine.start_segment(
-                    state, state.active_cpt, state.active_body_region, now
-                )
+        if state.active_cpt and not any(seg.stop_time is None for seg in state.timer_segments):
+            container.timer_engine.start_segment(
+                state, state.active_cpt, state.active_body_region, billing_now(state)
+            )
     elif req.status == "paused":
-        container.timer_engine.stop_all_running(state, now)
+        container.timer_engine.stop_all_running(state, billing_now(state))
         state.status = "paused"
     elif req.status in ("stopped", "idle"):
-        container.timer_engine.stop_all_running(state, now)
+        container.timer_engine.stop_all_running(state, billing_now(state))
         state.status = "ended" if req.status == "stopped" else state.status
 
     await refresh_and_publish(state, container)
