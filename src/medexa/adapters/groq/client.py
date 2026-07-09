@@ -84,7 +84,6 @@ class GroqClient:
             "model": model,
             "language": language,
             "response_format": "json",
-            "temperature": "0",
         }
         with httpx.Client(timeout=self._timeout) as client:
             response = client.post(
