@@ -133,35 +133,35 @@ class PathAProcessor:
     def _reconcile_ncci_alerts(self, state: SessionState) -> None:
         if not self._enable_ncci:
             return
-        active_codes = list({seg.cpt_code for seg in state.timer_segments if seg.stop_time is None})
-        active_codes += [s.cpt_code for s in state.suggestions if s.status == "applied" and s.cpt_code]
-        unique = sorted(set(active_codes))
-        for i, code_a in enumerate(unique):
-            for code_b in unique[i + 1 :]:
-                rule = self._ncci.check_conflict(code_a, code_b)
-                if not rule:
-                    continue
-                key = f"{code_a}-{code_b}"
-                if any(a.alert_type == "ncci_conflict" and key in a.message for a in state.alerts):
-                    continue
-                billing_insight = ProtocolInsight(
-                    insight_id=m._insight_id("billing", f"{code_a}-{code_b}"),
-                    type="billing",
-                    label=f"NCCI: {code_a} + {code_b}",
-                    question="Apply Modifier 59?" if rule["modifier_59_possible"] else "Review billing conflict",
-                    description=rule["explanation"],
-                )
-                state.insights = m.merge_insights(state.insights, [billing_insight])
-                
-                state.alerts.append(
-                    Alert(
-                        alert_id=str(uuid.uuid4()),
-                        alert_type="ncci_conflict",
-                        severity="medium",
-                        message=f"NCCI conflict {key}: {rule['explanation']}",
-                        cpt_codes={code_a, code_b},
-                    )
-                )
+        segments = [(seg.cpt_code, seg.body_region) for seg in state.timer_segments]
+        for suggestion in state.suggestions:
+            if suggestion.status == "applied" and suggestion.cpt_code:
+                segments.append((suggestion.cpt_code, suggestion.body_region))
+        fresh_alerts = self._ncci.check_conflicts(state.session_id, segments)
+        existing_keys = {
+            (tuple(sorted(a.cpt_codes)), a.body_region) for a in state.alerts
+        }
+        for alert in fresh_alerts:
+            key = (tuple(sorted(alert.cpt_codes)), alert.body_region)
+            if key in existing_keys:
+                continue
+            state.alerts.append(alert)
+            existing_keys.add(key)
+            if len(alert.cpt_codes) != 2:
+                continue
+            code_a, code_b = sorted(alert.cpt_codes)
+            billing_insight = ProtocolInsight(
+                insight_id=m._insight_id("billing", f"{code_a}-{code_b}"),
+                type="billing",
+                label=f"NCCI: {code_a} + {code_b}",
+                question=(
+                    "Apply Modifier 59?"
+                    if "Modifier 59" in alert.message
+                    else "Review billing conflict"
+                ),
+                description=alert.message,
+            )
+            state.insights = m.merge_insights(state.insights, [billing_insight])
 
     def _collect_events(
         self,

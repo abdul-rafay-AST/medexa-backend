@@ -28,6 +28,7 @@ from medexa.application.path_a_clinical_snapshot import PathAClinicalSnapshotBui
 from medexa.application.path_a_processor import PathAProcessor
 from medexa.application.path_b_trigger_evaluator import PathBTriggerEvaluator
 from medexa.config import settings
+from medexa.core.billing_engine import BillingEngine
 from medexa.core.billing_summary_builder import BillingSummaryBuilder
 from medexa.core.billing_timer_engine import BillingTimerEngine
 from medexa.core.eight_minute_rule import EightMinuteRuleCalculator
@@ -200,20 +201,21 @@ class ServiceContainer:
             region_normalizer=region_normalizer,
             enable_ncci=bundle.profile.uses_ncci,
         )
-        insights_builder = InsightsBuilder(
+        billing_engine = BillingEngine(
+            self.timer_engine,
             self.eight_minute_calculator,
+            cpt_metadata,
+            ncci_checker,
+            use_eight_minute_rule=bundle.profile.uses_eight_minute_rule,
+        )
+        insights_builder = InsightsBuilder(
+            billing_engine,
             ncci_checker,
             cpt_metadata,
             self.timer_engine,
-            enable_eight_minute_rule=bundle.profile.uses_eight_minute_rule,
             enable_ncci=bundle.profile.uses_ncci,
         )
-        billing_summary_builder = BillingSummaryBuilder(
-            self.eight_minute_calculator,
-            cpt_metadata,
-            self.timer_engine,
-            use_eight_minute_rule=bundle.profile.uses_eight_minute_rule,
-        )
+        billing_summary_builder = BillingSummaryBuilder(billing_engine)
         pre_auth_validator = build_pre_auth_validator(bundle.billing_region, bundle)
         regional_path_a = None
         if bundle.billing_region in {"SA", "AE"}:
@@ -244,6 +246,7 @@ class ServiceContainer:
             transcript_processor=transcript_processor,
             cpt_metadata=cpt_metadata,
             insights_builder=insights_builder,
+            billing_engine=billing_engine,
             billing_summary_builder=billing_summary_builder,
             rules_clinical_analyzer=rules_analyzer,
             path_a_processor=path_a_processor,

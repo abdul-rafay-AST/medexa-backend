@@ -25,14 +25,13 @@ logger = get_logger("medexa.api.sessions")
 
 def _recording_state(state: SessionState, container: ServiceContainer) -> c.ApiRecordingState:
     now = billing_now(state)
-    summary = billing_summary(state, container, now)
-    billing_sec = sum(item.total_seconds for item in summary.line_items)
-    cpt_sec = container.timer_engine.running_segment_seconds(state, now)
-    emr = summary.eight_minute_rule
+    runtime = container.runtime_for_state(state.billing_region)
+    metrics = runtime.billing_engine.compute_metrics(state, now)
+    summary = runtime.billing_summary_builder.build(state, now)
     math = recording_math(
         summary,
-        billing_elapsed_seconds=billing_sec,
-        cpt_elapsed_seconds=cpt_sec,
+        billing_elapsed_seconds=metrics.timed_pool_seconds,
+        cpt_elapsed_seconds=metrics.running_segment_seconds,
     )
     return m.recording_state(
         state,

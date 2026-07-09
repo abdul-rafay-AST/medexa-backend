@@ -97,8 +97,8 @@ def recording_math(
     elapsed = sum(item.total_seconds for item in summary.line_items)
     emr = summary.eight_minute_rule
     units = summary.total_units
-    seconds_to_next = emr.seconds_to_next_unit if emr else 8 * 60
-    billing = billing_elapsed_seconds if billing_elapsed_seconds is not None else elapsed
+    seconds_to_next = emr.seconds_to_next_unit if emr else (8 * 60)
+    billing = billing_elapsed_seconds if billing_elapsed_seconds is not None else 0
     cpt = cpt_elapsed_seconds if cpt_elapsed_seconds is not None else 0
     return RecordingMath(
         elapsed_seconds=elapsed,
@@ -121,20 +121,15 @@ def build_timer_state(
 ) -> c.ApiTimerState:
     """Map domain session state to the frontend's snake_case timer contract."""
     now = now or billing_now(state)
-    summary = billing_summary(state, container, now)
-    math = recording_math(summary)
-    total_seconds = max(math.elapsed_seconds, state.client_elapsed_seconds or 0)
     runtime = container.runtime_for_state(state.billing_region)
-
-    cpt_seconds = container.timer_engine.running_segment_seconds(state, now)
-
-    minutes = max(cpt_seconds // 60, 0)
-    emr = None
-    if runtime.profile.uses_eight_minute_rule and state.active_cpt and minutes > 0:
-        emr = container.eight_minute_calculator.calculate({state.active_cpt: minutes})
-    units = emr.units_by_cpt.get(state.active_cpt, 0) if emr and state.active_cpt else 0
-    next_unit_at = total_seconds + (emr.seconds_to_next_unit if emr else 0)
-    seconds_left = emr.seconds_to_next_unit if emr else 0
+    metrics = runtime.billing_engine.compute_metrics(state, now)
+    summary = billing_summary(state, container, now)
+    math = recording_math(
+        summary,
+        billing_elapsed_seconds=metrics.timed_pool_seconds,
+        cpt_elapsed_seconds=metrics.running_segment_seconds,
+    )
+    wall = int(state.client_elapsed_seconds or 0)
 
     running = any(seg.stop_time is None for seg in state.timer_segments)
     cpt_status: Literal["idle", "running", "paused", "stopped"]
@@ -150,14 +145,14 @@ def build_timer_state(
     return c.ApiTimerState(
         session_id=state.session_id,
         recording_status=m.recording_status(state),
-        total_seconds=total_seconds,
+        total_seconds=wall,
         cpt_timer=c.ApiCptTimerState(
             active=cpt_status == "running",
             code=state.active_cpt,
-            seconds=cpt_seconds,
-            units=units,
-            next_unit_at_seconds=next_unit_at,
-            seconds_left_to_next_unit=seconds_left,
+            seconds=metrics.running_segment_seconds,
+            units=math.units,
+            next_unit_at_seconds=math.billing_elapsed_seconds + math.seconds_to_next_unit,
+            seconds_left_to_next_unit=math.seconds_to_next_unit,
             status=cpt_status,
             source=state.cpt_timer_source,
             reason=state.cpt_timer_reason,
