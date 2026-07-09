@@ -31,9 +31,23 @@ def session_clock(state: SessionState, elapsed_seconds: int) -> datetime:
     return state.created_at + timedelta(seconds=max(0, int(elapsed_seconds)))
 
 
+def billing_now(state: SessionState) -> datetime:
+    """Clock for CPT segment accumulation.
+
+    Live sessions (active or with a running segment) use real wall time so billing
+    ticks between transcript chunks. Paused/ended sessions freeze at the simulated
+    ``client_elapsed_seconds`` position for deterministic replay.
+    """
+    running = any(seg.stop_time is None for seg in state.timer_segments)
+    if state.status == "active" or running:
+        return now_utc()
+    if state.client_elapsed_seconds is not None:
+        return session_clock(state, int(state.client_elapsed_seconds))
+    return now_utc()
+
+
 async def refresh_and_publish(state: SessionState, container: ServiceContainer) -> InsightsPanel:
-    elapsed = int(state.client_elapsed_seconds or 0)
-    now = session_clock(state, elapsed) if state.client_elapsed_seconds is not None else now_utc()
+    now = billing_now(state)
     state.last_updated = now
     runtime = container.runtime_for_state(state.billing_region)
     panel = runtime.insights_builder.build(state, now)
@@ -97,24 +111,22 @@ def recording_math(
 
 def billing_summary(state: SessionState, container: ServiceContainer, now: datetime | None = None) -> BillingSummary:
     runtime = container.runtime_for_state(state.billing_region)
-    if now is None and state.client_elapsed_seconds is not None:
-        now = session_clock(state, int(state.client_elapsed_seconds))
-    return runtime.billing_summary_builder.build(state, now or now_utc())
+    if now is None:
+        now = billing_now(state)
+    return runtime.billing_summary_builder.build(state, now)
 
 
 def build_timer_state(
     state: SessionState, container: ServiceContainer, now: datetime | None = None
 ) -> c.ApiTimerState:
     """Map domain session state to the frontend's snake_case timer contract."""
-    now = now or now_utc()
+    now = now or billing_now(state)
     summary = billing_summary(state, container, now)
     math = recording_math(summary)
     total_seconds = max(math.elapsed_seconds, state.client_elapsed_seconds or 0)
     runtime = container.runtime_for_state(state.billing_region)
 
-    cpt_seconds = 0
-    if state.active_cpt:
-        cpt_seconds = container.timer_engine.seconds_by_cpt(state, now).get(state.active_cpt, 0)
+    cpt_seconds = container.timer_engine.running_segment_seconds(state, now)
 
     minutes = max(cpt_seconds // 60, 0)
     emr = None

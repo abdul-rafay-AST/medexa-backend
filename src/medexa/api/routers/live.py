@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from medexa.api import contracts as c
 from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
-from medexa.api.routers._common import refresh_and_publish, require_state, session_clock
+from medexa.api.routers._common import billing_now, refresh_and_publish, require_state, session_clock
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
 from medexa.schemas import Alert, ProtocolInsight, SessionState
@@ -195,8 +195,7 @@ async def get_live_pipeline(
 ) -> c.ApiLivePipelineSnapshot:
     """Pollable Path A / B / C snapshot for local step-by-step testing UIs."""
     state = require_state(session_id, container)
-    elapsed = int(state.client_elapsed_seconds or 0)
-    now = session_clock(state, elapsed)
+    now = billing_now(state)
     panel = container.runtime_for_state(state.billing_region).insights_builder.build(state, now)
 
     last_trigger = state.path_b_triggers[-1] if state.path_b_triggers else None
@@ -209,16 +208,14 @@ async def get_live_pipeline(
         path_b_status = "disabled"
 
     path_c_ready = state.status == "ended" or state.finalized_at is not None
-    cpt_elapsed = 0
-    if state.active_cpt:
-        cpt_elapsed = container.timer_engine.seconds_by_cpt(state, now).get(state.active_cpt, 0)
+    cpt_elapsed = container.timer_engine.running_segment_seconds(state, now)
     cpt_display = (
         container.cpt_metadata.get_display_name(state.active_cpt) if state.active_cpt else None
     )
     return c.ApiLivePipelineSnapshot(
         session_id=state.session_id,
         billing_region=state.billing_region,
-        elapsed_seconds=elapsed,
+        elapsed_seconds=int(state.client_elapsed_seconds or 0),
         path_a=c.ApiPathAStatus(
             status="live",
             entity_count=len(state.detected_entities),
@@ -295,8 +292,8 @@ async def apply_suggestion(
     if suggestion is None:
         raise HTTPException(status_code=404, detail="Suggestion not found")
     if suggestion.status == "suggested" and suggestion.cpt_code:
-        elapsed = int(state.client_elapsed_seconds or 0)
-        now = session_clock(state, elapsed)
+        state.status = "active"
+        now = billing_now(state)
         active_segments = [
             (seg.cpt_code, seg.body_region)
             for seg in state.timer_segments

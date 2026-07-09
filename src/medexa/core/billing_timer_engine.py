@@ -81,3 +81,10 @@ class BillingTimerEngine:
         for seg in state.timer_segments:
             totals[seg.cpt_code] = totals.get(seg.cpt_code, 0) + self.accumulated_seconds(seg, now)
         return totals
+
+    def running_segment_seconds(self, state: SessionState, now: datetime) -> int:
+        """Seconds on the currently running segment only (0 if none)."""
+        for seg in reversed(state.timer_segments):
+            if seg.stop_time is None:
+                return self.accumulated_seconds(seg, now)
+        return 0
