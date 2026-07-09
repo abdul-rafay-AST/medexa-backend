@@ -6,7 +6,7 @@ class EightMinuteRuleCalculator:
     Includes the 'Largest Remainder' rule for assigning partial units across multiple timed CPTs.
     """
     
-    # CMS 8-Minute Rule thresholds (Total Minutes -> Total Units)
+    # CMS 8-Minute Rule thresholds (Total Minutes -> Total Units) for 8-127 minutes.
     _THRESHOLDS = [
         (8, 22, 1),
         (23, 37, 2),
@@ -15,32 +15,32 @@ class EightMinuteRuleCalculator:
         (68, 82, 5),
         (83, 97, 6),
         (98, 112, 7),
-        (113, 127, 8)
+        (113, 127, 8),
     ]
+
+    @staticmethod
+    def _units_from_minutes(total_minutes: int) -> int:
+        """CMS pooled timed minutes -> billable units (extends beyond 127 min)."""
+        if total_minutes < 8:
+            return 0
+        return (total_minutes - 8) // 15 + 1
+
+    @staticmethod
+    def _seconds_to_next_unit(total_minutes: int, total_units: int) -> int:
+        """Seconds until the next pooled unit threshold."""
+        if total_minutes < 8:
+            return (8 - total_minutes) * 60
+        next_threshold = 8 + total_units * 15
+        return max(0, (next_threshold - total_minutes) * 60)
 
     def calculate(self, minutes_by_cpt: dict[str, int]) -> EightMinuteRuleResult:
         """
         Calculates the total units and allocates them to specific CPT codes based on minutes.
         """
         total_minutes = sum(minutes_by_cpt.values())
-        
-        # 1. Determine Total Units based on total time
-        total_units = 0
-        for min_val, max_val, units in self._THRESHOLDS:
-            if min_val <= total_minutes <= max_val:
-                total_units = units
-                break
-        
-        # 2. Determine time to next unit
-        seconds_to_next_unit = 0
-        for min_val, max_val, units in self._THRESHOLDS:
-            if total_minutes < min_val:
-                seconds_to_next_unit = (min_val - total_minutes) * 60
-                break
-        if total_minutes == 0:
-            seconds_to_next_unit = 8 * 60
-            
-        # 3. Base allocation (1 unit per full 15 minutes)
+
+        total_units = self._units_from_minutes(total_minutes)
+        seconds_to_next_unit = self._seconds_to_next_unit(total_minutes, total_units)
         units_by_cpt = {cpt: 0 for cpt in minutes_by_cpt}
         remainders = {}
         

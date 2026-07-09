@@ -69,7 +69,7 @@ def recording_state(
     billing_elapsed_seconds: int,
     cpt_elapsed_seconds: int,
 ) -> c.ApiRecordingState:
-    wall = max(state.client_elapsed_seconds or 0, elapsed_seconds)
+    wall = int(state.client_elapsed_seconds or 0)
     billing = billing_elapsed_seconds
     return c.ApiRecordingState(
         status=recording_status(state),

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from medexa.application.path_a_clinical_snapshot import PathAClinicalSnapshotBuilder
 from medexa.application.path_a_processor import PathAProcessor
+from medexa.core.billing_engine import BillingEngine
 from medexa.core.billing_summary_builder import BillingSummaryBuilder
 from medexa.core.insights_builder import InsightsBuilder
 from medexa.core.transcript_processor import TranscriptProcessor
@@ -21,6 +22,7 @@ class RegionRuntime:
     transcript_processor: TranscriptProcessor
     cpt_metadata: CptMetadataPort
     insights_builder: InsightsBuilder
+    billing_engine: BillingEngine
     billing_summary_builder: BillingSummaryBuilder
     rules_clinical_analyzer: RulesClinicalAnalyzer
     path_a_processor: PathAProcessor

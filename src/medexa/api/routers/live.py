@@ -19,27 +19,28 @@ logger = get_logger("medexa.api.live")
 
 
 def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer) -> None:
-    """Push Modifier 59 / NCCI billing insights into state.insights for instant UI display."""
-    codes = sorted({seg.cpt_code for seg in state.timer_segments})
+    """Push Modifier 59 / NCCI billing insights using region-aware conflict rules."""
+    segments = [(seg.cpt_code, seg.body_region) for seg in state.timer_segments]
+    alerts = container.ncci_checker.check_conflicts(state.session_id, segments)
     fresh: list[ProtocolInsight] = []
-    for i, code_a in enumerate(codes):
-        for code_b in codes[i + 1 :]:
-            rule = container.ncci_checker.check_conflict(code_a, code_b)
-            if not rule:
-                continue
-            fresh.append(
-                ProtocolInsight(
-                    insight_id=m._insight_id("billing", f"{code_a}-{code_b}"),
-                    type="billing",
-                    label=f"NCCI: {code_a} + {code_b}",
-                    question=(
-                        "Apply Modifier 59?"
-                        if rule.get("modifier_59_possible")
-                        else "Review billing conflict"
-                    ),
-                    description=rule["explanation"],
-                )
+    for alert in alerts:
+        if len(alert.cpt_codes) != 2:
+            continue
+        code_a, code_b = sorted(alert.cpt_codes)
+        region_key = alert.body_region or "any"
+        fresh.append(
+            ProtocolInsight(
+                insight_id=m._insight_id("billing", f"{code_a}-{code_b}-{region_key}"),
+                type="billing",
+                label=f"NCCI: {code_a} + {code_b}",
+                question=(
+                    "Apply Modifier 59?"
+                    if "Modifier 59" in alert.message
+                    else "Review billing conflict"
+                ),
+                description=alert.message,
             )
+        )
     if fresh:
         state.insights = m.merge_insights(state.insights, fresh)
 
@@ -196,7 +197,9 @@ async def get_live_pipeline(
     """Pollable Path A / B / C snapshot for local step-by-step testing UIs."""
     state = require_state(session_id, container)
     now = billing_now(state)
-    panel = container.runtime_for_state(state.billing_region).insights_builder.build(state, now)
+    runtime = container.runtime_for_state(state.billing_region)
+    metrics = runtime.billing_engine.compute_metrics(state, now)
+    panel = runtime.insights_builder.build(state, now)
 
     last_trigger = state.path_b_triggers[-1] if state.path_b_triggers else None
     path_b_status = "idle"
@@ -208,7 +211,7 @@ async def get_live_pipeline(
         path_b_status = "disabled"
 
     path_c_ready = state.status == "ended" or state.finalized_at is not None
-    cpt_elapsed = container.timer_engine.running_segment_seconds(state, now)
+    cpt_elapsed = metrics.running_segment_seconds
     cpt_display = (
         container.cpt_metadata.get_display_name(state.active_cpt) if state.active_cpt else None
     )
@@ -223,7 +226,7 @@ async def get_live_pipeline(
             suggestion_count=len(state.suggestions),
             active_cpt=state.active_cpt,
             cpt_display_name=cpt_display,
-            session_timer_sec=panel.session_timer_sec,
+            session_timer_sec=metrics.timed_pool_seconds,
             cpt_elapsed_seconds=cpt_elapsed,
             units=panel.eight_minute_rule.total_units if panel.eight_minute_rule else 0,
         ),

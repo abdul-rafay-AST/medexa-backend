@@ -37,3 +37,9 @@ def test_largest_remainder_wins():
     assert result.total_units == 2
     assert result.units_by_cpt == {"97110": 1, "97140": 1}
     assert result.remainder_assigned_to == "97140"
+
+
+def test_extended_session_beyond_127_minutes():
+    result = calc.calculate({"97110": 130})
+    assert result.total_units == 9
+    assert result.seconds_to_next_unit == (143 - 130) * 60
