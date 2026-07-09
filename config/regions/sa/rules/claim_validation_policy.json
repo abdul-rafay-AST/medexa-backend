@@ -1,0 +1,49 @@
+{
+  "source_name": "Medexa Internal - Saudi Claim Validation Policy",
+  "source_url": "internal://medexa/config/regions/sa/rules/claim_validation_policy.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "source_url": "https://portal.nphies.sa/ig/index.html",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "Saudi Billing System Knowledge Center",
+      "source_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "policy_id": "SA-CLAIM-001",
+      "category": "required_identifiers",
+      "severity": "error",
+      "description": "Claims must carry payer and member identity before submission workflows are attempted."
+    },
+    {
+      "policy_id": "SA-CLAIM-002",
+      "category": "coding_source_of_truth",
+      "severity": "error",
+      "description": "Billable diagnosis and procedure codes must come from licensed or officially maintained KSA-compatible code systems."
+    },
+    {
+      "policy_id": "SA-CLAIM-003",
+      "category": "pre_authorization",
+      "severity": "error",
+      "description": "If the service family requires prior authorization, a pre-authorization reference or documented payer exception must be present."
+    },
+    {
+      "policy_id": "SA-CLAIM-004",
+      "category": "supporting_information",
+      "severity": "warning",
+      "description": "Encounters with high-cost or exception-driven services should carry supporting clinical documentation metadata for later exchange."
+    },
+    {
+      "policy_id": "SA-CLAIM-005",
+      "category": "submission_readiness",
+      "severity": "error",
+      "description": "Path A may detect services in real time, but claim submission must remain disabled until all mandatory regional routing and coding inputs are complete."
+    }
+  ]
+}

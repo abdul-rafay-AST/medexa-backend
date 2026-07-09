@@ -1,0 +1,13 @@
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
+
+from medexa.schemas import SessionState
+
+
+@runtime_checkable
+class SessionRepositoryPort(Protocol):
+    def get(self, session_id: str) -> SessionState | None: ...
+    def save(self, state: SessionState) -> None: ...
+    def list_active(self) -> list[SessionState]: ...
+    def list_all(self) -> list[SessionState]: ...

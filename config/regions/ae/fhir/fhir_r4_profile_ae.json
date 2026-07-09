@@ -1,0 +1,12 @@
+{
+  "profile_id": "uae-emirate-claim",
+  "fhir_version": "R4",
+  "bundle_type": "collection",
+  "claim_profile": "https://www.doh.gov.ae/shafafiya/claim",
+  "currency": "AED",
+  "emirate_profiles": {
+    "DOH": "shafafiya-xml-bridge",
+    "DHA": "eclaimlink-xml-bridge",
+    "MOHAP": "mohap-custom"
+  }
+}

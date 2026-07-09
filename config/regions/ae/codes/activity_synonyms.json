@@ -1,0 +1,22 @@
+{
+  "source_name": "Medexa Internal - UAE Activity Synonyms",
+  "source_url": "internal://medexa/config/regions/ae/codes/activity_synonyms.json",
+  "version": "1.0.0",
+  "classification": "INTERNAL_DERIVED",
+  "notes": "Maps transcript language to internal service categories until DHA/DOH service masters are imported.",
+  "consultation": "consultation",
+  "outpatient consultation": "consultation",
+  "specialist consultation": "consultation",
+  "physiotherapy": "therapy_session",
+  "physical therapy": "therapy_session",
+  "therapeutic exercise": "therapy_session",
+  "manual therapy": "therapy_session",
+  "mri": "advanced_imaging",
+  "ct scan": "advanced_imaging",
+  "laboratory test": "diagnostic_test",
+  "lab test": "diagnostic_test",
+  "x-ray": "diagnostic_test",
+  "radiograph": "diagnostic_test",
+  "pharmacy dispensing": "pharmacy",
+  "medication dispensed": "pharmacy"
+}

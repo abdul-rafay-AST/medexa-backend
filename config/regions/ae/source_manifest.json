@@ -1,0 +1,55 @@
+{
+  "source_name": "Medexa Internal - UAE Source Manifest",
+  "source_url": "internal://medexa/config/regions/ae/source_manifest.json",
+  "version": "1.0.0",
+  "records": [
+    {
+      "asset_group": "profile",
+      "backend_file": "profile/emirate_routing_policy.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "Shafafiya Portal",
+      "official_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "artifact_type": "Public regulator portal page",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Used as verified public baseline for Abu Dhabi exchange concepts and terminology ownership."
+    },
+    {
+      "asset_group": "exchange",
+      "backend_file": "exchange/platform_transaction_catalog.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "eClaimLink Public Portal",
+      "official_url": "https://www.eclaimlink.ae/",
+      "artifact_type": "Public portal root protected by anti-bot challenge",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "low",
+      "notes": "Portal presence verified, but automated extraction is unstable because of captcha/anti-bot protection."
+    },
+    {
+      "asset_group": "payers",
+      "backend_file": "payers/eclaimlink_payers.json",
+      "classification": "OFFICIAL_PORTAL_ONLY",
+      "official_source_name": "eClaimLink Public Coding Sets / Payer Lists",
+      "official_url": "https://www.eclaimlink.ae/",
+      "artifact_type": "Portal download pages",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "low",
+      "notes": "Should be fetched manually or through a supervised browser workflow because public scraping is challenge-protected."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/uae_cpt_codes.json",
+      "classification": "LICENSED_EXTERNAL",
+      "official_source_name": "AMA CPT",
+      "official_url": "NOT_PUBLIC_DOWNLOADABLE",
+      "artifact_type": "Licensed code system",
+      "login_required": false,
+      "license_required": true,
+      "automation_confidence": "low",
+      "notes": "Do not generate or scrape. Import only from licensed source."
+    }
+  ]
+}

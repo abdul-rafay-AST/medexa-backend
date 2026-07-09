@@ -1,0 +1,37 @@
+{
+  "source_name": "Medexa Internal - UAE Emirate Specific Edits",
+  "source_url": "internal://medexa/config/regions/ae/rules/emirate_specific_edits.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "eClaimLink Public Portal",
+      "source_url": "https://www.eclaimlink.ae/",
+      "classification": "OFFICIAL_PORTAL_ONLY"
+    }
+  ],
+  "records": [
+    {
+      "emirate": "DOH",
+      "edit_id": "AE-DOH-001",
+      "severity": "error",
+      "description": "Abu Dhabi claims must validate against Shafafiya dictionary fields before XML serialization."
+    },
+    {
+      "emirate": "DHA",
+      "edit_id": "AE-DHA-001",
+      "severity": "error",
+      "description": "Dubai claims must resolve payer and facility identifiers from eClaimLink reference data."
+    },
+    {
+      "emirate": "MOHAP",
+      "edit_id": "AE-MOHAP-001",
+      "severity": "warning",
+      "description": "MOHAP routing remains conservative until official operational datasets are attached."
+    }
+  ]
+}

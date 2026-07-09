@@ -1,0 +1,10 @@
+{
+  "profile_id": "nphies-professional-claim",
+  "fhir_version": "R4",
+  "bundle_type": "message",
+  "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-claim",
+  "message_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/message-header",
+  "claim_type_system": "http://terminology.hl7.org/CodeSystem/claim-type",
+  "claim_type_code": "professional",
+  "currency": "SAR"
+}

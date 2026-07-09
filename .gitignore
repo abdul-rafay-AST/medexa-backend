@@ -1,0 +1,141 @@
+# ─── Python ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Package managers (local lockfiles / envs)
+.uv/
+uv.lock
+Pipfile.lock
+poetry.lock
+
+# Tooling caches / type-check / lint
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.tox/
+.nox/
+
+# Test / coverage artifacts
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.cover
+*.py,cover
+.cache/
+nosetests.xml
+.pytest_tmp/
+
+# Secrets / credentials (NEVER commit)
+.env
+.env.*
+!.env.example
+hf
+.hf_token
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+credentials.yaml
+credentials.yml
+secrets.json
+secrets.yaml
+secrets.yml
+*.secret
+
+# AWS
+.aws/
+aws-credentials
+*.credentials
+
+# Hugging Face (local token/cache — not the Space remote)
+.huggingface/
+huggingface_token.txt
+
+# Docker local overrides
+docker-compose.override.yml
+docker-compose.override.yaml
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs / runtime
+*.log
+logs/
+*.pid
+
+# Scratch / temp
+test_out.txt
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Local planning/docs (not committed)
+frontend_plan.md
+docs/
+DEPLOYMENT.md
+integration_plan.md
+
+# Frontend lives in its own repo (medexa-fe) — nested git under frontend/
+frontend/
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docs build output
+site/

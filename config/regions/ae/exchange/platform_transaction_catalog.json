@@ -1,0 +1,47 @@
+{
+  "source_name": "Medexa Internal - UAE Platform Transaction Catalog",
+  "source_url": "internal://medexa/config/regions/ae/exchange/platform_transaction_catalog.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "eClaimLink Public Portal",
+      "source_url": "https://www.eclaimlink.ae/",
+      "classification": "OFFICIAL_PORTAL_ONLY"
+    }
+  ],
+  "records": [
+    {
+      "platform": "Shafafiya",
+      "transaction_key": "claim_submission",
+      "business_purpose": "Submit regulated claim transactions through Abu Dhabi exchange infrastructure.",
+      "transport_family": "SOAP_XML",
+      "priority": "high"
+    },
+    {
+      "platform": "Shafafiya",
+      "transaction_key": "drg_enrichment_or_validation",
+      "business_purpose": "Support DRG-related processing where regulator workflows require it.",
+      "transport_family": "SOAP_XML",
+      "priority": "medium"
+    },
+    {
+      "platform": "eClaimLink",
+      "transaction_key": "claim_submission",
+      "business_purpose": "Submit Dubai-compatible claim transactions with payer and facility identifiers.",
+      "transport_family": "PLATFORM_XML",
+      "priority": "high"
+    },
+    {
+      "platform": "eClaimLink",
+      "transaction_key": "payer_directory_resolution",
+      "business_purpose": "Resolve payer and facility references before submission or reconciliation.",
+      "transport_family": "PORTAL_REFERENCE_DATA",
+      "priority": "high"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "provider": "nphies",
+  "billing_region": "SA",
+  "status": "approved",
+  "payer_id": "payer-1",
+  "member_id": "member-1",
+  "pre_auth_reference": "PA-12345",
+  "eligible": true
+}

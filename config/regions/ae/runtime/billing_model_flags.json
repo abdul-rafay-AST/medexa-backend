@@ -1,0 +1,36 @@
+{
+  "source_name": "Medexa Internal - UAE Runtime Flags",
+  "source_url": "internal://medexa/config/regions/ae/runtime/billing_model_flags.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "eClaimLink Public Portal",
+      "source_url": "https://www.eclaimlink.ae/",
+      "classification": "OFFICIAL_PORTAL_ONLY"
+    }
+  ],
+  "records": [
+    {
+      "billing_region": "AE",
+      "billing_model": "per_encounter",
+      "uses_eight_minute_rule": false,
+      "uses_ncci": false,
+      "encounter_billing_enabled": true,
+      "pre_authorization_required": true,
+      "emirate_routing_required": true,
+      "claim_submission_mode": "xml_or_platform_specific",
+      "shafafiya_exchange_enabled": true,
+      "eclaimlink_exchange_enabled": true,
+      "licensed_code_sets_required": [
+        "CPT_if_required_by_regulator_or_payer",
+        "ICD_family_required_by_regulator_or_payer"
+      ],
+      "notes": "UAE workflows are regulator- and emirate-aware. Detailed code systems and routing must be attached from verified public or licensed assets."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "source_name": "Medexa Internal - Saudi Source Manifest",
+  "source_url": "internal://medexa/config/regions/sa/source_manifest.json",
+  "version": "1.0.0",
+  "records": [
+    {
+      "asset_group": "exchange",
+      "backend_file": "exchange/nphies_transaction_catalog.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "official_url": "https://portal.nphies.sa/ig/index.html",
+      "artifact_type": "HTML Implementation Guide",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Used as public technical baseline for Saudi claims exchange."
+    },
+    {
+      "asset_group": "rules",
+      "backend_file": "rules/claim_validation_policy.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "Saudi Billing System Knowledge Center",
+      "official_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
+      "artifact_type": "Public Web Page with linked XLSX/PDF references",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "medium",
+      "notes": "Public page verified; linked code lists and standards may require manual review for stable ingestion."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/ksa_icd10am_achi.json",
+      "classification": "LICENSED_EXTERNAL",
+      "official_source_name": "IHACPA / Lane Print ICD-10-AM, ACHI, ACS",
+      "official_url": "https://www.ihacpa.gov.au/health-care/products-and-licenses",
+      "artifact_type": "Licensed electronic code lists",
+      "login_required": false,
+      "license_required": true,
+      "automation_confidence": "low",
+      "notes": "Do not fabricate. Requires proper licensing and import process."
+    },
+    {
+      "asset_group": "payers",
+      "backend_file": "payers/ksa_chi_payers.json",
+      "classification": "OFFICIAL_PUBLIC",
+      "official_source_name": "CHI Market Sectors / Insurance Companies",
+      "official_url": "https://www.chi.gov.sa/en/MarketSectors/Pages/InsuranceCompanies.aspx",
+      "artifact_type": "Public web directory",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "medium",
+      "notes": "Fetch via scripts/fetch_chi_payers.py when network access to chi.gov.sa is available."
+    },
+    {
+      "asset_group": "exchange",
+      "backend_file": "exchange/nphies_fhir_valueset_index.json",
+      "classification": "OFFICIAL_PUBLIC",
+      "official_source_name": "NPHIES FHIR ValueSets",
+      "official_url": "https://portal.nphies.sa/ig/artifacts.html",
+      "artifact_type": "FHIR IG HTML expansion tables",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Built by scripts/build_nphies_valueset_index.py from official expansion tables."
+    }
+  ]
+}

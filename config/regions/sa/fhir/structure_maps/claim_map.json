@@ -1,0 +1,10 @@
+{
+  "source_name": "Medexa Internal - NPHIES Claim Field Map",
+  "version": "1.0.0",
+  "mappings": [
+    {"session_field": "payer_id", "fhir_path": "Claim.insurer.identifier.value"},
+    {"session_field": "member_id", "fhir_path": "Claim.patient.identifier.value"},
+    {"session_field": "pre_auth_reference", "fhir_path": "Claim.insurance.preAuthRef"},
+    {"billing_field": "line_items[].cpt_code", "fhir_path": "Claim.item.productOrService.coding.code"}
+  ]
+}

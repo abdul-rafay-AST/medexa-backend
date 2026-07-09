@@ -1,0 +1,12 @@
+{
+  "region_id": "AE",
+  "display_name": "United Arab Emirates",
+  "icd_system": "ICD10_AM",
+  "billing_model": "per_encounter",
+  "uses_eight_minute_rule": false,
+  "uses_ncci": false,
+  "pre_authorization_required": true,
+  "pre_auth_provider": "uae_payer",
+  "fhir_export": true,
+  "fhir_version": "R4"
+}

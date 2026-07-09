@@ -1,0 +1,30 @@
+{
+  "source_name": "Medexa Internal - Saudi Documentation Requirements",
+  "source_url": "internal://medexa/config/regions/sa/rules/documentation_requirements.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "source_url": "https://portal.nphies.sa/ig/index.html",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "service_category": "consultation",
+      "required_elements": ["chief_complaint", "clinical_assessment", "plan_of_care"]
+    },
+    {
+      "service_category": "therapy",
+      "required_elements": ["functional_limitation", "treatment_provided", "patient_response"]
+    },
+    {
+      "service_category": "imaging",
+      "required_elements": ["clinical_indication", "ordering_clinician", "report_or_finding_reference"]
+    },
+    {
+      "service_category": "surgery",
+      "required_elements": ["operative_indication", "procedure_performed", "post_procedure_plan"]
+    }
+  ]
+}

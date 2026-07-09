@@ -1,0 +1,55 @@
+{
+  "source_name": "Medexa Internal - UAE Emirate Routing Policy",
+  "source_url": "internal://medexa/config/regions/ae/profile/emirate_routing_policy.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "eClaimLink Public Portal",
+      "source_url": "https://www.eclaimlink.ae/",
+      "classification": "OFFICIAL_PORTAL_ONLY"
+    }
+  ],
+  "records": [
+    {
+      "emirate": "DOH",
+      "regulator": "Department of Health Abu Dhabi",
+      "exchange_platform": "Shafafiya",
+      "protocol_family": "SOAP_XML",
+      "primary_identifiers": [
+        "payer_id",
+        "member_id",
+        "facility_license_id"
+      ],
+      "notes": "Abu Dhabi flows should validate against Shafafiya dictionary and technical definitions before transport serialization."
+    },
+    {
+      "emirate": "DHA",
+      "regulator": "Dubai Health Authority",
+      "exchange_platform": "eClaimLink",
+      "protocol_family": "PLATFORM_XML",
+      "primary_identifiers": [
+        "payer_id",
+        "member_id",
+        "facility_license_id"
+      ],
+      "notes": "Dubai flows should route through eClaimLink-compatible identifiers and public coding references where permitted."
+    },
+    {
+      "emirate": "MOHAP",
+      "regulator": "Ministry of Health and Prevention",
+      "exchange_platform": "CUSTOM_OR_PAYER_SPECIFIC",
+      "protocol_family": "REGULATOR_DEFINED",
+      "primary_identifiers": [
+        "payer_id",
+        "member_id",
+        "facility_license_id"
+      ],
+      "notes": "Use conservative routing until official MOHAP operational guidance is attached."
+    }
+  ]
+}

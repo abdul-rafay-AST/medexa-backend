@@ -1,0 +1,49 @@
+{
+  "source_name": "Medexa Internal - UAE Claim Validation Policy",
+  "source_url": "internal://medexa/config/regions/ae/rules/claim_validation_policy.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "eClaimLink Public Portal",
+      "source_url": "https://www.eclaimlink.ae/",
+      "classification": "OFFICIAL_PORTAL_ONLY"
+    }
+  ],
+  "records": [
+    {
+      "policy_id": "AE-CLAIM-001",
+      "category": "routing",
+      "severity": "error",
+      "description": "Every UAE claim must resolve through an emirate-specific routing policy before export or submission."
+    },
+    {
+      "policy_id": "AE-CLAIM-002",
+      "category": "required_identifiers",
+      "severity": "error",
+      "description": "Payer, member, and facility identity must be present before external claim exchange is attempted."
+    },
+    {
+      "policy_id": "AE-CLAIM-003",
+      "category": "code_system_control",
+      "severity": "error",
+      "description": "Diagnosis, procedure, and pharmacy codes must come from regulator-approved or contractually licensed reference datasets."
+    },
+    {
+      "policy_id": "AE-CLAIM-004",
+      "category": "pre_authorization",
+      "severity": "warning",
+      "description": "Claims containing high-cost or controlled service families should be checked for payer authorization requirements before submission."
+    },
+    {
+      "policy_id": "AE-CLAIM-005",
+      "category": "schema_readiness",
+      "severity": "error",
+      "description": "Outbound claim payloads must be validated against the target platform schema family before transport serialization."
+    }
+  ]
+}
