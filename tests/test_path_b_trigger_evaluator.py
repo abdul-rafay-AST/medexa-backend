@@ -195,6 +195,44 @@ def test_same_sequence_is_ignored():
     assert evaluator.evaluate_batch(events, now=now + timedelta(seconds=10)) is None
 
 
+def test_immediate_trigger_respects_interval_cooldown():
+    evaluator = PathBTriggerEvaluator(interval_seconds=20)
+    base = _now()
+    first = [
+        ChunkProcessed(
+            session_id="s1",
+            chunk_id="c1",
+            sequence=0,
+            entity_count=1,
+            suggestion_count=1,
+        ),
+        ActivityChanged(
+            session_id="s1",
+            activity_label="therapeutic_exercise",
+            cpt_code="97110",
+            body_region="knee",
+        ),
+    ]
+    assert evaluator.evaluate_batch(first, now=base) is not None
+
+    second = [
+        ChunkProcessed(
+            session_id="s1",
+            chunk_id="c2",
+            sequence=1,
+            entity_count=1,
+            suggestion_count=0,
+        ),
+        ActivityChanged(
+            session_id="s1",
+            activity_label="manual_therapy",
+            cpt_code="97140",
+            body_region="knee",
+        ),
+    ]
+    assert evaluator.evaluate_batch(second, now=base + timedelta(seconds=5)) is None
+
+
 def test_clinical_context_triggers_without_entities():
     evaluator = PathBTriggerEvaluator(interval_seconds=30)
     events = [

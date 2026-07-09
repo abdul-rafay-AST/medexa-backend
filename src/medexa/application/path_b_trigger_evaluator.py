@@ -58,6 +58,7 @@ class TriggerDecision:
 class _SessionClock:
     last_trigger_at: datetime | None = None
     last_chunk_sequence: int = -1
+    fired_reasons: set[str] = field(default_factory=set)
 
 
 class PathBTriggerEvaluator:
@@ -88,7 +89,9 @@ class PathBTriggerEvaluator:
         for event in events:
             decision = self._evaluate_immediate(event)
             if decision is not None:
-                self._mark_triggered(session_id, now)
+                if not self._should_fire(session_id, decision, now):
+                    continue
+                self._mark_triggered(session_id, now, decision.reason)
                 return decision
 
         chunk = next((e for e in events if isinstance(e, ChunkProcessed)), None)
@@ -100,18 +103,19 @@ class PathBTriggerEvaluator:
 
         if chunk.entity_count == 0 and chunk.suggestion_count == 0:
             clinical = self._evaluate_clinical_context(chunk_text)
-            if clinical is not None and self._interval_elapsed(session_id, now):
-                self._mark_triggered(session_id, now)
+            if clinical is not None and self._should_fire(session_id, clinical, now):
+                self._mark_triggered(session_id, now, clinical.reason)
                 return clinical
             return None
 
-        if not self._interval_elapsed(session_id, now):
-            return None
-        self._mark_triggered(session_id, now)
-        return TriggerDecision(
+        fallback = TriggerDecision(
             reason="interval_fallback",
             source_event_type="chunk_processed",
         )
+        if not self._should_fire(session_id, fallback, now):
+            return None
+        self._mark_triggered(session_id, now, fallback.reason)
+        return fallback
 
     def build_trigger_event(self, session_id: str, decision: TriggerDecision) -> PathBTriggerRequested:
         return PathBTriggerRequested(
@@ -179,6 +183,26 @@ class PathBTriggerEvaluator:
                 )
         return None
 
+    @staticmethod
+    def _is_critical(decision: TriggerDecision) -> bool:
+        if decision.source_event_type in {
+            "ncci_conflict_found",
+            "pre_auth_violation_found",
+            "code_conflict_found",
+        }:
+            return True
+        if decision.source_event_type == "path_a_alert_raised":
+            return True
+        return decision.reason.startswith("ncci_conflict:")
+
+    def _should_fire(self, session_id: str, decision: TriggerDecision, now: datetime) -> bool:
+        if self._is_critical(decision):
+            return True
+        clock = self._clock(session_id)
+        if decision.reason in clock.fired_reasons and not self._interval_elapsed(session_id, now):
+            return False
+        return self._interval_elapsed(session_id, now)
+
     def _clock(self, session_id: str) -> _SessionClock:
         if session_id not in self._sessions:
             self._sessions[session_id] = _SessionClock()
@@ -190,8 +214,10 @@ class PathBTriggerEvaluator:
             return True
         return (now - clock.last_trigger_at).total_seconds() >= self._interval_seconds
 
-    def _mark_triggered(self, session_id: str, now: datetime) -> None:
-        self._clock(session_id).last_trigger_at = now
+    def _mark_triggered(self, session_id: str, now: datetime, reason: str) -> None:
+        clock = self._clock(session_id)
+        clock.last_trigger_at = now
+        clock.fired_reasons.add(reason)
 
     def reset_session(self, session_id: str) -> None:
         self._sessions.pop(session_id, None)
