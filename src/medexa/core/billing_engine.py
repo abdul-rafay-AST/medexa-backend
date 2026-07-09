@@ -154,8 +154,8 @@ class BillingEngine:
             if not rule:
                 continue
 
-            bundled = rule["cpt_a"]
-            paying = rule["cpt_b"]
+            bundled = rule.get("bundled_code") or rule["cpt_a"]
+            paying = rule.get("payable_code") or rule["cpt_b"]
             bundled_item = by_code.get(bundled)
             paying_item = by_code.get(paying)
             if bundled_item is None or bundled_item.units == 0:

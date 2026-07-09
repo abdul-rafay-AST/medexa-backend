@@ -15,7 +15,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: 97140 and 97530 are bundled per CMS PTP edits. Bypassing requires distinct, non-overlapping body regions or separate session encounters using Modifier 59."
+    "explanation": "NCCI PTP edit: 97140 and 97530 are bundled per CMS PTP edits. Bypassing requires distinct, non-overlapping body regions or separate session encounters using Modifier 59.",
+    "payable_code": "97530",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97140",
@@ -23,7 +25,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: 97140 is bundled into 97110. Bypassing requires application to separate, distinct anatomical sites or documentation of entirely independent purposes."
+    "explanation": "NCCI PTP edit: 97140 is bundled into 97110. Bypassing requires application to separate, distinct anatomical sites or documentation of entirely independent purposes.",
+    "payable_code": "97110",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97112",
@@ -31,7 +35,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: 97112 and 97110 have mutual billing limits on matching segments unless distinct operational intents or regions are proven."
+    "explanation": "NCCI PTP edit: 97112 and 97110 have mutual billing limits on matching segments unless distinct operational intents or regions are proven.",
+    "payable_code": "97112",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97140",
@@ -39,7 +45,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Massage therapy 97124 is an integral component of manual therapy 97140. Separate entry is only allowed if executed on completely unique segments."
+    "explanation": "NCCI PTP edit: Massage therapy 97124 is an integral component of manual therapy 97140. Separate entry is only allowed if executed on completely unique segments.",
+    "payable_code": "97140",
+    "bundled_code": "97124"
   },
   {
     "cpt_a": "97530",
@@ -47,7 +55,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Gait training mechanics are bundled with dynamic therapeutic activities unless distinct intervals or independent clinical tasks are demonstrated."
+    "explanation": "NCCI PTP edit: Gait training mechanics are bundled with dynamic therapeutic activities unless distinct intervals or independent clinical tasks are demonstrated.",
+    "payable_code": "97530",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97110",
@@ -55,7 +65,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: 97110 and 97530 are bundled per CMS PTP edits. Separate execution requires completely unique structural goals or body regions."
+    "explanation": "NCCI PTP edit: 97110 and 97530 are bundled per CMS PTP edits. Separate execution requires completely unique structural goals or body regions.",
+    "payable_code": "97530",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97112",
@@ -63,7 +75,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular reeducation and therapeutic activity are mutually exclusive unless performed at non-overlapping timestamps or structural locations."
+    "explanation": "NCCI PTP edit: Neuromuscular reeducation and therapeutic activity are mutually exclusive unless performed at non-overlapping timestamps or structural locations.",
+    "payable_code": "97530",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97116",
@@ -71,7 +85,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Gait training limits therapeutic exercise entries unless separate sessions or entirely discrete muscular systems are isolated."
+    "explanation": "NCCI PTP edit: Gait training limits therapeutic exercise entries unless separate sessions or entirely discrete muscular systems are isolated.",
+    "payable_code": "97110",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97116",
@@ -79,7 +95,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Gait parameters are bundled into neuromuscular reeducation unless separate segments or specific developmental contexts apply."
+    "explanation": "NCCI PTP edit: Gait parameters are bundled into neuromuscular reeducation unless separate segments or specific developmental contexts apply.",
+    "payable_code": "97112",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97535",
@@ -87,7 +105,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care ADL training includes therapeutic exercise unless isolated structural purposes and distinct times are justified via Modifier 59."
+    "explanation": "NCCI PTP edit: Self-care ADL training includes therapeutic exercise unless isolated structural purposes and distinct times are justified via Modifier 59.",
+    "payable_code": "97110",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97535",
@@ -95,7 +115,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care training bundles neuromuscular reeducation unless specific activities of daily living are isolated from generalized coordinate training."
+    "explanation": "NCCI PTP edit: Self-care training bundles neuromuscular reeducation unless specific activities of daily living are isolated from generalized coordinate training.",
+    "payable_code": "97112",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97535",
@@ -103,7 +125,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL performance training limits concurrent overground gait training claims unless separate operational boundaries are tracked."
+    "explanation": "NCCI PTP edit: ADL performance training limits concurrent overground gait training claims unless separate operational boundaries are tracked.",
+    "payable_code": "97116",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97535",
@@ -111,7 +135,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual therapy and self-care cannot be billed inside identical windows or areas without modifier verification of independent clinical tasks."
+    "explanation": "NCCI PTP edit: Manual therapy and self-care cannot be billed inside identical windows or areas without modifier verification of independent clinical tasks.",
+    "payable_code": "97140",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97535",
@@ -119,7 +145,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care training and dynamic therapeutic activities are comprehensive conflict pairs requiring independent execution timelines."
+    "explanation": "NCCI PTP edit: Self-care training and dynamic therapeutic activities are comprehensive conflict pairs requiring independent execution timelines.",
+    "payable_code": "97530",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97161",
@@ -127,7 +155,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Initial PT Evaluation (97161) incorporates component therapeutic exercises unless distinct subsequent treatment sessions are scheduled."
+    "explanation": "NCCI PTP edit: Initial PT Evaluation (97161) incorporates component therapeutic exercises unless distinct subsequent treatment sessions are scheduled.",
+    "payable_code": "97161",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97161",
@@ -135,7 +165,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: PT Evaluation encompasses same-day neuromuscular interventions unless an entirely unique programmatic session event occurs."
+    "explanation": "NCCI PTP edit: PT Evaluation encompasses same-day neuromuscular interventions unless an entirely unique programmatic session event occurs.",
+    "payable_code": "97161",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97161",
@@ -143,7 +175,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Gait analysis elements are component to primary evaluations unless formal separated training runs are authorized via modifier."
+    "explanation": "NCCI PTP edit: Gait analysis elements are component to primary evaluations unless formal separated training runs are authorized via modifier.",
+    "payable_code": "97161",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97161",
@@ -151,7 +185,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual techniques are bundled on initial evaluation dates unless explicit, non-overlapping treatment blocks are authenticated."
+    "explanation": "NCCI PTP edit: Manual techniques are bundled on initial evaluation dates unless explicit, non-overlapping treatment blocks are authenticated.",
+    "payable_code": "97161",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97161",
@@ -159,7 +195,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: PT Evaluation bundles diagnostic functional activities unless separate dynamic treatment sessions are fully structured."
+    "explanation": "NCCI PTP edit: PT Evaluation bundles diagnostic functional activities unless separate dynamic treatment sessions are fully structured.",
+    "payable_code": "97161",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97161",
@@ -167,7 +205,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care intervention requires unique temporal partitioning if introduced on the same calendar day as an initial PT evaluation."
+    "explanation": "NCCI PTP edit: Self-care intervention requires unique temporal partitioning if introduced on the same calendar day as an initial PT evaluation.",
+    "payable_code": "97161",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97162",
@@ -175,7 +215,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Moderate complexity PT Evaluation bundles subsequent exercise units unless discrete treatment blocks are documented."
+    "explanation": "NCCI PTP edit: Moderate complexity PT Evaluation bundles subsequent exercise units unless discrete treatment blocks are documented.",
+    "payable_code": "97162",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97162",
@@ -183,7 +225,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular metrics are diagnostic components of 97162 unless separate therapeutic application timelines exist."
+    "explanation": "NCCI PTP edit: Neuromuscular metrics are diagnostic components of 97162 unless separate therapeutic application timelines exist.",
+    "payable_code": "97162",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97162",
@@ -191,7 +235,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Moderate evaluation structures limit direct gait claims unless an independent gait treatment encounter is executed."
+    "explanation": "NCCI PTP edit: Moderate evaluation structures limit direct gait claims unless an independent gait treatment encounter is executed.",
+    "payable_code": "97162",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97162",
@@ -199,7 +245,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Same-day manual therapy during moderate evaluation requires modifier confirmation of distinct operational tracking."
+    "explanation": "NCCI PTP edit: Same-day manual therapy during moderate evaluation requires modifier confirmation of distinct operational tracking.",
+    "payable_code": "97162",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97162",
@@ -207,7 +255,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic testing criteria inside 97162 restrict basic therapeutic activity coding unless explicitly partitioned."
+    "explanation": "NCCI PTP edit: Dynamic testing criteria inside 97162 restrict basic therapeutic activity coding unless explicitly partitioned.",
+    "payable_code": "97162",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97162",
@@ -215,7 +265,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care instruction lines are component items of 97162 unless unique session events are populated."
+    "explanation": "NCCI PTP edit: Self-care instruction lines are component items of 97162 unless unique session events are populated.",
+    "payable_code": "97162",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97163",
@@ -223,7 +275,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: High complexity PT Evaluation includes comprehensive target exercises unless separate service timelines are isolated."
+    "explanation": "NCCI PTP edit: High complexity PT Evaluation includes comprehensive target exercises unless separate service timelines are isolated.",
+    "payable_code": "97163",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97163",
@@ -231,7 +285,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Complex neuromuscular baseline tracking is bundled under 97163 unless separate intervention blocks are met."
+    "explanation": "NCCI PTP edit: Complex neuromuscular baseline tracking is bundled under 97163 unless separate intervention blocks are met.",
+    "payable_code": "97163",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97163",
@@ -239,7 +295,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Gait pattern diagnostic tests are embedded inside 97163 unless specialized separate training is managed."
+    "explanation": "NCCI PTP edit: Gait pattern diagnostic tests are embedded inside 97163 unless specialized separate training is managed.",
+    "payable_code": "97163",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97163",
@@ -247,7 +305,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: High complexity evaluation criteria include manual assessments; separate therapeutic touch requires validation."
+    "explanation": "NCCI PTP edit: High complexity evaluation criteria include manual assessments; separate therapeutic touch requires validation.",
+    "payable_code": "97163",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97163",
@@ -255,7 +315,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic active procedures are component parts of complex evaluations unless explicitly run in unique session segments."
+    "explanation": "NCCI PTP edit: Dynamic active procedures are component parts of complex evaluations unless explicitly run in unique session segments.",
+    "payable_code": "97163",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97163",
@@ -263,7 +325,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL testing processes within 97163 restrict baseline self-care coding unless specific separate education is proved."
+    "explanation": "NCCI PTP edit: ADL testing processes within 97163 restrict baseline self-care coding unless specific separate education is proved.",
+    "payable_code": "97163",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97164",
@@ -271,7 +335,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: PT Re-evaluation rules encompass baseline exercises unless distinct therapeutic intervention blocks are established."
+    "explanation": "NCCI PTP edit: PT Re-evaluation rules encompass baseline exercises unless distinct therapeutic intervention blocks are established.",
+    "payable_code": "97164",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97164",
@@ -279,7 +345,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Re-evaluation parameters include neuromuscular tracking unless independent structural training is added."
+    "explanation": "NCCI PTP edit: Re-evaluation parameters include neuromuscular tracking unless independent structural training is added.",
+    "payable_code": "97164",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97164",
@@ -287,7 +355,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Ambulation baseline tracking models are bundled into 97164 unless separate, skilled training sequences exist."
+    "explanation": "NCCI PTP edit: Ambulation baseline tracking models are bundled into 97164 unless separate, skilled training sequences exist.",
+    "payable_code": "97164",
+    "bundled_code": "97116"
   },
   {
     "cpt_a": "97164",
@@ -295,7 +365,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual diagnostic maneuvers match 97164 profiles; separate therapeutic manual procedures require modifier support."
+    "explanation": "NCCI PTP edit: Manual diagnostic maneuvers match 97164 profiles; separate therapeutic manual procedures require modifier support.",
+    "payable_code": "97164",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97164",
@@ -303,7 +375,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic task tracking within a re-evaluation bundles basic therapeutic activities unless managed separately."
+    "explanation": "NCCI PTP edit: Dynamic task tracking within a re-evaluation bundles basic therapeutic activities unless managed separately.",
+    "payable_code": "97164",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97164",
@@ -311,7 +385,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL re-assessments limit separate self-care codes on identical dates unless explicit temporal separation is logged."
+    "explanation": "NCCI PTP edit: ADL re-assessments limit separate self-care codes on identical dates unless explicit temporal separation is logged.",
+    "payable_code": "97164",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97165",
@@ -319,7 +395,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Initial OT Evaluation (97165) includes therapeutic exercises unless independent post-evaluation treatment cycles occur."
+    "explanation": "NCCI PTP edit: Initial OT Evaluation (97165) includes therapeutic exercises unless independent post-evaluation treatment cycles occur.",
+    "payable_code": "97165",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97165",
@@ -327,7 +405,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular coordination diagnostics match 97165 sets; separate training elements require modifier tracking."
+    "explanation": "NCCI PTP edit: Neuromuscular coordination diagnostics match 97165 sets; separate training elements require modifier tracking.",
+    "payable_code": "97165",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97165",
@@ -335,7 +415,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Same-day manual therapies during initial OT evaluation are bundled unless distinct treatment intervals are validated."
+    "explanation": "NCCI PTP edit: Same-day manual therapies during initial OT evaluation are bundled unless distinct treatment intervals are validated.",
+    "payable_code": "97165",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97165",
@@ -343,7 +425,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Functional task diagnostics within 97165 bundle therapeutic activity codes unless unique operational segments are used."
+    "explanation": "NCCI PTP edit: Functional task diagnostics within 97165 bundle therapeutic activity codes unless unique operational segments are used.",
+    "payable_code": "97165",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97165",
@@ -351,7 +435,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Low complexity OT evaluation restricts concurrent self-care training line codes unless explicitly separated."
+    "explanation": "NCCI PTP edit: Low complexity OT evaluation restricts concurrent self-care training line codes unless explicitly separated.",
+    "payable_code": "97165",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97166",
@@ -359,7 +445,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Moderate OT Evaluation structures incorporate target exercises unless unique treatment milestones are recorded."
+    "explanation": "NCCI PTP edit: Moderate OT Evaluation structures incorporate target exercises unless unique treatment milestones are recorded.",
+    "payable_code": "97166",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97166",
@@ -367,7 +455,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Movement integration metrics inside 97166 bundle neuromuscular options unless separate sessions exist."
+    "explanation": "NCCI PTP edit: Movement integration metrics inside 97166 bundle neuromuscular options unless separate sessions exist.",
+    "payable_code": "97166",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97166",
@@ -375,7 +465,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Moderate OT evaluation components restrict raw manual therapy additions unless distinct segments are proved."
+    "explanation": "NCCI PTP edit: Moderate OT evaluation components restrict raw manual therapy additions unless distinct segments are proved.",
+    "payable_code": "97166",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97166",
@@ -383,7 +475,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic occupational profiling bundles therapeutic activities unless individual training intervals are certified."
+    "explanation": "NCCI PTP edit: Dynamic occupational profiling bundles therapeutic activities unless individual training intervals are certified.",
+    "payable_code": "97166",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97166",
@@ -391,7 +485,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL capacity reviews limit secondary self-care claims unless unique service encounters occur."
+    "explanation": "NCCI PTP edit: ADL capacity reviews limit secondary self-care claims unless unique service encounters occur.",
+    "payable_code": "97166",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97167",
@@ -399,7 +495,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: High complexity OT Evaluation bundles component target exercises unless separate session entries exist."
+    "explanation": "NCCI PTP edit: High complexity OT Evaluation bundles component target exercises unless separate session entries exist.",
+    "payable_code": "97167",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97167",
@@ -407,7 +505,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Complex neurological pathway tracking is component to 97167 lines unless separate therapy sessions are built."
+    "explanation": "NCCI PTP edit: Complex neurological pathway tracking is component to 97167 lines unless separate therapy sessions are built.",
+    "payable_code": "97167",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97167",
@@ -415,7 +515,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual techniques match internal evaluation markers; separate manual treatments require modifier verification."
+    "explanation": "NCCI PTP edit: Manual techniques match internal evaluation markers; separate manual treatments require modifier verification.",
+    "payable_code": "97167",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97167",
@@ -423,7 +525,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active procedure blocks are component layers of complex OT evaluations unless tracked on separate intervals."
+    "explanation": "NCCI PTP edit: Active procedure blocks are component layers of complex OT evaluations unless tracked on separate intervals.",
+    "payable_code": "97167",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97167",
@@ -431,7 +535,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Detailed environmental safety reviews inside 97167 bundle self-care training unless explicitly partitioned."
+    "explanation": "NCCI PTP edit: Detailed environmental safety reviews inside 97167 bundle self-care training unless explicitly partitioned.",
+    "payable_code": "97167",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97168",
@@ -439,7 +545,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: OT Re-evaluation processes include general exercise lines unless clear separate session updates are mapped."
+    "explanation": "NCCI PTP edit: OT Re-evaluation processes include general exercise lines unless clear separate session updates are mapped.",
+    "payable_code": "97168",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "97168",
@@ -447,7 +555,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Coordination re-assessments bundle generic neuromuscular coding unless independent runtime tracks exist."
+    "explanation": "NCCI PTP edit: Coordination re-assessments bundle generic neuromuscular coding unless independent runtime tracks exist.",
+    "payable_code": "97168",
+    "bundled_code": "97112"
   },
   {
     "cpt_a": "97168",
@@ -455,7 +565,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual diagnostic runs align with 97168 markers; therapeutic manual inputs require modifier safety checks."
+    "explanation": "NCCI PTP edit: Manual diagnostic runs align with 97168 markers; therapeutic manual inputs require modifier safety checks.",
+    "payable_code": "97168",
+    "bundled_code": "97140"
   },
   {
     "cpt_a": "97168",
@@ -463,7 +575,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic task tracking inside re-evaluations limits separate therapeutic activity codes unless run independently."
+    "explanation": "NCCI PTP edit: Dynamic task tracking inside re-evaluations limits separate therapeutic activity codes unless run independently.",
+    "payable_code": "97168",
+    "bundled_code": "97530"
   },
   {
     "cpt_a": "97168",
@@ -471,7 +585,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL framework updates bundle baseline self-care modules unless explicit temporal partitions are recorded."
+    "explanation": "NCCI PTP edit: ADL framework updates bundle baseline self-care modules unless explicit temporal partitions are recorded.",
+    "payable_code": "97168",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97035",
@@ -479,7 +595,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Ultrasound deep thermal mechanics bundle superficial hot cold applications unless applied to distinct regions."
+    "explanation": "NCCI PTP edit: Ultrasound deep thermal mechanics bundle superficial hot cold applications unless applied to distinct regions.",
+    "payable_code": "97035",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97110",
@@ -487,7 +605,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active therapeutic exercise structures bundle passive hot cold packs unless clear separate session metrics apply."
+    "explanation": "NCCI PTP edit: Active therapeutic exercise structures bundle passive hot cold packs unless clear separate session metrics apply.",
+    "payable_code": "97110",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97112",
@@ -495,7 +615,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular patterns supersede passive thermal controls unless executed across completely non-overlapping sites."
+    "explanation": "NCCI PTP edit: Neuromuscular patterns supersede passive thermal controls unless executed across completely non-overlapping sites.",
+    "payable_code": "97112",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97116",
@@ -503,7 +625,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active gait training lines fully encompass passive hot cold support unless managed on different body areas."
+    "explanation": "NCCI PTP edit: Active gait training lines fully encompass passive hot cold support unless managed on different body areas.",
+    "payable_code": "97116",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97140",
@@ -511,7 +635,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Hands-on manual therapy bundles passive superficial thermal agents unless unique target segment sites are used."
+    "explanation": "NCCI PTP edit: Hands-on manual therapy bundles passive superficial thermal agents unless unique target segment sites are used.",
+    "payable_code": "97140",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97530",
@@ -519,7 +645,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic active procedures limit simple hot cold bundle lines unless documented on alternative body areas."
+    "explanation": "NCCI PTP edit: Dynamic active procedures limit simple hot cold bundle lines unless documented on alternative body areas.",
+    "payable_code": "97530",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97535",
@@ -527,7 +655,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Comprehensive self-care lines bundle basic thermal parameters unless specific separate session profiles match."
+    "explanation": "NCCI PTP edit: Comprehensive self-care lines bundle basic thermal parameters unless specific separate session profiles match.",
+    "payable_code": "97535",
+    "bundled_code": "97010"
   },
   {
     "cpt_a": "97110",
@@ -535,7 +665,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active exercise blocks limit secondary mechanical traction records unless unique mechanical regions are isolated."
+    "explanation": "NCCI PTP edit: Active exercise blocks limit secondary mechanical traction records unless unique mechanical regions are isolated.",
+    "payable_code": "97110",
+    "bundled_code": "97012"
   },
   {
     "cpt_a": "97112",
@@ -543,7 +675,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Postural pattern training restricts mechanical tables unless tracked across distinct non-overlapping intervals."
+    "explanation": "NCCI PTP edit: Postural pattern training restricts mechanical tables unless tracked across distinct non-overlapping intervals.",
+    "payable_code": "97112",
+    "bundled_code": "97012"
   },
   {
     "cpt_a": "97140",
@@ -551,7 +685,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual tracking forces bundle machine mechanical traction options unless separate spinal segments are handled."
+    "explanation": "NCCI PTP edit: Manual tracking forces bundle machine mechanical traction options unless separate spinal segments are handled.",
+    "payable_code": "97140",
+    "bundled_code": "97012"
   },
   {
     "cpt_a": "97530",
@@ -559,7 +695,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic multi-joint protocols bundle basic machine setups unless independent runtime separations occur."
+    "explanation": "NCCI PTP edit: Dynamic multi-joint protocols bundle basic machine setups unless independent runtime separations occur.",
+    "payable_code": "97530",
+    "bundled_code": "97012"
   },
   {
     "cpt_a": "97110",
@@ -567,7 +705,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active strengthening modules limit generic unattended e-stim parameters unless applied to distinct muscles."
+    "explanation": "NCCI PTP edit: Active strengthening modules limit generic unattended e-stim parameters unless applied to distinct muscles.",
+    "payable_code": "97110",
+    "bundled_code": "97014"
   },
   {
     "cpt_a": "97112",
@@ -575,7 +715,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic control paths bundle passive static electrode placements unless recorded on unique structural paths."
+    "explanation": "NCCI PTP edit: Dynamic control paths bundle passive static electrode placements unless recorded on unique structural paths.",
+    "payable_code": "97112",
+    "bundled_code": "97014"
   },
   {
     "cpt_a": "97116",
@@ -583,7 +725,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Ambulatory training blocks restrict passive electrical placements unless monitored on separate skeletal zones."
+    "explanation": "NCCI PTP edit: Ambulatory training blocks restrict passive electrical placements unless monitored on separate skeletal zones.",
+    "payable_code": "97116",
+    "bundled_code": "97014"
   },
   {
     "cpt_a": "97140",
@@ -591,7 +735,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Skilled clinical manipulation limits unattended electrical stimulation options unless localized to unique nodes."
+    "explanation": "NCCI PTP edit: Skilled clinical manipulation limits unattended electrical stimulation options unless localized to unique nodes.",
+    "payable_code": "97140",
+    "bundled_code": "97014"
   },
   {
     "cpt_a": "97530",
@@ -599,7 +745,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic operational trials supersede passive standard stimulation rules unless individual tracks exist."
+    "explanation": "NCCI PTP edit: Dynamic operational trials supersede passive standard stimulation rules unless individual tracks exist.",
+    "payable_code": "97530",
+    "bundled_code": "97014"
   },
   {
     "cpt_a": "97110",
@@ -607,7 +755,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Therapeutic exercise targets restrict attended electrical codes unless fully separated across structural regions."
+    "explanation": "NCCI PTP edit: Therapeutic exercise targets restrict attended electrical codes unless fully separated across structural regions.",
+    "payable_code": "97110",
+    "bundled_code": "97032"
   },
   {
     "cpt_a": "97112",
@@ -615,7 +765,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular loop targets restrict manual probe stimulation configurations unless separate muscle systems are treated."
+    "explanation": "NCCI PTP edit: Neuromuscular loop targets restrict manual probe stimulation configurations unless separate muscle systems are treated.",
+    "payable_code": "97112",
+    "bundled_code": "97032"
   },
   {
     "cpt_a": "97140",
@@ -623,7 +775,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual therapy procedures bundle manual biofeedback current sessions unless unique regional targets are validated."
+    "explanation": "NCCI PTP edit: Manual therapy procedures bundle manual biofeedback current sessions unless unique regional targets are validated.",
+    "payable_code": "97140",
+    "bundled_code": "97032"
   },
   {
     "cpt_a": "97530",
@@ -631,7 +785,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Integrated dynamic tasks override concurrent attended electrical inputs unless non-overlapping setups occur."
+    "explanation": "NCCI PTP edit: Integrated dynamic tasks override concurrent attended electrical inputs unless non-overlapping setups occur.",
+    "payable_code": "97530",
+    "bundled_code": "97032"
   },
   {
     "cpt_a": "97110",
@@ -639,7 +795,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active muscular execution lines bundle acoustic ultrasound waves unless isolated to distinct structural paths."
+    "explanation": "NCCI PTP edit: Active muscular execution lines bundle acoustic ultrasound waves unless isolated to distinct structural paths.",
+    "payable_code": "97110",
+    "bundled_code": "97035"
   },
   {
     "cpt_a": "97112",
@@ -647,7 +805,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Coordination training sets restrict local wand ultrasound deliveries unless managed on unique regional zones."
+    "explanation": "NCCI PTP edit: Coordination training sets restrict local wand ultrasound deliveries unless managed on unique regional zones.",
+    "payable_code": "97112",
+    "bundled_code": "97035"
   },
   {
     "cpt_a": "97140",
@@ -655,7 +815,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Manual physical adjustments bundle concurrent wand ultrasound applications unless distinct body segments match."
+    "explanation": "NCCI PTP edit: Manual physical adjustments bundle concurrent wand ultrasound applications unless distinct body segments match.",
+    "payable_code": "97140",
+    "bundled_code": "97035"
   },
   {
     "cpt_a": "97530",
@@ -663,7 +825,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Functional dynamic protocols restrict localized wand ultrasound setups unless individual session limits are verified."
+    "explanation": "NCCI PTP edit: Functional dynamic protocols restrict localized wand ultrasound setups unless individual session limits are verified.",
+    "payable_code": "97530",
+    "bundled_code": "97035"
   },
   {
     "cpt_a": "97110",
@@ -671,7 +835,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Active kinetic tracks bundle superficial relaxation massage lines unless alternative anatomical areas are logged."
+    "explanation": "NCCI PTP edit: Active kinetic tracks bundle superficial relaxation massage lines unless alternative anatomical areas are logged.",
+    "payable_code": "97110",
+    "bundled_code": "97124"
   },
   {
     "cpt_a": "97112",
@@ -679,7 +845,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Proprioceptive pathways supersede tissue kneading massage options unless separate skeletal zones are isolated."
+    "explanation": "NCCI PTP edit: Proprioceptive pathways supersede tissue kneading massage options unless separate skeletal zones are isolated.",
+    "payable_code": "97112",
+    "bundled_code": "97124"
   },
   {
     "cpt_a": "97116",
@@ -687,7 +855,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Skilful gait tracking overrides baseline relaxation strokes unless executed on independent upper lower segments."
+    "explanation": "NCCI PTP edit: Skilful gait tracking overrides baseline relaxation strokes unless executed on independent upper lower segments.",
+    "payable_code": "97116",
+    "bundled_code": "97124"
   },
   {
     "cpt_a": "97530",
@@ -695,7 +865,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic task sequences restrict generalized component tissue massage claims unless tracked on distinct intervals."
+    "explanation": "NCCI PTP edit: Dynamic task sequences restrict generalized component tissue massage claims unless tracked on distinct intervals.",
+    "payable_code": "97530",
+    "bundled_code": "97124"
   },
   {
     "cpt_a": "97535",
@@ -703,7 +875,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: ADL development modules limit superficial massage treatments unless explicit independent needs are highlighted."
+    "explanation": "NCCI PTP edit: ADL development modules limit superficial massage treatments unless explicit independent needs are highlighted.",
+    "payable_code": "97124",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97110",
@@ -711,7 +885,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Physical strengthening modules limit daily cognitive strategy inputs unless individual timelines are structured."
+    "explanation": "NCCI PTP edit: Physical strengthening modules limit daily cognitive strategy inputs unless individual timelines are structured.",
+    "payable_code": "97110",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "97112",
@@ -719,7 +895,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Neuromuscular mechanics bundle daily cognitive execution tracks unless explicit session separation is verified."
+    "explanation": "NCCI PTP edit: Neuromuscular mechanics bundle daily cognitive execution tracks unless explicit session separation is verified.",
+    "payable_code": "97112",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "97140",
@@ -727,7 +905,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Hands-on structural manipulation restricts daily cognitive tracking units unless managed on distinct encounters."
+    "explanation": "NCCI PTP edit: Hands-on structural manipulation restricts daily cognitive tracking units unless managed on distinct encounters.",
+    "payable_code": "97140",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "97530",
@@ -735,7 +915,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dynamic motor activity structures bundle cognitive skill lines unless separate operational blocks are tracked."
+    "explanation": "NCCI PTP edit: Dynamic motor activity structures bundle cognitive skill lines unless separate operational blocks are tracked.",
+    "payable_code": "97530",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "97535",
@@ -743,7 +925,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Self-care ADL modules limit secondary baseline cognitive skill claims unless unique session setups occur."
+    "explanation": "NCCI PTP edit: Self-care ADL modules limit secondary baseline cognitive skill claims unless unique session setups occur.",
+    "payable_code": "97535",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "92507",
@@ -751,7 +935,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Speech language sessions bundle general daily cognitive skill modules unless run under independent timelines."
+    "explanation": "NCCI PTP edit: Speech language sessions bundle general daily cognitive skill modules unless run under independent timelines.",
+    "payable_code": "92507",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "92526",
@@ -759,7 +945,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Swallowing treatment modules restrict standard communication lines unless unique separate sessions match."
+    "explanation": "NCCI PTP edit: Swallowing treatment modules restrict standard communication lines unless unique separate sessions match.",
+    "payable_code": "92526",
+    "bundled_code": "92507"
   },
   {
     "cpt_a": "92526",
@@ -767,7 +955,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Dysphagia feeding maneuvers limit separate cognitive coding units unless unique temporal barriers exist."
+    "explanation": "NCCI PTP edit: Dysphagia feeding maneuvers limit separate cognitive coding units unless unique temporal barriers exist.",
+    "payable_code": "92526",
+    "bundled_code": "97127"
   },
   {
     "cpt_a": "97542",
@@ -775,7 +965,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Wheelchair management training loops bundle general exercises unless non-overlapping body structures are used."
+    "explanation": "NCCI PTP edit: Wheelchair management training loops bundle general exercises unless non-overlapping body structures are used.",
+    "payable_code": "97110",
+    "bundled_code": "97542"
   },
   {
     "cpt_a": "97542",
@@ -783,7 +975,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Wheelchair fitting tracks limit secondary coordination claims unless explicit operational windows apply."
+    "explanation": "NCCI PTP edit: Wheelchair fitting tracks limit secondary coordination claims unless explicit operational windows apply.",
+    "payable_code": "97112",
+    "bundled_code": "97542"
   },
   {
     "cpt_a": "97542",
@@ -791,7 +985,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Wheelchair propulsion training limits standard overground gait lines unless unique tracking sets are documented."
+    "explanation": "NCCI PTP edit: Wheelchair propulsion training limits standard overground gait lines unless unique tracking sets are documented.",
+    "payable_code": "97116",
+    "bundled_code": "97542"
   },
   {
     "cpt_a": "97542",
@@ -799,7 +995,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Seating adjustments limit separate manual procedures unless localized entirely to distinct structural joints."
+    "explanation": "NCCI PTP edit: Seating adjustments limit separate manual procedures unless localized entirely to distinct structural joints.",
+    "payable_code": "97140",
+    "bundled_code": "97542"
   },
   {
     "cpt_a": "97542",
@@ -807,7 +1005,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Wheelchair functional activities override general dynamic tasks unless independent intervals match."
+    "explanation": "NCCI PTP edit: Wheelchair functional activities override general dynamic tasks unless independent intervals match.",
+    "payable_code": "97530",
+    "bundled_code": "97542"
   },
   {
     "cpt_a": "97542",
@@ -815,7 +1015,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Wheelchair management bundles overlapping domestic self-care modules unless alternative sessions exist."
+    "explanation": "NCCI PTP edit: Wheelchair management bundles overlapping domestic self-care modules unless alternative sessions exist.",
+    "payable_code": "97542",
+    "bundled_code": "97535"
   },
   {
     "cpt_a": "97760",
@@ -823,7 +1025,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Orthotic management and training includes components of therapeutic exercise unless performed on a distinct region."
+    "explanation": "NCCI PTP edit: Orthotic management and training includes components of therapeutic exercise unless performed on a distinct region.",
+    "payable_code": "97110",
+    "bundled_code": "97760"
   },
   {
     "cpt_a": "97760",
@@ -831,7 +1035,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Orthotic tracking bundles neuromuscular reeducation unless specific non-overlapping structural limbs are isolated."
+    "explanation": "NCCI PTP edit: Orthotic tracking bundles neuromuscular reeducation unless specific non-overlapping structural limbs are isolated.",
+    "payable_code": "97112",
+    "bundled_code": "97760"
   },
   {
     "cpt_a": "97760",
@@ -839,7 +1045,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Orthotic fitting procedures restrict manual techniques on the identical branch unless distinct target nodes apply."
+    "explanation": "NCCI PTP edit: Orthotic fitting procedures restrict manual techniques on the identical branch unless distinct target nodes apply.",
+    "payable_code": "97140",
+    "bundled_code": "97760"
   },
   {
     "cpt_a": "97760",
@@ -847,7 +1055,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Orthotic design sessions bundle general dynamic tasks unless specific operational steps occur independently."
+    "explanation": "NCCI PTP edit: Orthotic design sessions bundle general dynamic tasks unless specific operational steps occur independently.",
+    "payable_code": "97530",
+    "bundled_code": "97760"
   },
   {
     "cpt_a": "97761",
@@ -855,7 +1065,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Prosthetic training elements encompass basic conditioning exercises unless alternate extremities match."
+    "explanation": "NCCI PTP edit: Prosthetic training elements encompass basic conditioning exercises unless alternate extremities match.",
+    "payable_code": "97110",
+    "bundled_code": "97761"
   },
   {
     "cpt_a": "97761",
@@ -863,7 +1075,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Prosthetic gait reeducation restricts pure neuromuscular codes unless tracked via separate regional lines."
+    "explanation": "NCCI PTP edit: Prosthetic gait reeducation restricts pure neuromuscular codes unless tracked via separate regional lines.",
+    "payable_code": "97112",
+    "bundled_code": "97761"
   },
   {
     "cpt_a": "97761",
@@ -871,7 +1085,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Prosthetic ambulation rules bundle generalized gait lines unless independent structural segments are timed."
+    "explanation": "NCCI PTP edit: Prosthetic ambulation rules bundle generalized gait lines unless independent structural segments are timed.",
+    "payable_code": "97116",
+    "bundled_code": "97761"
   },
   {
     "cpt_a": "97761",
@@ -879,7 +1095,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Stump modeling checks limit localized manual touches unless executed on an entirely separate limb."
+    "explanation": "NCCI PTP edit: Stump modeling checks limit localized manual touches unless executed on an entirely separate limb.",
+    "payable_code": "97140",
+    "bundled_code": "97761"
   },
   {
     "cpt_a": "97761",
@@ -887,7 +1105,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": true,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Prosthetic functional integration restricts general activity lines unless managed via unique session increments."
+    "explanation": "NCCI PTP edit: Prosthetic functional integration restricts general activity lines unless managed via unique session increments.",
+    "payable_code": "97530",
+    "bundled_code": "97761"
   },
   {
     "cpt_a": "99212",
@@ -895,7 +1115,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Office E/M 99212 includes component elements of PT Evaluation 97161. Bypassing requires a separate, identifiable diagnostic purpose supported by Modifier 25."
+    "explanation": "NCCI PTP edit: Office E/M 99212 includes component elements of PT Evaluation 97161. Bypassing requires a separate, identifiable diagnostic purpose supported by Modifier 25.",
+    "payable_code": "99212",
+    "bundled_code": "97161"
   },
   {
     "cpt_a": "99213",
@@ -903,7 +1125,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Office E/M 99213 bundles PT evaluation modules unless distinct, non-overlapping diagnostic reasons are certified."
+    "explanation": "NCCI PTP edit: Office E/M 99213 bundles PT evaluation modules unless distinct, non-overlapping diagnostic reasons are certified.",
+    "payable_code": "99213",
+    "bundled_code": "97161"
   },
   {
     "cpt_a": "99214",
@@ -911,7 +1135,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Outpatient E/M paths restrict direct evaluation additions unless a modifier confirms completely independent investigations."
+    "explanation": "NCCI PTP edit: Outpatient E/M paths restrict direct evaluation additions unless a modifier confirms completely independent investigations.",
+    "payable_code": "99214",
+    "bundled_code": "97161"
   },
   {
     "cpt_a": "99213",
@@ -919,7 +1145,9 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Standard E/M physician codes encompass therapy procedure items unless independent clinical encounters are authenticated via modifier."
+    "explanation": "NCCI PTP edit: Standard E/M physician codes encompass therapy procedure items unless independent clinical encounters are authenticated via modifier.",
+    "payable_code": "99213",
+    "bundled_code": "97110"
   },
   {
     "cpt_a": "99214",
@@ -927,6 +1155,8 @@
     "conflict_type": "mutually_exclusive",
     "body_region_sensitive": false,
     "modifier_59_possible": true,
-    "explanation": "NCCI PTP edit: Evaluation and management runs bundle physical manual therapies unless distinct, standalone physical health interventions apply."
+    "explanation": "NCCI PTP edit: Evaluation and management runs bundle physical manual therapies unless distinct, standalone physical health interventions apply.",
+    "payable_code": "99214",
+    "bundled_code": "97140"
   }
 ]
