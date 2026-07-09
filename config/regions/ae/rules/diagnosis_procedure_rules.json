@@ -1,0 +1,32 @@
+{
+  "source_name": "Medexa Internal - UAE Diagnosis Procedure Rules",
+  "source_url": "internal://medexa/config/regions/ae/rules/diagnosis_procedure_rules.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "rule_id": "AE-DX-001",
+      "category": "diagnosis_required",
+      "severity": "error",
+      "description": "Claims must include a principal diagnosis aligned with the target emirate schema."
+    },
+    {
+      "rule_id": "AE-DX-002",
+      "category": "emirate_routing",
+      "severity": "error",
+      "description": "Diagnosis and activity coding must follow the selected emirate exchange platform rules."
+    },
+    {
+      "rule_id": "AE-DX-003",
+      "category": "code_system",
+      "severity": "error",
+      "description": "Procedure and pharmacy codes must resolve against imported DHA, DOH, or licensed masters."
+    }
+  ]
+}

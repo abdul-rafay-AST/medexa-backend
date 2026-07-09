@@ -1,0 +1,35 @@
+{
+  "source_name": "Medexa Internal - UAE Pre-Auth Required Services",
+  "source_url": "internal://medexa/config/regions/ae/pre_auth/pre_auth_required_services.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "service_category": "advanced_imaging",
+      "keywords": ["mri", "ct scan", "pet scan"],
+      "requires_pre_auth": true,
+      "severity": "high",
+      "message": "High-cost imaging typically requires payer authorization in UAE workflows."
+    },
+    {
+      "service_category": "inpatient_admission",
+      "keywords": ["admission", "inpatient"],
+      "requires_pre_auth": true,
+      "severity": "high",
+      "message": "Inpatient admissions should be authorized before claim submission."
+    },
+    {
+      "service_category": "therapy_session",
+      "keywords": ["physiotherapy", "physical therapy", "rehab"],
+      "requires_pre_auth": false,
+      "severity": "low",
+      "message": "Therapy authorization depends on payer contract and emirate routing."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "source_name": "Medexa Internal - Saudi Required Session Fields",
+  "source_url": "internal://medexa/config/regions/sa/pre_auth/required_session_fields.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "source_url": "https://portal.nphies.sa/ig/index.html",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "NPHIES Introduction and Use Cases",
+      "source_url": "https://portal.nphies.sa/ig/introduction.html",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "workflow": "session_start",
+      "required_fields": [
+        "billing_region",
+        "payer_id",
+        "member_id"
+      ],
+      "conditionally_required_fields": [
+        {
+          "field": "pre_auth_reference",
+          "required_when": "service_or_encounter_requires_prior_authorization"
+        },
+        {
+          "field": "facility_id",
+          "required_when": "claim_or_eligibility_exchange_is_enabled"
+        },
+        {
+          "field": "provider_license_id",
+          "required_when": "claim_or_eligibility_exchange_is_enabled"
+        }
+      ],
+      "optional_fields": [
+        "policy_number",
+        "national_id",
+        "benefit_package_id",
+        "encounter_class"
+      ],
+      "validation_guidance": {
+        "member_id_must_be_normalized": true,
+        "payer_id_must_route_to_directory": true,
+        "pre_auth_reference_must_not_be_empty_when_present": true
+      },
+      "notes": "This file defines Medexa onboarding requirements for Saudi workflows. Exact payer-specific formats should be verified against payer onboarding and NPHIES operational guidance."
+    }
+  ]
+}

@@ -1,0 +1,623 @@
+# MEDEXA — 37-MINUTE PT SESSION TEST TRANSCRIPT (FULL GRANULAR)
+# File: scripts/fixtures/pt_session_37min_full_transcript.txt
+# Patient: Samuel Thompson | Therapist: Dr. Sarah Chen, PT | Visit #8
+# Primary: RIGHT SHOULDER (shoulder_right) | Secondary: LEFT KNEE (knee_left)
+#
+# USE: Upload as one .txt OR split on [MM:SS] for transcript-chunk API testing.
+# No AWS / no audio required — text-only triggers rules engine.
+#
+# BILLING MAP (aligned to config/activity_synonyms.json + cpt_metadata.json):
+#   04:00–05:59  hot pack / hot pack application           → 97010 UNTIMED (1 unit)
+#   06:00–13:59  manual therapy / soft tissue work          → 97140 TIMED (~8 min)
+#   14:00–21:59  therapeutic exercise / theraband / ROM     → 97110 TIMED (~8 min) NCCI vs 97140
+#   15:30–16:15  therapeutic exercise + left knee           → 97110 different region
+#   22:00–25:59  neuromuscular reeducation / balance        → 97112 TIMED (~4 min)
+#   26:00–29:59  therapeutic activity                       → 97530 TIMED (~4 min) NCCI
+#   30:00–32:59  ultrasound therapy / therapeutic ultrasound → 97035 TIMED (~3 min)
+#   33:00–34:59  tens unit application / e-stim unattended  → 97014 UNTIMED (1 unit)
+#   35:00–36:59  gait training / cane training              → 97116 TIMED (~2 min)
+#
+# SPECIAL: 01:30 negation | 12:00 pause | 12:45 resume | 13:30 massage therapy (97124 NCCI)
+# Timestamps every 15 seconds from [00:00] through [37:00]
+# ================================================================================
+
+[00:00]
+Therapist: Good morning Samuel, Dr. Sarah Chen here. Ambient session recording is on for today's physical therapy visit.
+Patient: Good morning. Right shoulder still limits me.
+
+[00:15]
+Therapist: Confirm identity and consent for treatment and documentation capture today.
+Patient: Yes, Samuel Thompson, date of birth confirmed.
+
+[00:30]
+Therapist: Post-operative week ten right rotator cuff repair — confirm no fever, no signs of infection at surgical site.
+Patient: Incision is clean, no drainage.
+
+[00:45]
+Therapist: Current pain at rest zero to ten on the right shoulder?
+Patient: Three out of ten at rest.
+
+[01:00]
+Therapist: Pain with functional overhead reach on the right?
+Patient: Six out of ten reaching to high shelf.
+
+[01:15]
+Therapist: Any numbness, tingling, or cervical referral symptoms?
+Patient: No numbness down the arm.
+
+[01:30]
+Therapist: Compliance with home exercise program since last visit?
+Patient: I did pendulums and walking daily. I did not do any therapeutic exercise with the band at home because the right shoulder flared up Tuesday night.
+
+[01:45]
+Therapist: Noted — home therapeutic exercise deferred due to pain; we will not assume home billing today.
+Patient: Correct.
+
+[02:00]
+Therapist: Sleep quality and shoulder positioning at night?
+Patient: I avoid lying on the right shoulder. Sleep is broken.
+
+[02:15]
+Therapist: Work restrictions still in place — no overhead lifting at warehouse?
+Patient: Yes, modified duty continues.
+
+[02:30]
+Therapist: Today's clinical objectives — improve active flexion on the right shoulder, reduce guarding, restore functional reach, review safe gait with cane.
+Patient: Those are my goals too.
+
+[02:45]
+Therapist: Plan sequence — subjective, objective ROM, hot pack prep, manual therapy, therapeutic exercise, neuromuscular reeducation, therapeutic activity, ultrasound, TENS, gait training, reassessment.
+Patient: Understood.
+
+[03:00]
+Therapist: Objective — active forward flexion right shoulder, patient demonstration.
+Patient: About ninety to ninety-five degrees before sharpness.
+
+[03:15]
+Therapist: Active abduction scapular plane right shoulder.
+Patient: Eighty degrees with trunk lean.
+
+[03:30]
+Therapist: External rotation at neutral right shoulder.
+Patient: Thirty degrees maybe.
+
+[03:45]
+Therapist: Internal rotation reach to spine right shoulder.
+Patient: Reaches to lower gluteal fold only.
+
+[04:00]
+Therapist: Scapular dyskinesis observed with early upward rotation. Applying hot pack on the right shoulder for tissue preparation prior to skilled manual work.
+Patient: Heat helps loosen me up.
+
+[04:15]
+Therapist: Hot pack application with moist hydrocollator over right deltoid and posterior cuff — passive modality, patient supine.
+Patient: Temperature is comfortable.
+
+[04:30]
+Therapist: Hot pack remains on the right shoulder approximately twelve to fifteen minutes per clinic protocol.
+Patient: Should I stay still?
+
+[04:45]
+Therapist: Yes, relax breathing. Hot pack over right rotator cuff region, monitor skin.
+Patient: Feels good.
+
+[05:00]
+Therapist: Continuing hot pack on the right shoulder, guarding decreasing subjectively.
+Patient: Less stiff already.
+
+[05:15]
+Therapist: Hot pack application ongoing — untimed modality, no active exercise during heat.
+Patient: Okay.
+
+[05:30]
+Therapist: Removing hot pack from right shoulder, skin intact, mild erythema only.
+Patient: Ready for hands-on.
+
+[05:45]
+Therapist: Transition to skilled manual therapy block on the right shoulder — target eight minutes one-on-one contact.
+Patient: Is this mobilization?
+
+[06:00]
+Therapist: Beginning manual therapy — posterior glenohumeral joint mobilization grade two to three on the right shoulder.
+Patient: Deep pressure but tolerable.
+
+[06:15]
+Therapist: Manual therapy continues — inferior glide at end range on the right shoulder.
+Patient: More space in the joint.
+
+[06:30]
+Therapist: Soft tissue work on the right shoulder — cross friction posterior deltoid and infraspinatus.
+Patient: Tender over that spot.
+
+[06:45]
+Therapist: Soft tissue mobilization along medial scapular border on the right. Manual therapy skilled contact maintained.
+Patient: Big knot there.
+
+[07:00]
+Therapist: Myofascial release upper trapezius right side within manual therapy block on right shoulder.
+Patient: Holds a lot of tension.
+
+[07:15]
+Therapist: Joint mobilization anterior glide oscillations on the right shoulder alternating with soft tissue work.
+Patient: Front feels less pinched.
+
+[07:30]
+Therapist: Connective tissue massage posterior capsule right shoulder — manual therapy ongoing.
+Patient: Better when you hold end range.
+
+[07:45]
+Therapist: Manual therapy — scapular upward rotation assist, right shoulder flexion assisted.
+Patient: Smoother arc.
+
+[08:00]
+Therapist: Continuing manual therapy grade three posterior mobilization on the right shoulder.
+Patient: Ache only, no sharp pain.
+
+[08:15]
+Therapist: Soft tissue work right deltoid sustained hold trigger point release — manual therapy.
+Patient: Breathing through it.
+
+[08:30]
+Therapist: Manual therapy pectoral minor release on the right for scapular mechanics.
+Patient: Pulls into anterior chest.
+
+[08:45]
+Therapist: External rotation mobilization with soft tissue work on right shoulder — manual therapy.
+Patient: Range improving.
+
+[09:00]
+Therapist: Manual therapy midpoint — approximately four minutes elapsed on right shoulder hands-on.
+Patient: Arm heavier but looser.
+
+[09:15]
+Therapist: Soft tissue mobilization posterior chain right shoulder continuing manual therapy.
+Patient: Manageable discomfort.
+
+[09:30]
+Therapist: Manual therapy — rhythmic distraction right glenohumeral joint.
+Patient: Feels decompressed.
+
+[09:45]
+Therapist: Final minute manual therapy inferior glide hold right shoulder.
+Patient: Thank you.
+
+[10:00]
+Therapist: End manual therapy block — approximately eight minutes skilled manual therapy and soft tissue work on right shoulder.
+Patient: Much better than arrival.
+
+[10:15]
+Therapist: Post-manual active flexion recheck right shoulder — patient achieves one hundred degrees.
+Patient: Easier than before hands-on.
+
+[10:30]
+Therapist: Setup theraband station for therapeutic exercise phase on right shoulder.
+Patient: Ready to activate muscles.
+
+[10:45]
+Therapist: Brief hydration — thirty seconds before therapeutic exercise begins.
+Patient: Fine.
+
+[11:00]
+Therapist: Start therapeutic exercise — wall slides pain-free arc on the right shoulder, active range of motion emphasis.
+Patient: Like this with ribs down?
+
+[11:15]
+Therapist: Correct — fifteen wall slides therapeutic exercise right shoulder set one.
+Patient: Mild deltoid burn.
+
+[11:30]
+Therapist: Therapeutic exercise — scapular squeezes retract and depress, ten reps right shoulder girdle.
+Patient: Mid-back working.
+
+[11:45]
+Therapist: Theraband work yellow band external rotation neutral — therapeutic exercise rotator cuff activation right shoulder.
+Patient: Ten reps complete.
+
+[12:00]
+Therapist: Let's pause for thirty seconds water break — pause session timers if integrated.
+Patient: I need that pause.
+
+[12:15]
+Therapist: Still paused — patient hydration, right shoulder resting at side neutral.
+Patient: Almost ready.
+
+[12:30]
+Therapist: Resume activity now — let's resume therapeutic exercise on the right shoulder.
+Patient: Ready.
+
+[12:45]
+Therapist: Therapeutic exercise forward elevation scapular plane with band assist right shoulder.
+Patient: Fatigue at rep eight.
+
+[13:00]
+Therapist: Therapeutic exercise isometric external rotation press into band right shoulder without elbow motion.
+Patient: Shaking slightly.
+
+[13:15]
+Therapist: Band resistance rows scapular stability — therapeutic exercise right shoulder complex.
+Patient: Better form this set.
+
+[13:30]
+Therapist: Brief massage therapy effleurage upper trapezius right shoulder between sets — separate short relaxation from earlier manual therapy block.
+Patient: Nice relief.
+
+[13:45]
+Therapist: Therapeutic exercise active stretching flexion with PROM assist end range right shoulder.
+Patient: Tight but improving.
+
+[14:00]
+Therapist: Therapeutic exercise scapular retractions with band, right shoulder depressed throughout movement.
+Patient: Got it.
+
+[14:15]
+Therapist: Shoulder ROM standing abduction to ninety degrees right — therapeutic exercise with form cueing.
+Patient: I lean if higher.
+
+[14:30]
+Therapist: Therapeutic exercise theraband diagonal patterns functional reach training right shoulder.
+Patient: Hard but good.
+
+[14:45]
+Therapist: Strengthening therapeutic exercise prone extension isometric right scapula patient prone.
+Patient: Lower trap firing.
+
+[15:00]
+Therapist: Therapeutic exercise side-lying external rotation green band right shoulder progressing resistance.
+Patient: Ten reps done.
+
+[15:15]
+Therapist: Therapeutic exercise cuff weight isotonic external rotation two pounds right shoulder three sets.
+Patient: Fatigue six of ten.
+
+[15:30]
+Therapist: Separate region maintenance — therapeutic exercise at left knee quad sets ten reps, left knee independent from shoulder billing focus.
+Patient: Left knee easy.
+
+[15:45]
+Therapist: Left knee quad sets only — documented distinct body region left knee not overlapping shoulder interventions.
+Patient: No pain left.
+
+[16:00]
+Therapist: Return right shoulder therapeutic exercise wall slides plus scapular squeeze superset final set.
+Patient: Arm tired.
+
+[16:15]
+Therapist: Therapeutic exercise block ending — approximately eight minutes skilled therapeutic exercise on right shoulder.
+Patient: Good workout.
+
+[16:30]
+Therapist: Transition neuromuscular reeducation — scapulohumeral rhythm and balance for right upper extremity.
+Patient: What does that mean practically?
+
+[16:45]
+Therapist: Neuromuscular reeducation on foam pad reach tasks right arm while maintaining postural control.
+Patient: Wobbly immediately.
+
+[17:00]
+Therapist: Balance training light perturbations at shoulder patient maintains upright — neuromuscular reeducation.
+Patient: Harder than looks.
+
+[17:15]
+Therapist: Proprioceptive training eyes closed weight shift minimal sway — neuromuscular reeducation.
+Patient: Ankles working too.
+
+[17:30]
+Therapist: Postural training ear over shoulder reduce forward head — balance exercises foam pad.
+Patient: Better with verbal cues.
+
+[17:45]
+Therapist: Dynamic balance reach targets varied heights right arm — neuromuscular reeducation continues.
+Patient: Improving each rep.
+
+[18:00]
+Therapist: Static balance single leg stance light finger guard — neuromuscular reeducation.
+Patient: Thirty seconds achieved.
+
+[18:15]
+Therapist: Bosu balance modified two feet weight shift lateral — neuromuscular reeducation.
+Patient: Whoa unstable.
+
+[18:30]
+Therapist: Rhythmic stabilization shoulder ninety flexion right — neuromuscular reeducation finishing segment.
+Patient: Got it.
+
+[18:45]
+Therapist: End neuromuscular reeducation approximately four minutes skilled balance and proprioception training.
+Patient: Shoulder and core both fatigued.
+
+[19:00]
+Therapist: Setup functional station cabinets weights step for therapeutic activity phase.
+Patient: Real world tasks?
+
+[19:15]
+Therapist: Therapeutic activity begin simulated overhead cabinet reach two-pound object right shoulder flexion control.
+Patient: I trunk forward without cue.
+
+[19:30]
+Therapist: Cue hip hinge — therapeutic activity lift table to high shelf right shoulder scapular control.
+Patient: Second rep cleaner.
+
+[19:45]
+Therapist: Therapeutic activity horizontal reach cross body internal rotation control right shoulder.
+Patient: Less anterior pinch.
+
+[20:00]
+Therapist: Multi-joint therapeutic activity squat to reach return stand object transfer ADL pattern.
+Patient: Breathing hard.
+
+[20:15]
+Therapist: Therapeutic activity simulated grooming comb hair modified range right shoulder.
+Patient: Almost to head.
+
+[20:30]
+Therapist: Therapeutic activity carry weight across clinic ten feet right grip shoulder girdle stability.
+Patient: Grip adequate.
+
+[20:45]
+Therapist: Therapeutic activity step up four-inch step reach right arm eccentric control down.
+Patient: Shoulder and knee together.
+
+[21:00]
+Therapist: Therapeutic activity simulated heavy door push sustained right arm extension.
+Patient: Completed.
+
+[21:15]
+Therapist: Therapeutic activity final functional reach behind back modified internal rotation task.
+Patient: Stiff but better.
+
+[21:30]
+Therapist: Therapeutic activity block ending — approximately four minutes skilled dynamic functional work right shoulder.
+Patient: Felt like real chores.
+
+[21:45]
+Therapist: Brief rest sixty seconds before modality — patient seated supported.
+Patient: Need minute.
+
+[22:00]
+Therapist: Ultrasound therapy setup right shoulder supraspinatus tendon region continuous one megahertz.
+Patient: Cold gel?
+
+[22:15]
+Therapist: Applying gel — therapeutic ultrasound begins right rotator cuff eight minutes skilled application.
+Patient: Okay.
+
+[22:30]
+Therapist: Ultrasound therapy in progress right shoulder patient reports comfortable deep warmth.
+Patient: Feels good deep inside.
+
+[22:45]
+Therapist: Ultrasound treatment wand moved slowly protocol right shoulder tissue.
+Patient: No skin discomfort.
+
+[23:00]
+Therapist: Ultrasound therapy midpoint skilled modality monitoring skin right shoulder.
+Patient: All fine.
+
+[23:15]
+Therapist: Therapeutic ultrasound continuing right shoulder no blanching observed.
+Patient: Warm steady.
+
+[23:30]
+Therapist: Final two minutes ultrasound therapy right shoulder supraspinatus region.
+Patient: Tolerating well.
+
+[23:45]
+Therapist: Ultrasound treatment complete wipe gel skin intact right shoulder.
+Patient: Ready next.
+
+[24:00]
+Therapist: TENS unit application setup electrical stimulation unattended right shoulder pain modulation.
+Patient: Never had TENS here.
+
+[24:15]
+Therapist: Electrodes placed right deltoid and supraspinatus portal TENS unit application conventional eighty hertz.
+Patient: Tingling sensation odd.
+
+[24:30]
+Therapist: Electrical stimulation unattended running — I may step away per unattended protocol right shoulder.
+Patient: Stay still?
+
+[24:45]
+Therapist: Yes relax ten minutes TENS unit application continues right shoulder.
+Patient: Actually reduces ache.
+
+[25:00]
+Therapist: Patient tolerating electrical stimulation unattended pain two of ten right shoulder.
+Patient: Helpful.
+
+[25:15]
+Therapist: Continuing unattended e-stim education on electrode care if home unit ordered later.
+Patient: Good to know.
+
+[25:30]
+Therapist: End electrical stimulation unattended remove electrodes skin check normal right shoulder.
+Patient: Calmer shoulder.
+
+[25:45]
+Therapist: Transition hallway for gait training single point cane left hand right shoulder guarded.
+Patient: Old ankle sprain still makes me cautious.
+
+[26:00]
+Therapist: Gait training begin heel strike emphasis upright trunk reciprocal arm swing limited right elevation.
+Patient: Cane left hand stable.
+
+[26:15]
+Therapist: Gait training cadence training slower steps longer stride verbal cues.
+Patient: Less rushing now.
+
+[26:30]
+Therapist: Cane training single point cane gait pattern corridor thirty feet down.
+Patient: Smoother than start.
+
+[26:45]
+Therapist: Gait training return pass Trendelenburg correction level pelvis cue.
+Patient: Didn't know hip dropped.
+
+[27:00]
+Therapist: Stair training preview one step up cane handrail right shoulder protected non-aggravating.
+Patient: One step manageable.
+
+[27:15]
+Therapist: Level gait training push off phase training toes stance phase stability.
+Patient: Better push off.
+
+[27:30]
+Therapist: Gait deviations correction reduce circumduction compensating for guarded right shoulder.
+Patient: Trying to normalize.
+
+[27:45]
+Therapist: Gait training community ambulation simulation varied pace safe pivot turn.
+Patient: Done hallway loops.
+
+[28:00]
+Therapist: End gait training segment patient appropriately fatigued vitals stable.
+Patient: Tired good session.
+
+[28:15]
+Therapist: Cool-down gentle pendulums right shoulder no resistance gravity assisted.
+Patient: Nice closing.
+
+[28:30]
+Therapist: Post-session ROM recheck active flexion right shoulder one hundred five degrees improved from intake.
+Patient: Clear improvement today.
+
+[28:45]
+Therapist: Strength endurance note — therapeutic exercise tolerance improved mid-session after pause resume.
+Patient: Pause helped.
+
+[29:00]
+Therapist: Functional reassessment therapeutic activity reach to simulated shelf successful with minimal trunk compensation final attempt.
+Patient: Best reach today.
+
+[29:15]
+Therapist: Balance retest single leg stance ten seconds improved from six at start — neuromuscular reeducation carryover.
+Patient: Surprised improvement.
+
+[29:30]
+Therapist: Gait observation second brief pass cane training heel-toe coordination improved cadence near normal.
+Patient: Feel safer walking.
+
+[29:45]
+Therapist: Patient education ice fifteen minutes tonight if sore elevation optional no overhead lifting five pounds limit continues.
+Patient: Understood restrictions.
+
+[30:00]
+Therapist: Home program prescription resume band therapeutic exercise tomorrow yellow band external rotation and wall slides only.
+Patient: Will attempt again.
+
+[30:15]
+Therapist: Document timed interventions today — manual therapy soft tissue work right shoulder, therapeutic exercise right shoulder, neuromuscular reeducation, therapeutic activity right shoulder, ultrasound therapy, gait training; untimed hot pack and TENS unattended.
+Patient: That matches what we did.
+
+[30:30]
+Therapist: Billing awareness note for reviewer — NCCI potential 97140 and 97110 same right shoulder same session distinct time blocks documented.
+Patient: Okay.
+
+[30:45]
+Therapist: Modifier fifty-nine discussion if payer requires distinct procedural service same anatomical region different intervals.
+Patient: Whatever billing needs.
+
+[31:00]
+Therapist: Eight-minute rule note aggregate timed minutes across timed CPT codes should drive unit totals in billing summary.
+Patient: Understood.
+
+[31:15]
+Therapist: Untimed modalities hot pack and electrical stimulation unattended bill one unit each if performed regardless of minutes.
+Patient: Makes sense.
+
+[31:30]
+Therapist: Left knee quad sets separate region documented — may support distinct service if same timed codes appear elsewhere.
+Patient: Left knee was easy.
+
+[31:45]
+Therapist: Plan next visit progress band color green if external rotation tolerated advance therapeutic activity complexity.
+Patient: See you next Tuesday.
+
+[32:00]
+Therapist: Any patient questions about today's session interventions or home program before we close recording?
+Patient: No questions everything clear.
+
+[32:15]
+Therapist: Safety check patient steady ambulating to chair no dizziness post gait training.
+Patient: Feel fine.
+
+[32:30]
+Therapist: Front desk notified checkout paperwork ready patient schedule follow-up appointment week nine progression.
+Patient: Booked already online.
+
+[32:45]
+Therapist: Final pain scale right shoulder end of session three at rest five with overhead reach improved from six.
+Patient: Better than start.
+
+[33:00]
+Therapist: Session interventions closed — stop billable timed activities all modalities complete.
+Patient: Thank you Dr Chen.
+
+[33:15]
+Therapist: Ambient recorder still on for thirty second discharge summary dictation only.
+Patient: —
+
+[33:30]
+Therapist: Dictation — patient Samuel Thompson PT visit eight right shoulder post-op cuff progress good tolerance all phases.
+Patient: —
+
+[33:45]
+Therapist: Dictation — continue skilled PT two times weekly recommend four additional weeks before discharge consideration.
+Patient: —
+
+[34:00]
+Therapist: Dictation — prognosis fair to good for return modified duty with continued compliance home program.
+Patient: —
+
+[34:15]
+Therapist: Dictation — no adverse events today session duration thirty-seven minutes total clinic time.
+Patient: —
+
+[34:30]
+Therapist: Dictation — end clinical note ambient capture may terminate after this block.
+Patient: —
+
+[34:45]
+Therapist: Confirm end recording for billing capture system upload transcript if using file-based testing.
+Patient: —
+
+[35:00]
+Therapist: [System test marker] If upload parses to end-of-file, total timestamp coverage equals thirty-seven minutes zero seconds.
+Patient: —
+
+[35:15]
+Therapist: [Marker] No additional billable activities after minute thirty-three clinical close.
+Patient: —
+
+[35:30]
+Therapist: [Marker] File integrity check block for QA pipeline chunk sequence testing.
+Patient: —
+
+[35:45]
+Therapist: [Marker] Expected backend health unchanged post-upload — rules-only path no AWS transcribe.
+Patient: —
+
+[36:00]
+Therapist: [Marker] Reminder apply suggestions in UI when testing live timer and eight-minute rule aggregation.
+Patient: —
+
+[36:15]
+Therapist: [Marker] NCCI alerts should fire if 97140 97110 97530 all applied same shoulder without modifier resolution.
+Patient: —
+
+[36:30]
+Therapist: [Marker] Billing summary line items should separate timed units vs untimed single units hot pack TENS.
+Patient: —
+
+[36:45]
+Therapist: [Marker] Session test transcript nearly complete one block remaining.
+Patient: —
+
+[37:00]
+Therapist: [END OF TRANSCRIPT — 37:00 TOTAL — MEDEXA TEST FILE COMPLETE]
+Patient: [END]
+
+# ================================================================================
+# CHUNKING FOR API: 148 blocks at 15-sec intervals (sequence 1..148)
+# start_ts = (sequence-1) * 15.0  |  end_ts = sequence * 15.0
+# ================================================================================

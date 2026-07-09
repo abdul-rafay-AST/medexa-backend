@@ -1,0 +1,7 @@
+{
+  "source_name": "Medexa Internal - GCC Shared Body Regions",
+  "source_url": "internal://medexa/config/regions/gcc/common/body_regions.json",
+  "version": "1.0.0",
+  "classification": "INTERNAL_DERIVED",
+  "notes": "Shared anatomical normalization map for GCC regions until region-specific clinical maps are introduced."
+}

@@ -1,0 +1,56 @@
+[project]
+name = "medexa"
+version = "0.1.0"
+description = "Medexa MVP - Real-time therapy session intelligence"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.0",
+    "pydantic-settings>=2.2",
+    "python-multipart>=0.0.9",
+    "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+# AWS is OPTIONAL. The app runs fully without it (in-memory session store).
+# Install with `pip install -e ".[aws]"` only for DynamoDB persistence /
+# Lambda deployment.
+aws = [
+    "boto3>=1.34",
+    "mangum>=0.17",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/medexa"]
+
+[tool.pytest.ini_options]
+addopts = "-v --tb=short"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = [
+    "boto3",
+    "boto3.*",
+    "botocore.*",
+    "mangum"
+]
+ignore_missing_imports = true

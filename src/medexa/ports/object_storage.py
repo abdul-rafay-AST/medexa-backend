@@ -1,0 +1,16 @@
+from __future__ import annotations
+
+from typing import Protocol, runtime_checkable
+
+
+@runtime_checkable
+class ObjectStoragePort(Protocol):
+    def put_bytes(self, key: str, data: bytes, *, content_type: str = "application/octet-stream") -> str: ...
+
+    def get_bytes(self, key: str) -> bytes: ...
+
+    def delete(self, key: str) -> None: ...
+
+    def exists(self, key: str) -> bool: ...
+
+    def uri(self, key: str) -> str: ...

@@ -1,0 +1,38 @@
+{
+  "source_name": "Medexa Internal - Saudi Runtime Flags",
+  "source_url": "internal://medexa/config/regions/sa/runtime/billing_model_flags.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "source_url": "https://portal.nphies.sa/ig/index.html",
+      "classification": "OFFICIAL_PUBLIC"
+    },
+    {
+      "source_name": "Saudi Billing System Knowledge Center",
+      "source_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "billing_region": "SA",
+      "billing_model": "per_encounter",
+      "uses_eight_minute_rule": false,
+      "uses_ncci": false,
+      "encounter_billing_enabled": true,
+      "pre_authorization_required": true,
+      "eligibility_check_enabled": true,
+      "payer_routing_enabled": true,
+      "claim_submission_mode": "fhir_r4_nphies",
+      "fhir_export_enabled": true,
+      "supporting_info_exchange_enabled": true,
+      "member_discovery_enabled": true,
+      "licensed_code_sets_required": [
+        "ICD-10-AM",
+        "ACHI_or_SBS"
+      ],
+      "notes": "This file contains internal runtime toggles only. It does not replace official code lists or implementation guides."
+    }
+  ]
+}

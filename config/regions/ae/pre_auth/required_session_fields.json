@@ -1,0 +1,45 @@
+{
+  "source_name": "Medexa Internal - UAE Required Session Fields",
+  "source_url": "internal://medexa/config/regions/ae/pre_auth/required_session_fields.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Shafafiya Portal",
+      "source_url": "https://www.doh.gov.ae/en/shafafiya/",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "workflow": "session_start",
+      "required_fields": [
+        "billing_region",
+        "emirate",
+        "payer_id",
+        "member_id"
+      ],
+      "conditionally_required_fields": [
+        {
+          "field": "pre_auth_reference",
+          "required_when": "payer_or_service_requires_authorization"
+        },
+        {
+          "field": "facility_license_id",
+          "required_when": "claim_submission_or_eligibility_exchange_is_enabled"
+        }
+      ],
+      "optional_fields": [
+        "policy_number",
+        "national_id",
+        "network_id",
+        "encounter_class"
+      ],
+      "validation_guidance": {
+        "emirate_must_match_supported_routing_profile": true,
+        "payer_id_must_resolve_to_directory": true,
+        "member_id_must_be_present_before_exchange": true
+      },
+      "notes": "This file captures core UAE onboarding needs before emirate-specific datasets and payer matrices are attached."
+    }
+  ]
+}

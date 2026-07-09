@@ -1,0 +1,331 @@
+from __future__ import annotations
+
+import uuid
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+
+from medexa.api import contracts as c
+from medexa.api import mappers as m
+from medexa.api.dependencies import ServiceContainer, get_container
+from medexa.api.routers._common import refresh_and_publish, require_state, session_clock
+from medexa.config import settings as app_settings
+from medexa.logging_setup import get_logger
+from medexa.schemas import Alert, SessionState
+from medexa.services.transcription import TranscriptionUnavailable
+from medexa.utils.time import now_utc
+
+router = APIRouter(prefix="/sessions", tags=["live"])
+logger = get_logger("medexa.api.live")
+
+
+def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -> tuple[float, float]:
+    """Resolve chunk window from simulated clock, MM:SS labels, or prior elapsed."""
+    if req.elapsed_seconds is not None:
+        start = float(max(0, req.elapsed_seconds))
+    else:
+        start = float(state.client_elapsed_seconds or 0)
+        if req.start_time and ":" in req.start_time:
+            parts = req.start_time.split(":")
+            if len(parts) == 2:
+                start = float(int(parts[0]) * 60 + int(parts[1]))
+
+    duration = max(1, int(req.duration_seconds or 15))
+    end = start + float(duration)
+    if req.end_time and ":" in req.end_time:
+        parts = req.end_time.split(":")
+        if len(parts) == 2:
+            end = float(int(parts[0]) * 60 + int(parts[1]))
+    if end <= start:
+        end = start + float(duration)
+    return start, end
+
+
+@router.post("/{session_id}/analyze-transcript-chunk", response_model=c.ApiTranscriptAnalysis)
+async def analyze_transcript_chunk(
+    session_id: str,
+    req: c.AnalyzeTranscriptChunkRequest,
+    container: ServiceContainer = Depends(get_container),
+) -> c.ApiTranscriptAnalysis:
+    """Path A on every chunk — deterministic rules. May enqueue Path B triggers."""
+    wall_start = now_utc()
+    state = require_state(session_id, container)
+    runtime = container.runtime_for_state(state.billing_region)
+
+    start_ts, end_ts = _elapsed_bounds(state, req)
+    state.client_elapsed_seconds = int(end_ts)
+    # Simulated wall clock so billing segments advance between typed chunks.
+    started = session_clock(state, int(start_ts))
+
+    chunk = container.chunk_ingest.ingest(
+        state, req.chunk_text, start_ts=start_ts, end_ts=end_ts
+    )
+    result = runtime.path_a_processor.process(state, chunk, started)
+
+    await container.path_a_dispatcher.dispatch(state, result, now=started)
+
+    state.last_updated = started
+    container.session_repo.save(state)
+
+    analysis = runtime.path_a_snapshot.build_analysis(state, req.chunk_text, chunk.chunk_id)
+    state.latest_analysis = analysis
+    container.session_repo.save(state)
+
+    latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
+    logger.info(
+        "path_a_chunk_processed",
+        extra={
+            "extra_fields": {
+                "session_id": session_id,
+                "latency_ms": latency_ms,
+                "entities": len(result.entities),
+                "elapsed_seconds": int(end_ts),
+            }
+        },
+    )
+    return runtime.path_a_snapshot.to_contract(analysis, state)
+
+
+@router.post("/{session_id}/transcribe-audio", response_model=c.ApiAudioTranscriptionAnalysis)
+async def transcribe_audio(
+    session_id: str,
+    file: UploadFile = File(...),
+    container: ServiceContainer = Depends(get_container),
+) -> c.ApiAudioTranscriptionAnalysis:
+    state = require_state(session_id, container)
+    runtime = container.runtime_for_state(state.billing_region)
+    audio = await file.read()
+    try:
+        result = container.transcription_provider.transcribe(audio, file.content_type)
+    except TranscriptionUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    started = now_utc()
+    elapsed = float(state.client_elapsed_seconds or 0)
+    chunk = container.chunk_ingest.ingest(
+        state, result.transcript, start_ts=elapsed, end_ts=elapsed + 15.0
+    )
+    path_result = runtime.path_a_processor.process(state, chunk, started)
+    await container.path_a_dispatcher.dispatch(state, path_result, now=started)
+    container.session_repo.save(state)
+
+    analysis = runtime.path_a_snapshot.build_analysis(state, result.transcript, chunk.chunk_id)
+    base = runtime.path_a_snapshot.to_contract(analysis, state)
+    return c.ApiAudioTranscriptionAnalysis(
+        **base.model_dump(),
+        transcript=result.transcript,
+        audio_segments=[
+            c.ApiAudioSegment(start=s.start, end=s.end, text=s.text) for s in result.segments
+        ],
+    )
+
+
+@router.get("/{session_id}/insights", response_model=list[c.ApiInsight])
+async def get_insights(
+    session_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> list[c.ApiInsight]:
+    state = require_state(session_id, container)
+    return [m.insight_to_contract(i) for i in state.insights]
+
+
+def _set_insight_status(session_id: str, insight_id: str, status: str, container: ServiceContainer) -> c.ApiInsight:
+    state = require_state(session_id, container)
+    insight = next((i for i in state.insights if i.insight_id == insight_id), None)
+    if insight is None:
+        raise HTTPException(status_code=404, detail="Insight not found")
+    insight.status = status  # type: ignore[assignment]
+    container.session_repo.save(state)
+    return m.insight_to_contract(insight)
+
+
+@router.post("/{session_id}/insights/{insight_id}/approve", response_model=c.ApiInsight)
+async def approve_insight(
+    session_id: str, insight_id: str, container: ServiceContainer = Depends(get_container)
+) -> c.ApiInsight:
+    return _set_insight_status(session_id, insight_id, "approved", container)
+
+
+@router.post("/{session_id}/insights/{insight_id}/ignore", response_model=c.ApiInsight)
+async def ignore_insight(
+    session_id: str, insight_id: str, container: ServiceContainer = Depends(get_container)
+) -> c.ApiInsight:
+    return _set_insight_status(session_id, insight_id, "ignored", container)
+
+
+@router.get("/{session_id}/assistant-suggestions", response_model=list[c.ApiAssistantSuggestion])
+async def get_assistant_suggestions(
+    session_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> list[c.ApiAssistantSuggestion]:
+    """Path B assistant output — separate from billing CPT suggestions."""
+    state = require_state(session_id, container)
+    return [m.assistant_suggestion_to_contract(s) for s in state.assistant_suggestions]
+
+
+@router.get("/{session_id}/live-pipeline", response_model=c.ApiLivePipelineSnapshot)
+async def get_live_pipeline(
+    session_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> c.ApiLivePipelineSnapshot:
+    """Pollable Path A / B / C snapshot for local step-by-step testing UIs."""
+    state = require_state(session_id, container)
+    elapsed = int(state.client_elapsed_seconds or 0)
+    now = session_clock(state, elapsed)
+    panel = container.runtime_for_state(state.billing_region).insights_builder.build(state, now)
+
+    last_trigger = state.path_b_triggers[-1] if state.path_b_triggers else None
+    path_b_status = "idle"
+    if last_trigger is not None:
+        path_b_status = last_trigger.status
+    elif app_settings.path_b_enabled:
+        path_b_status = "armed"
+    else:
+        path_b_status = "disabled"
+
+    path_c_ready = state.status == "ended" or state.finalized_at is not None
+    cpt_elapsed = 0
+    if state.active_cpt:
+        cpt_elapsed = container.timer_engine.seconds_by_cpt(state, now).get(state.active_cpt, 0)
+    cpt_display = (
+        container.cpt_metadata.get_display_name(state.active_cpt) if state.active_cpt else None
+    )
+    return c.ApiLivePipelineSnapshot(
+        session_id=state.session_id,
+        billing_region=state.billing_region,
+        elapsed_seconds=elapsed,
+        path_a=c.ApiPathAStatus(
+            status="live",
+            entity_count=len(state.detected_entities),
+            alert_count=len(state.alerts),
+            suggestion_count=len(state.suggestions),
+            active_cpt=state.active_cpt,
+            cpt_display_name=cpt_display,
+            session_timer_sec=panel.session_timer_sec,
+            cpt_elapsed_seconds=cpt_elapsed,
+            units=panel.eight_minute_rule.total_units if panel.eight_minute_rule else 0,
+        ),
+        path_b=c.ApiPathBStatus(
+            enabled=app_settings.path_b_enabled,
+            status=path_b_status,
+            trigger_count=len(state.path_b_triggers),
+            suggestion_count=len(state.assistant_suggestions),
+            triggers=[
+                c.ApiPathBTriggerStatus(
+                    id=t.trigger_id,
+                    reason=t.reason,
+                    status=t.status,
+                    created_at=t.created_at.isoformat(),
+                )
+                for t in state.path_b_triggers[-5:]
+            ],
+        ),
+        path_c=c.ApiPathCStatus(
+            status="finalized" if path_c_ready else "pending",
+            has_soap=bool(
+                state.soap.subjective.chief_complaint or state.soap.assessment.diagnosis_summary
+            ),
+            has_summary=bool(state.patient_summary.summary),
+            review_open_count=(
+                state.documentation_review.open_count if state.documentation_review else 0
+            ),
+        ),
+        insights=[m.insight_to_contract(i) for i in state.insights],
+        billing_suggestions=[m.suggestion_to_contract(s) for s in state.suggestions],
+        assistant_suggestions=[
+            m.assistant_suggestion_to_contract(s) for s in state.assistant_suggestions
+        ],
+        entities=[
+            c.ApiExtractedEntity(
+                id=f"{e.source_chunk_id}:{e.matched_phrase}:{e.possible_cpt or ''}",
+                phrase=e.matched_phrase,
+                region=e.body_region,
+                cpt=e.possible_cpt,
+                icd10=None,
+                is_billable=bool(e.is_billable and e.possible_cpt),
+            )
+            for e in state.detected_entities
+        ],
+        transcript_preview=(state.transcript_text or "")[-400:],
+    )
+
+
+@router.get("/{session_id}/suggestions", response_model=list[c.ApiSuggestion])
+async def get_suggestions(
+    session_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> list[c.ApiSuggestion]:
+    state = require_state(session_id, container)
+    return [m.suggestion_to_contract(s) for s in state.suggestions]
+
+
+@router.post("/{session_id}/suggestions/{suggestion_id}/apply", response_model=c.ApiSuggestion)
+async def apply_suggestion(
+    session_id: str,
+    suggestion_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> c.ApiSuggestion:
+    state = require_state(session_id, container)
+    suggestion = next((s for s in state.suggestions if s.suggestion_id == suggestion_id), None)
+    if suggestion is None:
+        raise HTTPException(status_code=404, detail="Suggestion not found")
+    if suggestion.status == "suggested" and suggestion.cpt_code:
+        elapsed = int(state.client_elapsed_seconds or 0)
+        now = session_clock(state, elapsed)
+        active_segments = [
+            (seg.cpt_code, seg.body_region)
+            for seg in state.timer_segments
+            if seg.stop_time is None
+        ]
+        for seg_cpt, seg_region in active_segments:
+            if seg_cpt == suggestion.cpt_code:
+                continue
+            rule = container.ncci_checker.check_conflict(suggestion.cpt_code, seg_cpt)
+            if not rule:
+                continue
+            if rule["body_region_sensitive"]:
+                region = suggestion.body_region
+                if region is None or region != seg_region:
+                    continue
+            conflict_key = f"{suggestion.cpt_code}-{seg_cpt}"
+            if not any(
+                a.alert_type == "ncci_conflict" and conflict_key in a.message for a in state.alerts
+            ):
+                modifier_hint = (
+                    " Modifier 59 may apply."
+                    if rule.get("modifier_59_possible")
+                    else ""
+                )
+                state.alerts.append(
+                    Alert(
+                        alert_id=str(uuid.uuid4()),
+                        session_id=session_id,
+                        alert_type="ncci_conflict",
+                        severity="medium",
+                        message=(
+                            f"NCCI conflict {conflict_key}: {rule['explanation']}{modifier_hint}"
+                        ),
+                        cpt_codes=[suggestion.cpt_code, seg_cpt],
+                        body_region=suggestion.body_region,
+                    )
+                )
+        suggestion.status = "applied"
+        container.timer_engine.switch_segment(
+            state, suggestion.cpt_code, suggestion.body_region, now
+        )
+        await refresh_and_publish(state, container)
+    return m.suggestion_to_contract(suggestion)
+
+
+@router.post("/{session_id}/suggestions/{suggestion_id}/dismiss", response_model=c.ApiSuggestion)
+async def dismiss_suggestion(
+    session_id: str,
+    suggestion_id: str,
+    container: ServiceContainer = Depends(get_container),
+) -> c.ApiSuggestion:
+    state = require_state(session_id, container)
+    suggestion = next((s for s in state.suggestions if s.suggestion_id == suggestion_id), None)
+    if suggestion is None:
+        raise HTTPException(status_code=404, detail="Suggestion not found")
+    suggestion.status = "dismissed"
+    container.session_repo.save(state)
+    return m.suggestion_to_contract(suggestion)

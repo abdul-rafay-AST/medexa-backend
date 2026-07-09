@@ -1,0 +1,9 @@
+{
+  "source_name": "Medexa Internal - UAE Payer Registry Shell",
+  "source_url": "internal://medexa/config/regions/ae/pre_auth/uae_payer_registry.json",
+  "version": "1.0.0",
+  "classification": "INTERNAL_DERIVED",
+  "fetch_status": "pending",
+  "notes": "Registry structure only. Populate from eClaimLink PYI and Shafafiya payer references after manual or supervised fetch.",
+  "records": []
+}

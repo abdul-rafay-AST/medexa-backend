@@ -1,0 +1,42 @@
+{
+  "source_name": "Medexa Internal - Saudi Pre-Auth Required Services",
+  "source_url": "internal://medexa/config/regions/sa/pre_auth/pre_auth_required_services.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+      "source_url": "https://portal.nphies.sa/ig/index.html",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "service_category": "advanced_imaging",
+      "keywords": ["mri", "ct scan", "pet scan"],
+      "requires_pre_auth": true,
+      "severity": "high",
+      "message": "Advanced imaging typically requires prior authorization before claim submission."
+    },
+    {
+      "service_category": "inpatient_admission",
+      "keywords": ["admission", "inpatient", "hospital stay"],
+      "requires_pre_auth": true,
+      "severity": "high",
+      "message": "Inpatient admissions require prior authorization in most payer workflows."
+    },
+    {
+      "service_category": "surgical_procedure",
+      "keywords": ["surgery", "operative", "procedure room"],
+      "requires_pre_auth": true,
+      "severity": "medium",
+      "message": "Surgical procedures should be checked against payer authorization rules."
+    },
+    {
+      "service_category": "specialist_consultation",
+      "keywords": ["specialist", "consultation"],
+      "requires_pre_auth": false,
+      "severity": "low",
+      "message": "Specialist consultations may require authorization depending on benefit package."
+    }
+  ]
+}

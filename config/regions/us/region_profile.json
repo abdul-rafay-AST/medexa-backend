@@ -1,0 +1,12 @@
+{
+  "region_id": "US",
+  "display_name": "United States",
+  "icd_system": "ICD10_CM",
+  "billing_model": "timed_units",
+  "uses_eight_minute_rule": true,
+  "uses_ncci": true,
+  "pre_authorization_required": false,
+  "pre_auth_provider": null,
+  "fhir_export": false,
+  "fhir_version": null
+}

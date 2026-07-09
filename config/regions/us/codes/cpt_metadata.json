@@ -1,0 +1,494 @@
+{
+  "_sources": {
+    "source_name": "CMS Internet-Only Manual (IOM) Publication 100-02 Chapter 15, Medicare Benefit Policy Manual; AMA CPT 2026 Professional Edition; National Correct Coding Initiative (NCCI) Policy Manual for Part B Medicare Practitioners",
+    "version_date": "June 2026",
+    "url": "https://www.cms.gov/medicare/coding-billing/national-correct-coding-initiative-ncci-edits"
+  },
+  "_review_needed": [
+    "97014",
+    "97127",
+    "92507"
+  ],
+  "97110": {
+    "label": "therapeutic_exercise",
+    "display_name": "Therapeutic Exercise",
+    "descriptor": "Application of therapeutic procedures to one or more areas, each 15 minutes, utilizing structured exercises designed to improve, manage, or restore physiological range of motion, physical strength, muscle endurance, and soft tissue flexibility.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when a patient presents with demonstrable deficits in joint mobility, active or passive range of motion, muscular weakness, or diminished structural endurance resulting from injury, surgery, or chronic degenerative disease processes.",
+    "documentation_requirements": [
+      "Objective baseline metrics for strength (e.g., manual muscle testing grades) and range of motion measured via goniometry.",
+      "Clear descriptions of specific exercises performed, including sets, repetitions, resistance levels, and anatomical areas targeted.",
+      "Explicit documentation of skilled clinical intervention, such as verbal cues for form correction, manual assistance, or physiological monitoring.",
+      "Direct correlation between the selected exercises and the functional progression goals outlined in the patient care plan."
+    ],
+    "billing_caveats": {
+      "time_system": "CMS 8-Minute Rule compliant. Total cumulative timed minutes across all direct treatments determine total billable units per session.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Requires direct, one-on-one visual and manual contact by a licensed clinician or certified assistant.",
+        "commercial_payers": "Some non-Medicare lines follow the Substantial Portion Method (15-minute midpoint rules) rather than cumulative rounding."
+      },
+      "ncci_conflict_risks": [
+        "Bundled with 97140 (Manual Therapy) when executed on identical anatomical zones unless distinct time intervals and separate goals are validated.",
+        "Subject to overutilization audits if billed consistently as the sole intervention across multi-week cycles without functional progression."
+      ]
+    }
+  },
+  "97112": {
+    "label": "neuromuscular_reeducation",
+    "display_name": "Neuromuscular Reeducation",
+    "descriptor": "Therapeutic procedures targeting neuromuscular pathways to restore or optimize movement control, functional balance, physical coordination, kinesthetic awareness, postural stability, and proprioceptive responses for sitting or standing tasks.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated for patients presenting with impaired motor control, balance dysfunctions, vestibular instabilities, proprioceptive deficits, or asymmetric postural alignment often stemming from neurological conditions or severe orthopedic trauma.",
+    "documentation_requirements": [
+      "Documentation of specific functional balance deficits, proprioceptive tracking errors, or neuromuscular control limitations.",
+      "Detailed description of advanced balance challenges, dynamic perturbation tasks, PNF patterns, or vestibular habituation drills executed.",
+      "Clear description of skilled skilled observation, manual tactile guidance, safety guarding, and cognitive feedback supplied during training.",
+      "Measurable objective tracking updates using standardized tools such as the Berg Balance Scale or Timed Up and Go test."
+    ],
+    "billing_caveats": {
+      "time_system": "Subject to the CMS 8-Minute Rule for cumulative timed treatment tracking.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Requires continuous individual engagement. Regular documentation must substantiate why a generic exercise program was insufficient.",
+        "commercial_payers": "Closely monitored for clinical alignment with neurological or complex multi-joint diagnostic codes."
+      },
+      "ncci_conflict_risks": [
+        "Mutually exclusive with 97110 (Therapeutic Exercise) during concurrent windows on the same body part unless separate functional parameters are detailed.",
+        "Cannot be claimed simultaneously with vestibular evaluation services performed on the same calendar date."
+      ]
+    }
+  },
+  "97116": {
+    "label": "gait_training",
+    "display_name": "Gait Training",
+    "descriptor": "Skilled human intervention designed to systematically train or correct ambulation mechanics, cadence, stride configuration, and weight-bearing efficiency, including necessary stair management and initial or progressive assistive device mechanics.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when an abnormality of gait, persistent unsteadiness, or severe lower-extremity impairment limits safe overground mobility and increases direct fall risks.",
+    "documentation_requirements": [
+      "Identification of specific gait deviations (e.g., trendelenburg drop, foot drop, circumduction, asymmetric stance phases).",
+      "Type and configurations of assistive devices utilized, including canes, standard or rolling walkers, and crutches.",
+      "Description of skilled cues regarding heel-strike phases, hip clearance adjustments, posture alignment, and physical guarding levels.",
+      "Clear differentiation showing skilled mechanical retraining versus simple unstructured walking supervision or standard endurance ambulation."
+    ],
+    "billing_caveats": {
+      "time_system": "Governed by the CMS 8-Minute Rule for cumulative timed clinical services.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Non-reimbursable if document indicates simple routine walking support or monitoring after a patient has achieved their mechanical baseline.",
+        "commercial_payers": "Often restricted to safe independent mobility targets associated with primary lower extremity orthopedic or neurological diagnoses."
+      },
+      "ncci_conflict_risks": [
+        "Highly sensitive to duplication edits when billed alongside 97530 (Therapeutic Activity) unless separate intervals are explicitly recorded.",
+        "Cannot include time spent adjusting or modifying orthotic devices, which must be partitioned under orthotic management codes."
+      ]
+    }
+  },
+  "97140": {
+    "label": "manual_therapy",
+    "display_name": "Manual Therapy Techniques",
+    "descriptor": "Manual skilled procedures administered to one or more body regions, encompassing manual traction, joint mobilization, manual manipulation, manual lymphatic drainage, and specific soft tissue mobilization.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when objective physical examination confirms structural joint hypomobility, restricted capsular patterns, localized myofascial trigger points, chronic muscular guarding, or post-surgical localized soft tissue adhesions.",
+    "documentation_requirements": [
+      "Clear diagnostic localized mapping of tissue restrictions, joint tracking impairments, or structural hypomobility grades.",
+      "Naming of precise anatomical segments treated (e.g., right glenohumeral joint, lumbar spine segments L4-L5).",
+      "Explicit specification of mobilization grades applied (Grades I through V) or specialized tissue stroke maneuvers used.",
+      "Immediate pre- and post-treatment reassessment of passive range of motion or tissue tension metrics to document physical efficacy."
+    ],
+    "billing_caveats": {
+      "time_system": "Governed by the standard CMS 8-Minute Rule parameters.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Mandatorily requires manual, hands-on touch throughout the code runtime. Mechanical alternatives do not qualify.",
+        "commercial_payers": "Strict cap constraints often exist regarding total lifetime or annual manual therapy interventions per policy year."
+      },
+      "ncci_conflict_risks": [
+        "Triggers automatic NCCI PTP denials when combined with 97110 or 97530 on identical body regions. Requires Modifier 59 / XS only if executed on independent anatomical regions or distinct operational intervals.",
+        "Fully encompasses localized massage techniques; billing 97124 concurrently on the same region is forbidden."
+      ]
+    }
+  },
+  "97530": {
+    "label": "therapeutic_activity",
+    "display_name": "Therapeutic Activity",
+    "descriptor": "Direct, one-on-one clinician interaction utilizing integrated dynamic, multi-joint functional activities (e.g., lifting, carrying, bending, catching, reaching, and transferring) to safely reconstruct or improve performance of real-world physical goals.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when a patient can demonstrate nominal isolated muscular capacity but lacks the structural coordination, dynamic balance, or physical body mechanics needed to safely execute multi-joint tasks.",
+    "documentation_requirements": [
+      "Objective analysis of baseline functional deficits during real-world tasks (e.g., inability to safely transition from chair to floor).",
+      "Detailed operational mechanics of the simulated tasks (e.g., lifting 10lb boxes from a low shelf to an upper shelf with posture control).",
+      "Skilled clinical cues regarding ergonomics, spinal alignment, dynamic core support, and physical stabilization strategies.",
+      "Clear explanation showing why the functional task required continuous professional oversight rather than unmonitored practice."
+    ],
+    "billing_caveats": {
+      "time_system": "Subject to standard cumulative CMS 8-Minute Rule aggregation.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "The clinical documentation must directly demonstrate a transparent link to the patient's occupational, domestic, or functional independence milestones.",
+        "commercial_payers": "Monitored to prevent duplicate billing when tracking overlapping timelines alongside 97110."
+      },
+      "ncci_conflict_risks": [
+        "Frequently triggers NCCI audits when billed during the same session as 97110 or 97140. Must be supported by documentation proving independent, non-overlapping timelines.",
+        "Cannot be utilized to document basic unguided setup time or standard administrative workspace organization drills."
+      ]
+    }
+  },
+  "97535": {
+    "label": "self_care_adl",
+    "display_name": "Self-Care / ADL Training",
+    "descriptor": "Direct training or compensatory strategy instruction focused on basic activities of daily living (ADLs), including dressing, bathing, grooming, feeding, food preparation, safe home management, and proper use of specialized adaptive engineering or assistive devices.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when physical, cognitive, or neurological impairments directly restrict a patient's capacity to complete self-care, home safety management, or basic domestic mobility tasks independently.",
+    "documentation_requirements": [
+      "Identification of specific baseline dependencies across standard ADL indices (e.g., modified Barthel Index tracking).",
+      "Explicit description of specialized adaptive tools provided and taught (e.g., sock aids, long-handled reachers, button hooks).",
+      "Documentation of safety instruction, energy conservation techniques, or compensatory biomechanics implemented by the therapist.",
+      "Clear evidence of active patient performance and comprehension monitoring during simulated self-care sequences."
+    ],
+    "billing_caveats": {
+      "time_system": "Regulated by the cumulative CMS 8-Minute Rule for timed clinical services.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Reimbursement is strictly dependent on establishing real-world functional improvements that lower direct home health dependencies or injury risks.",
+        "commercial_payers": "Commonly forms a cornerstone code within occupational therapy (OT) allowances, subject to active baseline re-verification."
+      },
+      "ncci_conflict_risks": [
+        "Bundled with automated daily care evaluations unless independent, skilled physical instruction intervals are proved.",
+        "Cannot cover time spent fabricating or molding orthoses, which must be tracked exclusively via separate HCPCS/CPT codes."
+      ]
+    }
+  },
+  "97012": {
+    "label": "mechanical_traction",
+    "display_name": "Mechanical Traction",
+    "descriptor": "Application of a specialized mechanical modality to one or more body areas, utilizing automated, motorized, or computerized traction tables or harnesses to deliver controlled distracting forces to spinal segments.",
+    "timed": false,
+    "confidence": "high",
+    "clinical_rationale": "Indicated for the reduction of localized spinal radiculopathy, nerve root compressions, or disk herniations within cervical or lumbar regions where manual traction has demonstrated short-term relief.",
+    "documentation_requirements": [
+      "Anatomical segment where traction forces were applied (cervical vs. lumbar spine).",
+      "Specific system parameters used, including traction weight in pounds, cycle distributions (static vs. intermittent), and duration.",
+      "Patient positioning characteristics (e.g., supine with knee elevation, degrees of cervical flexion).",
+      "Post-treatment checking of distal radicular symptoms to verify target structural outcomes."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed service. Billed as a single maximum unit per encounter, regardless of table runtime or system operation hours.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Reimbursable as a passive modality but requires contemporaneous billing of active skilled therapies to demonstrate an integrated rehab plan.",
+        "commercial_payers": "Regularly subjected to strict grouping or bundling logic across outpatient physical medicine guidelines."
+      },
+      "ncci_conflict_risks": [
+        "Cannot be combined with manual spinal distraction maneuvers performed within the identical clinical timeframe.",
+        "Setup and take-down minutes cannot be combined with or used to artificially inflate timed code allocations like 97110."
+      ]
+    }
+  },
+  "97014": {
+    "label": "electrical_stimulation_unattended",
+    "display_name": "Unattended Electrical Stimulation",
+    "descriptor": "Application of an electrical current modality (e.g., TENS, interferential current, or galvanic stimulation) to one or more areas, where the clinical setup does not require continuous one-on-one professional presence once initiated.",
+    "timed": false,
+    "confidence": "high",
+    "notes": "Medicare tracking exception: Medicare does not recognize 97014 for Part B claims; requires alternative code HCPCS G0283.",
+    "clinical_rationale": "Indicated for localized pain mitigation, management of regional muscle spasms, or post-surgical localized edema reduction when integrated with a primary active exercise plan.",
+    "documentation_requirements": [
+      "Precise electrode pad placement configuration and target anatomical skin regions.",
+      "Specific waveform settings (e.g., IFC, TENS) along with output frequency and intensity details.",
+      "Total session runtime and safe, unmonitored patient placement tracking verification.",
+      "Pre- and post-treatment assessment of localized pain mapping or regional edema scores."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed service. Restricted to one billable unit per patient visit, irrespective of total pad layout volume or active runtime.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Claims submitted under code 97014 will be automatically rejected. You must swap this to code G0283 for all federally managed accounts.",
+        "commercial_payers": "Generally accept 97014, but often bundle it into primary active therapeutic procedures."
+      },
+      "ncci_conflict_risks": [
+        "Minutes consumed during initial electrode placement, machine parameter optimization, or pad removal are untimed and cannot be transferred to timed codes.",
+        "Cannot be billed alongside active attended electrical stimulation (97032) for identical target muscle clusters."
+      ]
+    }
+  },
+  "97032": {
+    "label": "electrical_stimulation_attended",
+    "display_name": "Attended Electrical Stimulation",
+    "descriptor": "Application of electrical current to one or more areas, requiring constant, direct one-on-one clinician monitoring, intervention, or manual application (such as dynamic motor point scanning, probe setups, or interactive biofeedback loop modifications).",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when a patient demonstrates severe neuromuscular disruption, muscle atrophy, or specific peripheral nerve injuries requiring dynamic biofeedback adjustments or precise real-time probe tracking.",
+    "documentation_requirements": [
+      "Clinical justification for continuous one-on-one monitoring (e.g., dynamic probe movement over motor points).",
+      "Specific current parameters utilized, electrical settings, and immediate physiological feedback observed.",
+      "Detailed notes on clinician adjustments, physical positioning modifications, or interactive performance cues.",
+      "Direct relationship to functional muscle re-education or functional target outcomes."
+    ],
+    "billing_caveats": {
+      "time_system": "Regulated by cumulative minute calculations under the CMS 8-Minute Rule framework.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Requires rigorous documentation verifying that constant professional presence was clinically mandatory throughout the application.",
+        "commercial_payers": "Subject to post-payment review if billed extensively without specific neuromuscular or functional motor loss diagnoses."
+      },
+      "ncci_conflict_risks": [
+        "Bundled with unattended electrical services unless entirely separate body systems and non-overlapping windows are detailed.",
+        "Cannot include passive rest periods within the billable timed minutes configuration."
+      ]
+    }
+  },
+  "97035": {
+    "label": "ultrasound_therapy",
+    "display_name": "Ultrasound Therapy",
+    "descriptor": "Application of deep thermal acoustic sound waves utilizing an applicator wand to generate deep tissue temperature elevations, increase localized vascularity, and enhance collagen extensibility.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when chronic joint contractures, localized muscle spasming, calcific tendinitis, or dense scar tissue restrictions limit functional range of motion and require localized deep thermal pre-heating.",
+    "documentation_requirements": [
+      "Anatomical area targeted, specified by strict surface area tracking (e.g., right patellar tendon, 10 square centimeters).",
+      "Ultrasound frequency settings (1 MHz for deep penetration vs. 3 MHz for superficial structures).",
+      "Duty cycle specifications (100% continuous for thermal expansion vs. 20% pulsed for mechanical effects) and intensity in W/cm².",
+      "Total duration of active transducer head contact, ensuring the wand was kept in continuous motion."
+    ],
+    "billing_caveats": {
+      "time_system": "Regulated strictly under the timed parameter sets of the CMS 8-Minute Rule.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "The total treated surface area must be documented, and it should typically be limited to a size equal to twice the effective radiating area (ERA) of the transducer head per 5-8 minute block.",
+        "commercial_payers": "Regularly flagged as an intervention block with limited long-term efficacy, requiring rigorous functional validation."
+      },
+      "ncci_conflict_risks": [
+        "Minutes where the machine is prepped or cleaned cannot be included in the active timed therapy ledger.",
+        "Triggers automatic bundling logic when combined with phonophoresis configurations unless distinct treatment descriptions are supplied."
+      ]
+    }
+  },
+  "97010": {
+    "label": "hot_cold_pack",
+    "display_name": "Hot / Cold Pack Application",
+    "descriptor": "Passive application of superficial thermal agents, including moist heat packs, hydrocollator pads, or specialized cold compresses, to one or more body locations to modify regional vascularity or comfort thresholds.",
+    "timed": false,
+    "confidence": "high",
+    "notes": "Medicare Medicare bundling policy: Code 97010 is classified as a bundled service under Medicare Part B; it generates zero independent financial reimbursement.",
+    "clinical_rationale": "Utilized as an adjunct intervention to alter local tissue temperature, reduce initial post-exercise soreness, or provide nominal analgesic prep prior to active rehabilitation sequences.",
+    "documentation_requirements": [
+      "Type of superficial thermal agent applied (e.g., moist hot pack, gel ice compress).",
+      "Target anatomical regions wrapped, including the specific skin insulation parameters utilized for safety.",
+      "Total application timeframe and ongoing documentation of skin safety checks.",
+      "Integration details showing how the application supported subsequent active therapeutic procedures."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed passive modality. Restricted to one flat unit registration per session.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Non-payable status. The time spent by staff or patients using hot/cold packs cannot be counted toward the total billable timed minutes of the session.",
+        "commercial_payers": "Varying policies exist; some allow nominal separate coverage, but the majority default to bundled or zero-dollar status flags."
+      },
+      "ncci_conflict_risks": [
+        "Any attempt to add hot/cold pack minutes into active codes like 97110 constitutes non-compliant billing inflation and will trigger compliance alerts.",
+        "Fully bundled with primary surgical or therapeutic encounters when localized to the same regional surgical field."
+      ]
+    }
+  },
+  "97124": {
+    "label": "massage_therapy",
+    "display_name": "Massage Therapy",
+    "descriptor": "Application of massage techniques to one or more regions, encompassing specific manual strokes such as effleurage (stroking), petrissage (kneading), and tapotement (percussion or compression) to alter local tissue dynamics.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when localized muscle tightness, minor circulatory insufficiency, or positional soft tissue discomfort requires superficial circulatory stimulation and generalized mechanical muscle relaxation.",
+    "documentation_requirements": [
+      "Specific clinical findings of tissue tightness, local structural discomfort, or minor lymphatic stagnation.",
+      "Exact anatomical surface regions massaged and specific types of stroke variations performed.",
+      "Manual pressure levels utilized along with descriptions of dynamic tissue changes observed.",
+      "Clear documentation of immediate post-treatment structural mobility gains or changes in local discomfort scores."
+    ],
+    "billing_caveats": {
+      "time_system": "Calculated via the standard timed parameters of the CMS 8-Minute Rule.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Frequently audited for medical necessity. If the target outcome is simply relaxation rather than specific functional rehabilitation, the claim will be denied.",
+        "commercial_payers": "Often subject to absolute plan limits, with many lines requiring explicit substitution of manual therapy code 97140 instead."
+      },
+      "ncci_conflict_risks": [
+        "Fully bundled under 97140 (Manual Therapy) when applied to identical regional anatomy during the same clinical encounter.",
+        "Cannot be claimed if the service is delegated to uncertified support staff or passive automated massage equipment."
+      ]
+    }
+  },
+  "97127": {
+    "label": "cognitive_skills",
+    "display_name": "Cognitive Skills Development",
+    "descriptor": "Therapeutic interventions focused on cognitive performance, executive functioning, safety awareness, and compensatory strategies for managing cognitive-linguistic deficits, delivered using structured functional tasks.",
+    "timed": false,
+    "confidence": "medium",
+    "notes": "Medicare G-Code exception: Code 97127 is an untimed code per day. For Medicare Part B patients, you must use HCPCS code G0515 (which is timed) instead.",
+    "clinical_rationale": "Indicated when cognitive impairments resulting from stroke, traumatic brain injury, or neurodegenerative conditions directly impact a patient's functional safety, communication efficiency, or independence in daily life.",
+    "documentation_requirements": [
+      "Baseline cognitive metrics from standardized assessments (e.g., MoCA, MMSE) detailing deficits in executive function, memory, or attention.",
+      "Specific structured functional tasks used during the session (e.g., multi-step financial management simulation, pill box sorting).",
+      "Clinician's skilled interventions, including the introduction of external memory aids, internal metacognitive strategies, and compensatory techniques.",
+      "Clear correlation showing how the cognitive training directly supports the patient's functional safety and independence goals."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed under standard AMA CPT definition (once per day code). However, it converts to a timed framework if using the Medicare HCPCS alternative.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat (CPT 97127 definition)"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Will reject 97127. Automatically map all Medicare Part B cases to HCPCS code G0515, which is billed using 15-minute time-based increments.",
+        "commercial_payers": "Payer policies vary significantly; some accept 97127 as a flat daily charge, while others align with Medicare's timed G-code guidelines."
+      },
+      "ncci_conflict_risks": [
+        "Cannot be billed on the same day as a comprehensive speech-language evaluation unless distinct, unrelated medical events are clearly documented.",
+        "Ensure clear boundary documentation when cognitive tasks overlap with self-care ADL training (97535) during the same visit."
+      ]
+    }
+  },
+  "92507": {
+    "label": "speech_language_therapy",
+    "display_name": "Speech Language Therapy Session",
+    "descriptor": "Treatment of speech, language, voice, communication, and/or auditory processing deficits, focusing on restoring or developing optimal expressive and receptive communication patterns.",
+    "timed": false,
+    "confidence": "medium",
+    "notes": "Flat per-session code: This is a flat, untimed service per day under the Medicare Physician Fee Schedule, not subject to standard 8-minute rule splitting.",
+    "clinical_rationale": "Indicated when expressive aphasia, receptive language deficits, dysarthria, apraxia, or voice disorders impair a patient's ability to communicate basic needs, social interactions, or occupational duties.",
+    "documentation_requirements": [
+      "Objective speech-language baseline metrics (e.g., word retrieval scores, articulation accuracy percentages, voice quality parameters).",
+      "Specific therapeutic tasks performed, including target words, language structures, phonemic cues, or vocal function exercises.",
+      "Clinician's skilled guidance, error-correction strategies, and specialized modifications used to improve communication performance.",
+      "Progress tracking against the functional communication goals established in the patient's plan of care."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed service. Billed as 1 unit per day regardless of whether the session lasts 30, 45, or 60 minutes.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Reimbursed at a fixed rate per day. Multiple sessions of the same discipline on a single date are generally non-payable.",
+        "commercial_payers": "Some private lines require explicit pre-authorization tracking and may impose a hard annual cap on total speech therapy visits."
+      },
+      "ncci_conflict_risks": [
+        "Bundled with speech evaluation codes on the same date of service; cannot bill treatment and initial evaluation concurrently.",
+        "If dysphagia therapy (92526) is also performed on the same day, separate distinct timelines and objectives must be documented."
+      ]
+    }
+  },
+  "92526": {
+    "label": "dysphagia_therapy",
+    "display_name": "Dysphagia Oral Feeding Therapy",
+    "descriptor": "Treatment of swallowing dysfunction and/or oral function for feeding, focusing on implementing swallowing maneuvers, muscle retraining protocols, and dietary texture modifications to ensure safe oral intake.",
+    "timed": false,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when clinical evaluations or instrumental swallow studies (e.g., MBSS, FEES) confirm oropharyngeal dysphagia, putting the patient at direct risk for airway compromise, aspiration pneumonia, or severe malnutrition.",
+    "documentation_requirements": [
+      "Specific swallow safety risks and functional deficits identified (e.g., delayed swallow reflex, premature bolus loss, silent aspiration risks).",
+      "Therapeutic interventions used, including precise swallowing maneuvers (e.g., chin-tuck, Mendelsohn maneuver, supraglottic swallow).",
+      "Therapeutic feeding trials conducted, detailing specific liquid/solid consistencies (e.g., pureed, nectar-thick) and volumes managed.",
+      "Skilled clinical cues provided for airway protection, rate control, bolus clearing, and physiological monitoring during trials."
+    ],
+    "billing_caveats": {
+      "time_system": "Untimed service. Restricted to 1 billable unit per encounter, regardless of session length.",
+      "unit_conversion_table": {
+        "any_duration": "1 unit flat"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Billed as a flat daily code. Requires clear clinical justification proving that the patient's swallowing function is actively rehabilitation-ready.",
+        "commercial_payers": "Highly prioritized for approval due to the direct medical risk of aspiration pneumonia, but subject to medical necessity audits."
+      },
+      "ncci_conflict_risks": [
+        "Triggers automatic bundling logic when combined with standard speech therapy (92507) on the same day unless distinct, non-overlapping goals and timelines are explicitly proven.",
+        "Does not cover basic meal supervision or standard nutritional feeding assistance provided by uncertified staff."
+      ]
+    }
+  },
+  "97542": {
+    "label": "wheelchair_management",
+    "display_name": "Wheelchair Management & Fitting",
+    "descriptor": "Assessment, custom fitting adjustment, and systematic training in wheelchair propulsion, mechanics, positioning, and safety procedures, applied to one or more areas, each 15 minutes.",
+    "timed": true,
+    "confidence": "high",
+    "clinical_rationale": "Indicated when a patient requires a new manual or power wheelchair system, or shows severe mobility deficits requiring custom seating modifications, postural adjustments, or propulsion training to prevent tissue breakdown or upper extremity strain.",
+    "documentation_requirements": [
+      "Detailed justification for the wheelchair system and a breakdown of specific mobility limitations.",
+      "Precise seating adjustments made (e.g., seat-to-floor height, backrest angle, armrest or footrest positioning).",
+      "Specific propulsion styles taught (e.g., bilateral upper extremity, hemi-propulsion, power joystick control navigation).",
+      "Documentation of safety training, including lock management, ramp management, and pressure relief techniques."
+    ],
+    "billing_caveats": {
+      "time_system": "Regulated strictly under the timed parameter sets of the CMS 8-Minute Rule.",
+      "unit_conversion_table": {
+        "8_to_22_minutes": "1 unit",
+        "23_to_37_minutes": "2 units",
+        "38_to_52_minutes": "3 units",
+        "53_to_67_minutes": "4 units"
+      },
+      "payer_specific_rules": {
+        "medicare_part_b": "Covers active training and custom physical configuration adjustments. Basic delivery drop-offs or unguided wheelchair placement tracking do not qualify.",
+        "commercial_payers": "Often closely coordinated with complex rehabilitation technology (CRT) documentation requirements for specialized seating approval."
+      },
+      "ncci_conflict_risks": [
+        "Time spent on general mobility assessments or basic physical transfers cannot be counted if they duplicate work tracked under evaluation or therapeutic activity codes.",
+        "Cannot be used to track routine maintenance or simple mechanical cleaning of equipment."
+      ]
+    }
+  }
+}

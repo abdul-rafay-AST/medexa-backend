@@ -1,0 +1,38 @@
+{
+  "source_name": "Medexa Internal - Saudi Diagnosis Procedure Rules",
+  "source_url": "internal://medexa/config/regions/sa/rules/diagnosis_procedure_rules.json",
+  "version": "1.0.0",
+  "derived_from": [
+    {
+      "source_name": "Saudi Billing System Knowledge Center",
+      "source_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
+      "classification": "OFFICIAL_PUBLIC"
+    }
+  ],
+  "records": [
+    {
+      "rule_id": "SA-DX-001",
+      "category": "diagnosis_required",
+      "severity": "error",
+      "description": "Every billable encounter must have at least one principal diagnosis before export."
+    },
+    {
+      "rule_id": "SA-DX-002",
+      "category": "code_system",
+      "severity": "error",
+      "description": "Diagnosis codes must resolve against the licensed ICD-10-AM master for KSA."
+    },
+    {
+      "rule_id": "SA-DX-003",
+      "category": "procedure_code_system",
+      "severity": "error",
+      "description": "Procedure or service codes must resolve against the official SBS or ACHI master once imported."
+    },
+    {
+      "rule_id": "SA-DX-004",
+      "category": "mutually_supporting",
+      "severity": "warning",
+      "description": "Selected procedures should be clinically supported by the documented diagnosis family."
+    }
+  ]
+}
