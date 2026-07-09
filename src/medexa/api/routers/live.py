@@ -10,12 +10,38 @@ from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.routers._common import refresh_and_publish, require_state, session_clock
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
-from medexa.schemas import Alert, SessionState
+from medexa.schemas import Alert, ProtocolInsight, SessionState
 from medexa.services.transcription import TranscriptionUnavailable
 from medexa.utils.time import now_utc
 
 router = APIRouter(prefix="/sessions", tags=["live"])
 logger = get_logger("medexa.api.live")
+
+
+def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer) -> None:
+    """Push Modifier 59 / NCCI billing insights into state.insights for instant UI display."""
+    codes = sorted({seg.cpt_code for seg in state.timer_segments})
+    fresh: list[ProtocolInsight] = []
+    for i, code_a in enumerate(codes):
+        for code_b in codes[i + 1 :]:
+            rule = container.ncci_checker.check_conflict(code_a, code_b)
+            if not rule:
+                continue
+            fresh.append(
+                ProtocolInsight(
+                    insight_id=m._insight_id("billing", f"{code_a}-{code_b}"),
+                    type="billing",
+                    label=f"NCCI: {code_a} + {code_b}",
+                    question=(
+                        "Apply Modifier 59?"
+                        if rule.get("modifier_59_possible")
+                        else "Review billing conflict"
+                    ),
+                    description=rule["explanation"],
+                )
+            )
+    if fresh:
+        state.insights = m.merge_insights(state.insights, fresh)
 
 
 def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -> tuple[float, float]:
@@ -312,6 +338,7 @@ async def apply_suggestion(
         container.timer_engine.switch_segment(
             state, suggestion.cpt_code, suggestion.body_region, now
         )
+        _sync_ncci_billing_insights(state, container)
         await refresh_and_publish(state, container)
     return m.suggestion_to_contract(suggestion)
 

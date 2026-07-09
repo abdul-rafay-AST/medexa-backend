@@ -69,6 +69,11 @@ class PathAProcessor:
         prior_activities = {e.activity_label for e in state.detected_entities if e.activity_label}
         prior_regions = {e.body_region for e in state.detected_entities if e.body_region}
         prior_alert_keys = {_alert_key(a) for a in state.alerts}
+        prior_doc_gap_cpts = {
+            t.reason.removeprefix("documentation_gap:")
+            for t in state.path_b_triggers
+            if t.reason.startswith("documentation_gap:")
+        }
 
         entities, new_suggestions = self._processor.process(state, chunk, now)
         self._refresh_rules_insights(state)
@@ -93,6 +98,7 @@ class PathAProcessor:
             prior_activities,
             prior_regions,
             session_seen_cpts,
+            prior_doc_gap_cpts,
             chunk.text,
         )
         self._append_timeline(state, chunk, entities)
@@ -151,7 +157,7 @@ class PathAProcessor:
                     Alert(
                         alert_id=str(uuid.uuid4()),
                         alert_type="ncci_conflict",
-                        severity="warning",
+                        severity="medium",
                         message=f"NCCI conflict {key}: {rule['explanation']}",
                         cpt_codes={code_a, code_b},
                     )
@@ -168,6 +174,7 @@ class PathAProcessor:
         prior_activities: set[str],
         prior_regions: set[str],
         session_seen_cpts: set[str],
+        prior_doc_gap_cpts: set[str],
         chunk_text: str,
     ) -> list[DomainEvent]:
         events: list[DomainEvent] = [
@@ -190,7 +197,7 @@ class PathAProcessor:
                     )
                 )
                 missing = self._missing_documentation(entity, chunk_text)
-                if missing:
+                if missing and entity.possible_cpt not in prior_doc_gap_cpts:
                     events.append(
                         DocumentationGapDetected(
                             session_id=state.session_id,
