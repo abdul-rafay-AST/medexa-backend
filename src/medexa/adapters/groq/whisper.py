@@ -11,6 +11,8 @@ from medexa.services.transcription import (
 
 logger = logging.getLogger(__name__)
 
+MIN_WHISPER_BYTES = 1000
+
 _EXTENSION_MAP = {
     "audio/webm": "webm",
     "audio/wav": "wav",
@@ -41,8 +43,10 @@ class GroqWhisperTranscriptionProvider:
         self._model_id = model_id
 
     def transcribe(self, audio: bytes, content_type: str | None = None) -> TranscriptionResult:
-        if not audio:
-            raise TranscriptionUnavailable("Empty audio payload")
+        if not audio or len(audio) < MIN_WHISPER_BYTES:
+            raise TranscriptionUnavailable(
+                "Audio chunk too short for transcription — speak a little longer."
+            )
 
         ctype = (content_type or "audio/webm").split(";")[0].strip().lower()
         ext = _EXTENSION_MAP.get(ctype, "webm")
