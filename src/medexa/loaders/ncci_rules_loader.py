@@ -5,6 +5,8 @@ from typing import TypedDict
 class NcciRule(TypedDict):
     cpt_a: str
     cpt_b: str
+    payable_code: str
+    bundled_code: str
     conflict_type: str
     body_region_sensitive: bool
     modifier_59_possible: bool
