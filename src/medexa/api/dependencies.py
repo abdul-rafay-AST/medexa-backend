@@ -36,6 +36,7 @@ from medexa.core.entity_extractor import EntityExtractor
 from medexa.core.insights_builder import InsightsBuilder
 from medexa.core.ncci_conflict_checker import NcciConflictChecker
 from medexa.core.suggestion_generator import SuggestionGenerator
+from medexa.core.ambient_speaker_diarizer import AmbientSpeakerDiarizer
 from medexa.core.speaker_role_classifier import SpeakerRoleClassifier, format_labeled_utterance
 from medexa.core.transcript_processor import TranscriptProcessor
 from medexa.loaders.mue_limits_loader import MueLimitsLoader
@@ -90,6 +91,7 @@ class ServiceContainer:
             ncci_checker=self.ncci_checker,
         )
         self.speaker_role_classifier = SpeakerRoleClassifier()
+        self.ambient_speaker_diarizer = AmbientSpeakerDiarizer(self.speaker_role_classifier)
         self._region_runtimes: dict[str, RegionRuntime] = {}
         default_runtime = self.runtime_for_region("US")
         self.entity_extractor = EntityExtractor(self.hybrid_cpt_index, self.region_normalizer)
