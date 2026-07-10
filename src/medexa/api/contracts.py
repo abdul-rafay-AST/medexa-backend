@@ -286,6 +286,7 @@ class ApiExtractedEntity(CamelModel):
     id: str
     phrase: str
     region: str | None = None
+    display_region: str | None = None
     cpt: str | None = None
     icd10: str | None = None
     is_billable: bool = False

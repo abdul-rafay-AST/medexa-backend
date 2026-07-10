@@ -7,7 +7,8 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from medexa.api import contracts as c
 from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
-from medexa.api.routers._common import billing_now, refresh_and_publish, require_state, session_clock
+from medexa.api.body_region_labels import body_region_display
+from medexa.api.routers._common import billing_now, refresh_and_publish, require_state
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
 from medexa.schemas import Alert, ProtocolInsight, SessionState
@@ -80,17 +81,17 @@ async def analyze_transcript_chunk(
 
     start_ts, end_ts = _elapsed_bounds(state, req)
     state.client_elapsed_seconds = int(end_ts)
-    # Simulated wall clock so billing segments advance between typed chunks.
-    started = session_clock(state, int(start_ts))
+    # Billing segments use wall clock while the session is live.
+    now = billing_now(state)
 
     chunk = container.chunk_ingest.ingest(
         state, req.chunk_text, start_ts=start_ts, end_ts=end_ts
     )
-    result = runtime.path_a_processor.process(state, chunk, started)
+    result = runtime.path_a_processor.process(state, chunk, now)
 
-    await container.path_a_dispatcher.dispatch(state, result, now=started)
+    await container.path_a_dispatcher.dispatch(state, result, now=now)
 
-    state.last_updated = started
+    state.last_updated = now
     container.session_repo.save(state)
 
     analysis = runtime.path_a_snapshot.build_analysis(state, req.chunk_text, chunk.chunk_id)
@@ -126,13 +127,17 @@ async def transcribe_audio(
     except TranscriptionUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    started = now_utc()
+    chunk_duration = 5.0
+    now = billing_now(state)
     elapsed = float(state.client_elapsed_seconds or 0)
+    end_ts = elapsed + chunk_duration
+    state.client_elapsed_seconds = int(end_ts)
     chunk = container.chunk_ingest.ingest(
-        state, result.transcript, start_ts=elapsed, end_ts=elapsed + 15.0
+        state, result.transcript, start_ts=elapsed, end_ts=end_ts
     )
-    path_result = runtime.path_a_processor.process(state, chunk, started)
-    await container.path_a_dispatcher.dispatch(state, path_result, now=started)
+    path_result = runtime.path_a_processor.process(state, chunk, now)
+    await container.path_a_dispatcher.dispatch(state, path_result, now=now)
+    state.last_updated = now
     container.session_repo.save(state)
 
     analysis = runtime.path_a_snapshot.build_analysis(state, result.transcript, chunk.chunk_id)
@@ -265,6 +270,7 @@ async def get_live_pipeline(
                 id=f"{e.source_chunk_id}:{e.matched_phrase}:{e.possible_cpt or ''}",
                 phrase=e.matched_phrase,
                 region=e.body_region,
+                display_region=body_region_display(e.body_region),
                 cpt=e.possible_cpt,
                 icd10=None,
                 is_billable=bool(e.is_billable and e.possible_cpt),
