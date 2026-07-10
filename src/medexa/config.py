@@ -58,6 +58,7 @@ class MedexaConfig(BaseSettings):
     log_level: str = "INFO"
 
     use_dynamodb: bool = False
+    session_persist_dir: Path | None = Path("data/sessions")
     dynamodb_table_name: str = "medexa-sessions"
     aws_region: str = "us-east-1"
     aws_environment: Literal["local", "staging", "prod"] = "staging"

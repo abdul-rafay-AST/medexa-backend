@@ -21,6 +21,8 @@ COPY pyproject.toml README.md ./
 COPY src ./src
 RUN pip install --upgrade pip && pip install .
 
+RUN mkdir -p /app/data/sessions
+
 # Runtime assets (rule files + entrypoint script).
 COPY config ./config
 COPY scripts ./scripts

@@ -340,6 +340,7 @@ class SessionState(BaseModel):
     ambient_voice_pitch_centroids: dict[str, float] = Field(default_factory=dict)
     ambient_voice_cluster_roles: dict[str, Literal["therapist", "patient"]] = Field(default_factory=dict)
     last_voice_cluster: str | None = None
+    last_ambient_pitch_hz: float | None = None
     timeline_events: list[TimelineEvent] = Field(default_factory=list)
     audit_log: list[ComplianceAuditEntry] = Field(default_factory=list)
     suggestions: list[Suggestion] = Field(default_factory=list)

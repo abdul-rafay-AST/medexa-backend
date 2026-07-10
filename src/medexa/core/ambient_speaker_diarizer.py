@@ -25,7 +25,8 @@ CLUSTER_A = "voice_a"
 CLUSTER_B = "voice_b"
 NEW_SPEAKER_DISTANCE = 0.17
 VOICE_MATCH_DISTANCE = 0.09
-PITCH_NEW_SPEAKER_HZ = 28.0
+PITCH_NEW_SPEAKER_HZ = 22.0
+PITCH_CHANGE_TURN_HZ = 28.0
 
 
 @dataclass(frozen=True)
@@ -68,6 +69,18 @@ class AmbientSpeakerDiarizer:
             features = extract_voice_features(audio, content_type)
         except (AudioDecodeError, ValueError) as exc:
             logger.info("ambient_voice_features_unavailable: %s", exc)
+            pitch_flip = self._speaker_from_pitch_change(state, client_pitch_hz)
+            if pitch_flip is not None:
+                state.last_ambient_pitch_hz = client_pitch_hz or state.last_ambient_pitch_hz
+                return AmbientDiarizationResult(
+                    role=pitch_flip,
+                    confidence=0.72,
+                    method="voice",
+                    voice_cluster=state.last_voice_cluster,
+                    voice_confidence=0.72,
+                    text_confidence=text_result.confidence,
+                    pitch_hz=round(client_pitch_hz or 0.0, 1),
+                )
             return AmbientDiarizationResult(
                 role=text_result.role,
                 confidence=text_result.confidence,
@@ -86,6 +99,7 @@ class AmbientSpeakerDiarizer:
             pitch_hz=pitch_hz,
         )
         state.last_voice_cluster = cluster_id
+        state.last_ambient_pitch_hz = pitch_hz if pitch_hz > 0 else state.last_ambient_pitch_hz
         self._update_centroid(state, cluster_id, features, pitch_hz)
 
         role, method = self._resolve_role(
@@ -120,6 +134,17 @@ class AmbientSpeakerDiarizer:
         centroids = state.ambient_voice_centroids
         if not centroids:
             return CLUSTER_A, 0.6
+
+        if pitch_hz > 0 and len(state.ambient_voice_pitch_centroids) >= 2:
+            by_pitch = sorted(
+                state.ambient_voice_pitch_centroids.items(),
+                key=lambda item: abs(item[1] - pitch_hz),
+            )
+            pitch_cluster, pitch_delta = by_pitch[0]
+            if pitch_delta <= 45.0:
+                second_delta = abs(by_pitch[1][1] - pitch_hz) if len(by_pitch) > 1 else 999.0
+                margin = max(0.0, second_delta - pitch_delta)
+                return pitch_cluster, min(0.96, 0.7 + margin / 80.0)
 
         ranked: list[tuple[str, float]] = []
         for cluster_id, vector in centroids.items():
@@ -226,3 +251,13 @@ class AmbientSpeakerDiarizer:
         weight_voice = min(1.0, max(0.0, weight_voice))
         blended = weight_voice * voice_confidence + (1.0 - weight_voice) * text_confidence
         return round(min(0.98, max(0.4, blended)), 3)
+
+    @staticmethod
+    def _speaker_from_pitch_change(state: SessionState, pitch_hz: float | None) -> SpeakerRole | None:
+        if not pitch_hz or pitch_hz <= 0 or not state.last_ambient_pitch_hz:
+            return None
+        if abs(pitch_hz - state.last_ambient_pitch_hz) < PITCH_CHANGE_TURN_HZ:
+            return None
+        if not state.last_ambient_speaker:
+            return None
+        return "patient" if state.last_ambient_speaker == "therapist" else "therapist"
