@@ -101,9 +101,9 @@ def test_analyze_transcript_chunk_returns_clinical_analysis():
     assert "soap_update" in body
     assert body["disclaimer"]
 
-    insights = client.get(f"/sessions/{session_id}/insights").json()
-    assert isinstance(insights, list)
-    assert len(insights) >= 1
+    suggestions = client.get(f"/sessions/{session_id}/suggestions").json()
+    assert isinstance(suggestions, list)
+    assert len(suggestions) >= 1
 
 
 def test_documentation_billing_and_claims_endpoints():

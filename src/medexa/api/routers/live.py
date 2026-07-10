@@ -40,6 +40,7 @@ def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer
                     else "Review billing conflict"
                 ),
                 description=alert.message,
+                status="approved",
             )
         )
     if fresh:
@@ -344,7 +345,11 @@ async def apply_suggestion(
         container.timer_engine.switch_segment(
             state, suggestion.cpt_code, suggestion.body_region, now
         )
+        for insight in state.insights:
+            if insight.type == "detected" and suggestion.cpt_code in insight.question:
+                insight.status = "approved"
         _sync_ncci_billing_insights(state, container)
+        container.session_repo.save(state)
         await refresh_and_publish(state, container)
     return m.suggestion_to_contract(suggestion)
 

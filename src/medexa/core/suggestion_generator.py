@@ -34,18 +34,19 @@ class SuggestionGenerator:
         now: datetime,
         active_segments: list[tuple[str, str | None]] | None = None,
     ) -> list[Suggestion]:
-        blocked = self._blocked_keys(existing, now)
-        new_suggestions: list[Suggestion] = []
         active_segments = active_segments or []
+        blocked = self._blocked_keys(existing, now, active_segments)
+        new_suggestions: list[Suggestion] = []
+        seen_batch: set[tuple[str | None, str | None]] = set()
 
         for entity in entities:
             if not (entity.is_billable and entity.possible_cpt):
                 continue
 
             key = (entity.possible_cpt, entity.body_region)
-            if key in blocked:
+            if key in blocked or key in seen_batch:
                 continue
-            blocked.add(key)  # also dedupe within this same batch
+            seen_batch.add(key)
 
             display = self._meta.get_display_name(entity.possible_cpt)
             message = (
@@ -100,15 +101,19 @@ class SuggestionGenerator:
         return ""
 
     def _blocked_keys(
-        self, existing: list[Suggestion], now: datetime
+        self,
+        existing: list[Suggestion],
+        now: datetime,
+        active_segments: list[tuple[str, str | None]],
     ) -> set[tuple[str | None, str | None]]:
         del now  # cooldown removed — block is idempotent by status
         blocked: set[tuple[str | None, str | None]] = set()
         for s in existing:
-            if s.status in ("dismissed", "expired"):
+            if s.status in ("dismissed", "expired") or not s.cpt_code:
                 continue
-            if s.status in ("applied", "suggested"):
-                key = (s.cpt_code, s.body_region)
-                blocked.add(key)
-                blocked.add((s.cpt_code, None))
+            blocked.add((s.cpt_code, s.body_region))
+            blocked.add((s.cpt_code, None))
+        for seg_cpt, seg_region in active_segments:
+            blocked.add((seg_cpt, seg_region))
+            blocked.add((seg_cpt, None))
         return blocked
