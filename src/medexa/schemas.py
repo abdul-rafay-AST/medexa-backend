@@ -223,11 +223,22 @@ class SoapPlan(BaseModel):
     follow_up_plan: str = ""
 
 
+class SoapBillingDocumentation(BaseModel):
+    """RCM-facing intervention and coding context — sourced from Path A + transcript."""
+
+    intervention_blocks: list[str] = Field(default_factory=list)
+    cpt_summary: list[str] = Field(default_factory=list)
+    ncci_alerts: list[str] = Field(default_factory=list)
+    compliance_gaps: list[str] = Field(default_factory=list)
+    total_session_minutes: int | None = None
+
+
 class SoapNote(BaseModel):
     subjective: SoapSubjective = Field(default_factory=SoapSubjective)
     objective: SoapObjective = Field(default_factory=SoapObjective)
     assessment: SoapAssessment = Field(default_factory=SoapAssessment)
     plan: SoapPlan = Field(default_factory=SoapPlan)
+    billing_documentation: SoapBillingDocumentation = Field(default_factory=SoapBillingDocumentation)
     generated: bool = False
 
 

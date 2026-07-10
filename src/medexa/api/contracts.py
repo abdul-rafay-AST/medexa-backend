@@ -388,11 +388,20 @@ class SoapPlanDTO(CamelModel):
     follow_up_plan: str = ""
 
 
+class SoapBillingDocumentationDTO(CamelModel):
+    intervention_blocks: list[str] = []
+    cpt_summary: list[str] = []
+    ncci_alerts: list[str] = []
+    compliance_gaps: list[str] = []
+    total_session_minutes: int | None = None
+
+
 class SoapDataDTO(CamelModel):
     subjective: SoapSubjectiveDTO = SoapSubjectiveDTO()
     objective: SoapObjectiveDTO = SoapObjectiveDTO()
     assessment: SoapAssessmentDTO = SoapAssessmentDTO()
     plan: SoapPlanDTO = SoapPlanDTO()
+    billing_documentation: SoapBillingDocumentationDTO = SoapBillingDocumentationDTO()
 
 
 class FhirExportSummary(CamelModel):

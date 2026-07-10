@@ -355,11 +355,24 @@ def soap_to_dto(note: SoapNote) -> c.SoapDataDTO:
             severity=note.assessment.severity,
         ),
         plan=c.SoapPlanDTO(follow_up_plan=note.plan.follow_up_plan),
+        billing_documentation=c.SoapBillingDocumentationDTO(
+            intervention_blocks=note.billing_documentation.intervention_blocks,
+            cpt_summary=note.billing_documentation.cpt_summary,
+            ncci_alerts=note.billing_documentation.ncci_alerts,
+            compliance_gaps=note.billing_documentation.compliance_gaps,
+            total_session_minutes=note.billing_documentation.total_session_minutes,
+        ),
     )
 
 
 def dto_to_soap(dto: c.SoapDataDTO, *, generated: bool) -> SoapNote:
-    from medexa.schemas import SoapAssessment, SoapObjective, SoapPlan, SoapSubjective
+    from medexa.schemas import (
+        SoapAssessment,
+        SoapBillingDocumentation,
+        SoapObjective,
+        SoapPlan,
+        SoapSubjective,
+    )
 
     return SoapNote(
         subjective=SoapSubjective(
@@ -379,6 +392,13 @@ def dto_to_soap(dto: c.SoapDataDTO, *, generated: bool) -> SoapNote:
             severity=dto.assessment.severity,
         ),
         plan=SoapPlan(follow_up_plan=dto.plan.follow_up_plan),
+        billing_documentation=SoapBillingDocumentation(
+            intervention_blocks=dto.billing_documentation.intervention_blocks,
+            cpt_summary=dto.billing_documentation.cpt_summary,
+            ncci_alerts=dto.billing_documentation.ncci_alerts,
+            compliance_gaps=dto.billing_documentation.compliance_gaps,
+            total_session_minutes=dto.billing_documentation.total_session_minutes,
+        ),
         generated=generated,
     )
 
