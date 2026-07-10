@@ -13,8 +13,17 @@ async def root() -> dict[str, str]:
 
 
 @router.get("/health")
-async def health() -> dict[str, str]:
-    return {"status": "ok"}
+async def health() -> dict[str, object]:
+    deepgram_configured = bool((settings.deepgram_api_key or "").strip())
+    return {
+        "status": "ok",
+        "transcription_provider": settings.transcription_provider,
+        "deepgram_configured": deepgram_configured,
+        "deepgram_model": settings.deepgram_model if settings.transcription_provider == "deepgram" else None,
+        "path_b_provider": settings.path_b_provider,
+        "soap_generator": settings.soap_generator,
+        "summary_generator": settings.summary_generator,
+    }
 
 
 @router.get("/health/aws")

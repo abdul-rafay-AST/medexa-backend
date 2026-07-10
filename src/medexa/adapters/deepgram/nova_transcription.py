@@ -102,6 +102,17 @@ def _parse_deepgram_payload(payload: dict[str, Any]) -> TranscriptionResult:
 
     has_speakers = any(segment.speaker_id is not None for segment in segments)
     diarization_method = "deepgram" if has_speakers else "none"
+    distinct = len({segment.speaker_id for segment in segments if segment.speaker_id is not None})
+    logger.info(
+        "deepgram_chunk_parsed",
+        extra={
+            "extra_fields": {
+                "segment_count": len(segments),
+                "distinct_speakers": distinct,
+                "diarization_method": diarization_method,
+            }
+        },
+    )
 
     return TranscriptionResult(
         transcript=transcript,

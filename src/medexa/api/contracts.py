@@ -250,6 +250,7 @@ class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
     speaker: Literal["therapist", "patient"] = "patient"
     speaker_confidence: float = 0.5
     diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
+    transcription_provider: Literal["deepgram", "groq_whisper", "aws_transcribe"] | None = None
     at_seconds: int = 0
     audio_segments: list[ApiAudioSegment] = []
 

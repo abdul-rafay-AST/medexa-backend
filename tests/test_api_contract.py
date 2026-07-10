@@ -29,7 +29,9 @@ def _start_session() -> str:
 
 
 def test_health_and_session_lifecycle():
-    assert client.get("/health").json() == {"status": "ok"}
+    health = client.get("/health").json()
+    assert health["status"] == "ok"
+    assert "transcription_provider" in health
     session_id = _start_session()
 
     sessions = client.get("/sessions").json()
