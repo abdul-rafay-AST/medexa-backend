@@ -48,6 +48,31 @@ def decode_audio_bytes(audio: bytes, content_type: str | None = None) -> PcmAudi
     return _decode_via_ffmpeg(audio, ctype)
 
 
+def estimate_audio_duration_seconds(audio: bytes, content_type: str | None = None) -> float:
+    """Return decoded audio length in seconds for session clock alignment."""
+    try:
+        pcm = decode_audio_bytes(audio, content_type)
+    except AudioDecodeError:
+        # Rough fallback for compressed blobs when ffmpeg is unavailable.
+        return max(len(audio) / 4800.0, 0.25)
+    if pcm.sample_rate <= 0:
+        return 0.25
+    return max(len(pcm.samples) / pcm.sample_rate, 0.25)
+
+
+def resolve_chunk_duration_seconds(
+    audio: bytes,
+    content_type: str | None,
+    *,
+    client_duration_seconds: float | None = None,
+) -> float:
+    """Pick a stable utterance duration from decoded audio and optional client hint."""
+    decoded = estimate_audio_duration_seconds(audio, content_type)
+    if client_duration_seconds is not None and client_duration_seconds > 0:
+        return max(0.25, min(float(client_duration_seconds), decoded + 0.35, 120.0))
+    return max(0.25, min(decoded, 120.0))
+
+
 def extract_voice_fingerprint(audio: bytes, content_type: str | None = None) -> np.ndarray:
     pcm = decode_audio_bytes(audio, content_type)
     return fingerprint_from_pcm(pcm.samples, pcm.sample_rate)

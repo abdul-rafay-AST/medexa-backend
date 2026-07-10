@@ -3,8 +3,8 @@
 Groq Whisper does not provide acoustic diarization. In outpatient PT visits,
 speakers alternate and clinical language strongly signals role. This module
 scores each utterance as therapist vs patient and applies turn-taking continuity
-when lexical confidence is low — a lightweight, testable alternative to heavy
-pyannote-style pipelines on short 5s chunks.
+when lexical confidence is low — paired with voice clustering on each natural
+speech-boundary upload from the browser.
 """
 
 from __future__ import annotations

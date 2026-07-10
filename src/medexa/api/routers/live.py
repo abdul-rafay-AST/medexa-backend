@@ -10,6 +10,7 @@ from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.body_region_labels import body_region_display
 from medexa.api.routers._common import billing_now, refresh_and_publish, require_state
 from medexa.core.speaker_role_classifier import format_labeled_utterance
+from medexa.core.voice_fingerprint import resolve_chunk_duration_seconds
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
 from medexa.schemas import Alert, ProtocolInsight, SessionState, TranscriptUtterance
@@ -120,6 +121,7 @@ async def transcribe_audio(
     session_id: str,
     file: UploadFile = File(...),
     client_pitch_hz: float | None = Form(default=None),
+    client_duration_seconds: float | None = Form(default=None),
     container: ServiceContainer = Depends(get_container),
 ) -> c.ApiAudioTranscriptionAnalysis:
     state = require_state(session_id, container)
@@ -130,7 +132,11 @@ async def transcribe_audio(
     except TranscriptionUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
-    chunk_duration = 5.0
+    chunk_duration = resolve_chunk_duration_seconds(
+        audio,
+        file.content_type,
+        client_duration_seconds=client_duration_seconds,
+    )
     now = billing_now(state)
     elapsed = float(state.client_elapsed_seconds or 0)
     end_ts = elapsed + chunk_duration
@@ -148,20 +154,7 @@ async def transcribe_audio(
             speaker=state.last_ambient_speaker or "patient",
             speaker_confidence=0.0,
             at_seconds=int(elapsed),
-            audio_segments=[],
-        )
-
-    if not transcript:
-        state.last_updated = now
-        container.session_repo.save(state)
-        analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(state, "", "")
-        base = runtime.path_a_snapshot.to_contract(analysis, state)
-        return c.ApiAudioTranscriptionAnalysis(
-            **base.model_dump(),
-            transcript="",
-            speaker=state.last_ambient_speaker or "patient",
-            speaker_confidence=0.0,
-            at_seconds=int(elapsed),
+            end_seconds=int(end_ts),
             audio_segments=[],
         )
 
@@ -233,6 +226,7 @@ async def transcribe_audio(
         diarization_method=classification_method,
         transcription_provider=result.provider,
         at_seconds=int(elapsed),
+        end_seconds=int(end_ts),
         audio_segments=[
             c.ApiAudioSegment(
                 start=segment.start,
