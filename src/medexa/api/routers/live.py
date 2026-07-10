@@ -150,9 +150,11 @@ async def transcribe_audio(
             audio_segments=[],
         )
 
-    classification = container.speaker_role_classifier.classify(
-        transcript,
-        last_speaker=state.last_ambient_speaker,
+    classification = container.ambient_speaker_diarizer.classify(
+        audio=audio,
+        content_type=file.content_type,
+        transcript=transcript,
+        state=state,
     )
     state.last_ambient_speaker = classification.role
     labeled_text = format_labeled_utterance(classification.role, transcript)
@@ -170,6 +172,7 @@ async def transcribe_audio(
         end_ts=end_ts,
         confidence=classification.confidence,
         source_chunk_id=chunk.chunk_id,
+        diarization_method=classification.method,
     )
     state.transcript_utterances.append(utterance)
 
@@ -185,6 +188,7 @@ async def transcribe_audio(
         transcript=transcript,
         speaker=classification.role,
         speaker_confidence=classification.confidence,
+        diarization_method=classification.method,
         at_seconds=int(elapsed),
         audio_segments=[
             c.ApiAudioSegment(
@@ -340,6 +344,7 @@ async def get_live_pipeline(
                 at_seconds=int(u.start_ts),
                 end_seconds=int(u.end_ts),
                 confidence=u.confidence,
+                diarization_method=u.diarization_method,
             )
             for u in state.transcript_utterances
         ],

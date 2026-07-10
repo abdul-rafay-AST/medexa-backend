@@ -35,6 +35,7 @@ class TranscriptUtterance(BaseModel):
     end_ts: float
     confidence: float = 0.5
     source_chunk_id: str
+    diarization_method: Literal["voice", "text", "hybrid"] | None = None
 
 
 class DetectedEntity(BaseModel):
@@ -324,6 +325,9 @@ class SessionState(BaseModel):
     transcript_chunks: list[TranscriptChunk] = Field(default_factory=list)
     transcript_utterances: list[TranscriptUtterance] = Field(default_factory=list)
     last_ambient_speaker: Literal["therapist", "patient"] | None = None
+    ambient_voice_centroids: dict[str, list[float]] = Field(default_factory=dict)
+    ambient_voice_cluster_roles: dict[str, Literal["therapist", "patient"]] = Field(default_factory=dict)
+    last_voice_cluster: str | None = None
     timeline_events: list[TimelineEvent] = Field(default_factory=list)
     audit_log: list[ComplianceAuditEntry] = Field(default_factory=list)
     suggestions: list[Suggestion] = Field(default_factory=list)

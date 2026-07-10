@@ -242,12 +242,14 @@ class ApiDiarizedUtterance(CamelModel):
     at_seconds: int = 0
     end_seconds: int = 0
     confidence: float = 0.5
+    diarization_method: Literal["voice", "text", "hybrid"] | None = None
 
 
 class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
     transcript: str
     speaker: Literal["therapist", "patient"] = "patient"
     speaker_confidence: float = 0.5
+    diarization_method: Literal["voice", "text", "hybrid"] | None = None
     at_seconds: int = 0
     audio_segments: list[ApiAudioSegment] = []
 
