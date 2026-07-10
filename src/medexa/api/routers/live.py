@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 from medexa.api import contracts as c
 from medexa.api import mappers as m
@@ -119,6 +119,7 @@ async def analyze_transcript_chunk(
 async def transcribe_audio(
     session_id: str,
     file: UploadFile = File(...),
+    client_pitch_hz: float | None = Form(default=None),
     container: ServiceContainer = Depends(get_container),
 ) -> c.ApiAudioTranscriptionAnalysis:
     state = require_state(session_id, container)
@@ -155,6 +156,7 @@ async def transcribe_audio(
         content_type=file.content_type,
         transcript=transcript,
         state=state,
+        client_pitch_hz=client_pitch_hz,
     )
     state.last_ambient_speaker = classification.role
     labeled_text = format_labeled_utterance(classification.role, transcript)

@@ -337,6 +337,7 @@ class SessionState(BaseModel):
     transcript_utterances: list[TranscriptUtterance] = Field(default_factory=list)
     last_ambient_speaker: Literal["therapist", "patient"] | None = None
     ambient_voice_centroids: dict[str, list[float]] = Field(default_factory=dict)
+    ambient_voice_pitch_centroids: dict[str, float] = Field(default_factory=dict)
     ambient_voice_cluster_roles: dict[str, Literal["therapist", "patient"]] = Field(default_factory=dict)
     last_voice_cluster: str | None = None
     timeline_events: list[TimelineEvent] = Field(default_factory=list)
