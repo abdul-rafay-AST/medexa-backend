@@ -135,12 +135,27 @@ async def transcribe_audio(
     end_ts = elapsed + chunk_duration
     state.client_elapsed_seconds = int(end_ts)
 
+    transcript = result.transcript.strip()
+    if not transcript:
+        state.last_updated = now
+        container.session_repo.save(state)
+        analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(state, "", "")
+        base = runtime.path_a_snapshot.to_contract(analysis, state)
+        return c.ApiAudioTranscriptionAnalysis(
+            **base.model_dump(),
+            transcript="",
+            speaker=state.last_ambient_speaker or "patient",
+            speaker_confidence=0.0,
+            at_seconds=int(elapsed),
+            audio_segments=[],
+        )
+
     classification = container.speaker_role_classifier.classify(
-        result.transcript,
+        transcript,
         last_speaker=state.last_ambient_speaker,
     )
     state.last_ambient_speaker = classification.role
-    labeled_text = format_labeled_utterance(classification.role, result.transcript)
+    labeled_text = format_labeled_utterance(classification.role, transcript)
 
     chunk = container.chunk_ingest.ingest(
         state, labeled_text, start_ts=elapsed, end_ts=end_ts
@@ -150,7 +165,7 @@ async def transcribe_audio(
     utterance = TranscriptUtterance(
         utterance_id=str(uuid.uuid4()),
         speaker=classification.role,
-        text=result.transcript.strip(),
+        text=transcript,
         start_ts=elapsed,
         end_ts=end_ts,
         confidence=classification.confidence,
@@ -163,11 +178,11 @@ async def transcribe_audio(
     state.last_updated = now
     container.session_repo.save(state)
 
-    analysis = runtime.path_a_snapshot.build_analysis(state, result.transcript, chunk.chunk_id)
+    analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
     base = runtime.path_a_snapshot.to_contract(analysis, state)
     return c.ApiAudioTranscriptionAnalysis(
         **base.model_dump(),
-        transcript=result.transcript,
+        transcript=transcript,
         speaker=classification.role,
         speaker_confidence=classification.confidence,
         at_seconds=int(elapsed),
@@ -184,7 +199,7 @@ async def transcribe_audio(
             c.ApiAudioSegment(
                 start=elapsed,
                 end=end_ts,
-                text=result.transcript,
+                text=transcript,
                 speaker=classification.role,
             )
         ],
