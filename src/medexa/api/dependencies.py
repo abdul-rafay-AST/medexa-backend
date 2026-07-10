@@ -65,6 +65,7 @@ from medexa.services.providers import (
 )
 from medexa.state import (
     DynamoDbSessionStateRepository,
+    FileSessionStateRepository,
     InMemorySessionStateRepository,
     SessionStateRepository,
 )
@@ -162,6 +163,8 @@ class ServiceContainer:
                 table_name=settings.dynamodb_table_name,
                 region_name=settings.aws_region,
             )
+        if settings.session_persist_dir:
+            return FileSessionStateRepository(settings.session_persist_dir)
         return InMemorySessionStateRepository()
 
     @staticmethod
