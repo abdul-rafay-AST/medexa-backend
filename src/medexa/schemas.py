@@ -22,6 +22,19 @@ class TranscriptChunk(BaseModel):
     start_ts: float
     end_ts: float
     sequence: int
+    speaker_role: Literal["therapist", "patient"] | None = None
+
+
+class TranscriptUtterance(BaseModel):
+    """One diarized ambient speech segment with clinical speaker role."""
+
+    utterance_id: str
+    speaker: Literal["therapist", "patient"]
+    text: str
+    start_ts: float
+    end_ts: float
+    confidence: float = 0.5
+    source_chunk_id: str
 
 
 class DetectedEntity(BaseModel):
@@ -309,6 +322,8 @@ class SessionState(BaseModel):
     timer_segments: list[TimerSegment] = Field(default_factory=list)
     detected_entities: list[DetectedEntity] = Field(default_factory=list)
     transcript_chunks: list[TranscriptChunk] = Field(default_factory=list)
+    transcript_utterances: list[TranscriptUtterance] = Field(default_factory=list)
+    last_ambient_speaker: Literal["therapist", "patient"] | None = None
     timeline_events: list[TimelineEvent] = Field(default_factory=list)
     audit_log: list[ComplianceAuditEntry] = Field(default_factory=list)
     suggestions: list[Suggestion] = Field(default_factory=list)

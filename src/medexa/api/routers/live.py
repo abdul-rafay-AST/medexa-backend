@@ -11,7 +11,7 @@ from medexa.api.body_region_labels import body_region_display
 from medexa.api.routers._common import billing_now, refresh_and_publish, require_state
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
-from medexa.schemas import Alert, ProtocolInsight, SessionState
+from medexa.schemas import Alert, ProtocolInsight, SessionState, TranscriptUtterance
 from medexa.services.transcription import TranscriptionUnavailable
 from medexa.utils.time import now_utc
 
@@ -133,9 +133,30 @@ async def transcribe_audio(
     elapsed = float(state.client_elapsed_seconds or 0)
     end_ts = elapsed + chunk_duration
     state.client_elapsed_seconds = int(end_ts)
-    chunk = container.chunk_ingest.ingest(
-        state, result.transcript, start_ts=elapsed, end_ts=end_ts
+
+    classification = container.speaker_role_classifier.classify(
+        result.transcript,
+        last_speaker=state.last_ambient_speaker,
     )
+    state.last_ambient_speaker = classification.role
+    labeled_text = format_labeled_utterance(classification.role, result.transcript)
+
+    chunk = container.chunk_ingest.ingest(
+        state, labeled_text, start_ts=elapsed, end_ts=end_ts
+    )
+    chunk.speaker_role = classification.role
+
+    utterance = TranscriptUtterance(
+        utterance_id=str(uuid.uuid4()),
+        speaker=classification.role,
+        text=result.transcript.strip(),
+        start_ts=elapsed,
+        end_ts=end_ts,
+        confidence=classification.confidence,
+        source_chunk_id=chunk.chunk_id,
+    )
+    state.transcript_utterances.append(utterance)
+
     path_result = runtime.path_a_processor.process(state, chunk, now)
     await container.path_a_dispatcher.dispatch(state, path_result, now=now)
     state.last_updated = now
@@ -146,8 +167,25 @@ async def transcribe_audio(
     return c.ApiAudioTranscriptionAnalysis(
         **base.model_dump(),
         transcript=result.transcript,
+        speaker=classification.role,
+        speaker_confidence=classification.confidence,
+        at_seconds=int(elapsed),
         audio_segments=[
-            c.ApiAudioSegment(start=s.start, end=s.end, text=s.text) for s in result.segments
+            c.ApiAudioSegment(
+                start=s.start,
+                end=s.end,
+                text=s.text,
+                speaker=classification.role,
+            )
+            for s in result.segments
+        ]
+        or [
+            c.ApiAudioSegment(
+                start=elapsed,
+                end=end_ts,
+                text=result.transcript,
+                speaker=classification.role,
+            )
         ],
     )
 
@@ -277,6 +315,17 @@ async def get_live_pipeline(
                 is_billable=bool(e.is_billable and e.possible_cpt),
             )
             for e in state.detected_entities
+        ],
+        diarized_utterances=[
+            c.ApiDiarizedUtterance(
+                id=u.utterance_id,
+                speaker=u.speaker,
+                text=u.text,
+                at_seconds=int(u.start_ts),
+                end_seconds=int(u.end_ts),
+                confidence=u.confidence,
+            )
+            for u in state.transcript_utterances
         ],
         transcript_preview=(state.transcript_text or "")[-400:],
     )
