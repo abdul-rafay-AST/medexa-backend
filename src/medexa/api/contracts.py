@@ -232,10 +232,23 @@ class ApiAudioSegment(BaseModel):
     start: float
     end: float
     text: str
+    speaker: Literal["therapist", "patient"] | None = None
+
+
+class ApiDiarizedUtterance(CamelModel):
+    id: str
+    speaker: Literal["therapist", "patient"]
+    text: str
+    at_seconds: int = 0
+    end_seconds: int = 0
+    confidence: float = 0.5
 
 
 class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
     transcript: str
+    speaker: Literal["therapist", "patient"] = "patient"
+    speaker_confidence: float = 0.5
+    at_seconds: int = 0
     audio_segments: list[ApiAudioSegment] = []
 
 
@@ -305,6 +318,7 @@ class ApiLivePipelineSnapshot(CamelModel):
     billing_suggestions: list[ApiSuggestion] = []
     assistant_suggestions: list[ApiAssistantSuggestion] = []
     entities: list[ApiExtractedEntity] = []
+    diarized_utterances: list[ApiDiarizedUtterance] = []
     transcript_preview: str = ""
 
 
