@@ -252,6 +252,7 @@ class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
     diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
     transcription_provider: Literal["deepgram", "groq_whisper", "aws_transcribe"] | None = None
     at_seconds: int = 0
+    end_seconds: int = 0
     audio_segments: list[ApiAudioSegment] = []
 
 
