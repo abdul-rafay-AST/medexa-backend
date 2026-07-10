@@ -4,9 +4,11 @@ import logging
 from typing import Any
 
 from medexa.adapters.groq.client import GroqClient, GroqClientError
+from medexa.core.whisper_hallucination_filter import filter_whisper_transcript
 from medexa.services.transcription import (
     TranscriptionResult,
     TranscriptionUnavailable,
+    TranscriptSegment,
 )
 
 logger = logging.getLogger(__name__)
@@ -53,7 +55,7 @@ class GroqWhisperTranscriptionProvider:
         filename = f"chunk.{ext}"
 
         try:
-            text = self._client.transcribe_audio(
+            payload = self._client.transcribe_audio(
                 audio=audio,
                 filename=filename,
                 content_type=ctype,
@@ -67,4 +69,19 @@ class GroqWhisperTranscriptionProvider:
             logger.warning("groq_whisper_failed", exc_info=True)
             raise TranscriptionUnavailable(f"Whisper transcription failed: {exc}") from exc
 
-        return TranscriptionResult(transcript=text, segments=[])
+        raw_segments = payload.get("segments") if isinstance(payload.get("segments"), list) else []
+        filtered = filter_whisper_transcript(str(payload.get("text", "")), raw_segments)
+        if not filtered:
+            logger.debug("groq_whisper_hallucination_filtered", extra={"extra_fields": {"raw": payload.get("text", "")}})
+            return TranscriptionResult(transcript="", segments=[])
+
+        segments = [
+            TranscriptSegment(
+                start=float(segment.get("start") or 0),
+                end=float(segment.get("end") or 0),
+                text=str(segment.get("text", "")).strip(),
+            )
+            for segment in raw_segments
+            if str(segment.get("text", "")).strip()
+        ]
+        return TranscriptionResult(transcript=filtered, segments=segments)

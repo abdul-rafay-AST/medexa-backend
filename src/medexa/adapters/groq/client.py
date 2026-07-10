@@ -78,12 +78,14 @@ class GroqClient:
         content_type: str,
         model: str,
         language: str = "en",
-    ) -> str:
+        response_format: str = "verbose_json",
+    ) -> dict[str, Any]:
         files = {"file": (filename, audio, content_type or "application/octet-stream")}
         data = {
             "model": model,
             "language": language,
-            "response_format": "json",
+            "response_format": response_format,
+            "timestamp_granularities[]": "segment",
         }
         with httpx.Client(timeout=self._timeout) as client:
             response = client.post(
@@ -97,5 +99,6 @@ class GroqClient:
                 f"Groq whisper failed ({response.status_code}): {response.text[:400]}"
             )
         payload = response.json()
-        text = str(payload.get("text", "")).strip()
-        return text
+        if not isinstance(payload, dict):
+            raise GroqClientError(f"Unexpected Groq whisper payload: {json.dumps(payload)[:400]}")
+        return payload
