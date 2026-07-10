@@ -9,6 +9,7 @@ from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.body_region_labels import body_region_display
 from medexa.api.routers._common import billing_now, refresh_and_publish, require_state
+from medexa.core.speaker_role_classifier import format_labeled_utterance
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
 from medexa.schemas import Alert, ProtocolInsight, SessionState, TranscriptUtterance
