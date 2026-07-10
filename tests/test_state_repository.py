@@ -1,5 +1,18 @@
 from medexa.schemas import SessionState
-from medexa.state import InMemorySessionStateRepository, SessionStateRepository
+from medexa.state import (
+    FileSessionStateRepository,
+    InMemorySessionStateRepository,
+    SessionStateRepository,
+)
+
+
+def test_file_repo_import_and_roundtrip(tmp_path):
+    repo = FileSessionStateRepository(tmp_path)
+    assert isinstance(repo, SessionStateRepository)
+    repo.save(SessionState(session_id="disk-1", status="active"))
+    fetched = repo.get("disk-1")
+    assert fetched is not None
+    assert fetched.session_id == "disk-1"
 
 
 def test_in_memory_repo_satisfies_protocol():

@@ -35,7 +35,7 @@ class TranscriptUtterance(BaseModel):
     end_ts: float
     confidence: float = 0.5
     source_chunk_id: str
-    diarization_method: Literal["voice", "text", "hybrid"] | None = None
+    diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
 
 
 class DetectedEntity(BaseModel):
@@ -339,6 +339,9 @@ class SessionState(BaseModel):
     ambient_voice_centroids: dict[str, list[float]] = Field(default_factory=dict)
     ambient_voice_pitch_centroids: dict[str, float] = Field(default_factory=dict)
     ambient_voice_cluster_roles: dict[str, Literal["therapist", "patient"]] = Field(default_factory=dict)
+    ambient_deepgram_speaker_roles: dict[str, Literal["therapist", "patient"]] = Field(
+        default_factory=dict
+    )
     last_voice_cluster: str | None = None
     last_ambient_pitch_hz: float | None = None
     timeline_events: list[TimelineEvent] = Field(default_factory=list)

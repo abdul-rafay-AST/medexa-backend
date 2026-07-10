@@ -14,7 +14,7 @@ import json
 import logging
 import time
 import uuid
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel
 
@@ -25,11 +25,17 @@ class TranscriptSegment(BaseModel):
     start: float
     end: float
     text: str
+    speaker_id: int | None = None
+    speaker_role: Literal["therapist", "patient"] | None = None
 
 
 class TranscriptionResult(BaseModel):
     transcript: str
     segments: list[TranscriptSegment] = []
+    provider: Literal["groq_whisper", "deepgram", "aws_transcribe"] | None = None
+    diarization_method: Literal["deepgram", "none"] | None = None
+    dominant_speaker_role: Literal["therapist", "patient"] | None = None
+    speaker_confidence: float = 0.0
 
 
 class TranscriptionUnavailable(RuntimeError):
@@ -60,7 +66,7 @@ class UnavailableTranscriptionProvider:
         raise TranscriptionUnavailable(
             "Server-side audio transcription is not configured. "
             "Use typed transcript chunks, or set "
-            "MEDEXA_TRANSCRIPTION_PROVIDER=groq_whisper (or aws_transcribe)."
+            "MEDEXA_TRANSCRIPTION_PROVIDER=deepgram (or groq_whisper, aws_transcribe)."
         )
 
 
