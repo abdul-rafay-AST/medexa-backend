@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from medexa.application.session_clinical_evidence import SessionClinicalEvidenceBuilder
 from medexa.schemas import SessionState, Suggestion
 
 
@@ -18,6 +19,7 @@ class SessionFinalizeContext:
     applied_suggestions: list[dict[str, Any]] = field(default_factory=list)
     assistant_hints: list[dict[str, Any]] = field(default_factory=list)
     timer_summary: list[dict[str, Any]] = field(default_factory=list)
+    clinical_evidence: dict[str, Any] = field(default_factory=dict)
     patient_first_name: str = "the patient"
 
     def to_prompt_dict(self) -> dict[str, Any]:
@@ -30,6 +32,7 @@ class SessionFinalizeContext:
             "applied_suggestions": self.applied_suggestions,
             "assistant_hints": self.assistant_hints,
             "timer_summary": self.timer_summary,
+            "clinical_evidence": self.clinical_evidence,
             "patient_first_name": self.patient_first_name,
         }
 
@@ -37,8 +40,12 @@ class SessionFinalizeContext:
 class SessionContextBuilder:
     """Builder pattern — aggregates Path A/B evidence for finalize."""
 
+    def __init__(self) -> None:
+        self._clinical_evidence_builder = SessionClinicalEvidenceBuilder()
+
     def build(self, state: SessionState) -> SessionFinalizeContext:
         transcript = self._full_transcript(state)
+        clinical_evidence = self._clinical_evidence_builder.build(state, full_transcript=transcript)
         return SessionFinalizeContext(
             session_id=state.session_id,
             billing_region=state.billing_region,
@@ -58,6 +65,7 @@ class SessionContextBuilder:
                 if hint.status == "active"
             ],
             timer_summary=self._timer_summary(state),
+            clinical_evidence=clinical_evidence.to_prompt_dict(),
             patient_first_name=self._first_name(state.patient_name),
         )
 

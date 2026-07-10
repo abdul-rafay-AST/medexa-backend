@@ -84,6 +84,9 @@ Path B assistant hints:
 Timer summary (informational, do not override billing engine):
 {json.dumps(context.get("timer_summary", [])[:10], indent=2)}
 
+Structured clinical evidence (authoritative — do not omit specifics):
+{json.dumps(context.get("clinical_evidence", {}), indent=2)}
+
 Full transcript:
 {transcript}
 """

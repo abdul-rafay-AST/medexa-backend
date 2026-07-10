@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from medexa.application.session_context_builder import SessionFinalizeContext
+from medexa.application.session_clinical_evidence import SessionClinicalEvidenceBuilder
+from medexa.application.soap_enricher import SoapEnricher
 from medexa.ports.documentation_port import DocumentationPort, DocumentationResult
 from medexa.schemas import SessionState
 
@@ -10,8 +12,18 @@ class DocumentationService:
 
     def __init__(self, generator: DocumentationPort) -> None:
         self._generator = generator
+        self._clinical_evidence_builder = SessionClinicalEvidenceBuilder()
+        self._soap_enricher = SoapEnricher()
 
     def generate(self, state: SessionState, context: SessionFinalizeContext) -> DocumentationResult:
         payload = context.to_prompt_dict()
         payload["state"] = state
-        return self._generator.generate(payload)
+        result = self._generator.generate(payload)
+        transcript = str(payload.get("full_transcript") or state.transcript_text)
+        evidence = self._clinical_evidence_builder.build(state, full_transcript=transcript)
+        enriched_soap = self._soap_enricher.enrich(result.soap, evidence, state)
+        return DocumentationResult(
+            soap=enriched_soap,
+            patient_summary=result.patient_summary,
+            source=result.source,
+        )

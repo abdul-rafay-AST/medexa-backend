@@ -25,6 +25,7 @@ from medexa.loaders.cpt_metadata_support import cpt_detail_from_entity
 from medexa.loaders.icd_lookup_loader import IcdLookupLoader
 from medexa.loaders.ncci_rules_loader import NcciRulesLoader
 from medexa.ports.cpt_metadata import CptMetadataPort
+from medexa.core.clinical_transcript_extractor import extract_transcript_clinical_facts
 from medexa.schemas import (
     BodyRegionMention,
     ClinicalAnalysis,
@@ -259,26 +260,54 @@ class RulesClinicalAnalyzer:
         hints: list[str],
         regions: list[BodyRegionMention],
     ) -> SoapUpdate:
+        facts = extract_transcript_clinical_facts(normalized)
+        subjective_parts: list[str] = []
+        if symptoms:
+            subjective_parts.append(f"Patient reports {', '.join(s.lower() for s in symptoms)}.")
+        if facts.pain_scales:
+            subjective_parts.append(f"Pain scale: {', '.join(facts.pain_scales)}.")
+        if facts.denies_radicular:
+            subjective_parts.append("Denies radicular symptoms/tingling.")
         subjective = (
-            f"Patient discussed {', '.join(s.lower() for s in symptoms)} during this segment."
-            if symptoms
+            " ".join(subjective_parts)
+            if subjective_parts
             else "No additional subjective symptom details detected in this segment."
         )
+
+        objective_parts: list[str] = []
+        if facts.rom_measurements:
+            objective_parts.append(f"ROM: {'; '.join(facts.rom_measurements)}.")
+        for block in facts.intervention_blocks:
+            duration = f"{block.duration_minutes} min" if block.duration_minutes else "timed per transcript"
+            objective_parts.append(f"{block.category} ({duration}): {block.details}.")
+        if facts.manual_therapy_details and not facts.intervention_blocks:
+            objective_parts.append(f"Manual therapy: {'; '.join(facts.manual_therapy_details)}.")
+        if facts.exercise_details and not any(b.category == "Therapeutic Exercise" for b in facts.intervention_blocks):
+            objective_parts.append(f"Therapeutic exercise: {'; '.join(facts.exercise_details)}.")
         objective = (
-            "Consider documenting observed mobility, strength, and range of motion findings."
-            if any(k in normalized for k in ("mobility", "range of motion", "weakness"))
+            " ".join(objective_parts)
+            if objective_parts
             else "No new objective findings detected from speech alone."
         )
+
         assessment = (
             f"Possible clinical impressions to review: {'; '.join(diagnoses)}."
             if diagnoses
             else "No new assessment impression suggested by this segment."
         )
-        plan = (
-            "Review therapy plan, skilled minutes, and documentation support for the detected treatment themes."
-            if hints
-            else "Continue clinician review before adding generated suggestions to the note."
-        )
+        if facts.diagnoses_mentioned:
+            assessment = f"{assessment} Focus: {'; '.join(facts.diagnoses_mentioned)}.".strip()
+
+        plan_parts = []
+        if hints:
+            plan_parts.append(
+                "Review therapy plan, skilled minutes, and documentation support for detected treatment themes."
+            )
+        if facts.hep_mentions:
+            plan_parts.append(f"HEP discussed: {', '.join(facts.hep_mentions)}.")
+        if facts.compliance_gaps:
+            plan_parts.append(f"Documentation gaps: {'; '.join(facts.compliance_gaps)}.")
+        plan = " ".join(plan_parts) if plan_parts else "Continue clinician review before adding generated suggestions to the note."
         return SoapUpdate(subjective=subjective, objective=objective, assessment=assessment, plan=plan)
 
 
