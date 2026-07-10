@@ -48,7 +48,16 @@ class MedexaConfig(BaseSettings):
     groq_path_c_model_id: str = "llama-3.3-70b-versatile"
     groq_whisper_model_id: str = "whisper-large-v3-turbo"
 
-    transcription_provider: Literal["none", "aws_transcribe", "groq_whisper"] = "none"
+    # Deepgram Nova-3 Medical (ambient STT + native diarization).
+    deepgram_api_key: str | None = None
+    deepgram_base_url: str = "https://api.deepgram.com"
+    deepgram_model: str = "nova-3-medical"
+    deepgram_diarize_model: str = "latest"
+    deepgram_language: str = "en-US"
+
+    transcription_provider: Literal[
+        "none", "aws_transcribe", "groq_whisper", "deepgram"
+    ] = "none"
     bedrock_model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0"
     transcribe_s3_bucket: str | None = None
 

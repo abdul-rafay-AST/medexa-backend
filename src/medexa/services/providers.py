@@ -17,6 +17,7 @@ from medexa.adapters.clinical_assistant.no_op import NoOpClinicalAssistant
 from medexa.adapters.groq.clinical_assistant import GroqClinicalAssistant
 from medexa.adapters.groq.documentation_generator import GroqDocumentationGenerator
 from medexa.adapters.groq.whisper import GroqWhisperTranscriptionProvider
+from medexa.adapters.deepgram.nova_transcription import DeepgramNovaTranscriptionProvider
 from medexa.application.documentation_service import DocumentationService
 from medexa.config import MedexaConfig
 from medexa.core.entity_extractor import EntityExtractor
@@ -53,6 +54,11 @@ logger = logging.getLogger(__name__)
 
 def _groq_key(settings: MedexaConfig) -> str | None:
     key = (settings.groq_api_key or "").strip()
+    return key or None
+
+
+def _deepgram_key(settings: MedexaConfig) -> str | None:
+    key = (settings.deepgram_api_key or "").strip()
     return key or None
 
 
@@ -163,6 +169,18 @@ def build_summary_generator(settings: MedexaConfig) -> PatientSummaryGenerator:
 
 
 def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvider:
+    if settings.transcription_provider == "deepgram":
+        api_key = _deepgram_key(settings)
+        if not api_key:
+            logger.warning("deepgram_missing_key_fallback_unavailable")
+            return UnavailableTranscriptionProvider()
+        return DeepgramNovaTranscriptionProvider(
+            api_key=api_key,
+            model=settings.deepgram_model,
+            diarize_model=settings.deepgram_diarize_model,
+            base_url=settings.deepgram_base_url,
+            language=settings.deepgram_language,
+        )
     if settings.transcription_provider == "groq_whisper":
         api_key = _groq_key(settings)
         if not api_key:

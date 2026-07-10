@@ -87,10 +87,12 @@ def create_app() -> FastAPI:
 
     logger.info("app_initialized", extra={"extra_fields": {"providers": {
         "path_b_enabled": settings.path_b_enabled,
+        "path_b_provider": settings.path_b_provider,
         "path_b_model": settings.path_b_model_id,
         "soap_generator": settings.soap_generator,
         "summary_generator": settings.summary_generator,
         "transcription_provider": settings.transcription_provider,
+        "deepgram_model": settings.deepgram_model if settings.transcription_provider == "deepgram" else None,
     }}})
     return app
 

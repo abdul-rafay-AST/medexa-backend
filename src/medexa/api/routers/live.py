@@ -13,7 +13,7 @@ from medexa.core.speaker_role_classifier import format_labeled_utterance
 from medexa.config import settings as app_settings
 from medexa.logging_setup import get_logger
 from medexa.schemas import Alert, ProtocolInsight, SessionState, TranscriptUtterance
-from medexa.services.transcription import TranscriptionUnavailable
+from medexa.services.transcription import TranscriptionUnavailable, TranscriptSegment
 from medexa.utils.time import now_utc
 
 router = APIRouter(prefix="/sessions", tags=["live"])
@@ -151,30 +151,49 @@ async def transcribe_audio(
             audio_segments=[],
         )
 
-    classification = container.ambient_speaker_diarizer.classify(
-        audio=audio,
-        content_type=file.content_type,
-        transcript=transcript,
-        state=state,
-        client_pitch_hz=client_pitch_hz,
-    )
-    state.last_ambient_speaker = classification.role
-    labeled_text = format_labeled_utterance(classification.role, transcript)
+    if result.diarization_method == "deepgram":
+        deepgram = container.deepgram_speaker_mapper.resolve(
+            segments=result.segments,
+            full_transcript=transcript,
+            state=state,
+        )
+        classification_role = deepgram.role
+        classification_confidence = deepgram.confidence
+        classification_method = deepgram.method
+        diarized_segments = deepgram.segments
+    else:
+        ambient = container.ambient_speaker_diarizer.classify(
+            audio=audio,
+            content_type=file.content_type,
+            transcript=transcript,
+            state=state,
+            client_pitch_hz=client_pitch_hz,
+        )
+        classification_role = ambient.role
+        classification_confidence = ambient.confidence
+        classification_method = ambient.method
+        diarized_segments = [
+            segment.model_copy(update={"speaker_role": ambient.role})
+            for segment in result.segments
+        ]
+
+    state.last_ambient_speaker = classification_role
+    labeled_text = format_labeled_utterance(classification_role, transcript)
 
     chunk = container.chunk_ingest.ingest(
         state, labeled_text, start_ts=elapsed, end_ts=end_ts
     )
-    chunk.speaker_role = classification.role
+    chunk.speaker_role = classification_role
 
     utterance = TranscriptUtterance(
         utterance_id=str(uuid.uuid4()),
-        speaker=classification.role,
+        speaker=classification_role,
         text=transcript,
         start_ts=elapsed,
         end_ts=end_ts,
-        confidence=classification.confidence,
+        confidence=classification_confidence,
         source_chunk_id=chunk.chunk_id,
-        diarization_method=classification.method,
+        diarization_method=classification_method,
     )
     state.transcript_utterances.append(utterance)
 
@@ -185,28 +204,32 @@ async def transcribe_audio(
 
     analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
     base = runtime.path_a_snapshot.to_contract(analysis, state)
+
+    def _segment_speaker(segment: TranscriptSegment) -> str:
+        return segment.speaker_role or classification_role
+
     return c.ApiAudioTranscriptionAnalysis(
         **base.model_dump(),
         transcript=transcript,
-        speaker=classification.role,
-        speaker_confidence=classification.confidence,
-        diarization_method=classification.method,
+        speaker=classification_role,
+        speaker_confidence=classification_confidence,
+        diarization_method=classification_method,
         at_seconds=int(elapsed),
         audio_segments=[
             c.ApiAudioSegment(
-                start=s.start,
-                end=s.end,
-                text=s.text,
-                speaker=classification.role,
+                start=segment.start,
+                end=segment.end,
+                text=segment.text,
+                speaker=_segment_speaker(segment),
             )
-            for s in result.segments
+            for segment in diarized_segments
         ]
         or [
             c.ApiAudioSegment(
                 start=elapsed,
                 end=end_ts,
                 text=transcript,
-                speaker=classification.role,
+                speaker=classification_role,
             )
         ],
     )

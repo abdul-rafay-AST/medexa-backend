@@ -1,6 +1,6 @@
+from medexa.state.file_session_state_repository import FileSessionStateRepository
 from medexa.state.session_state_repository import (
     DynamoDbSessionStateRepository,
-    FileSessionStateRepository,
     InMemorySessionStateRepository,
     SessionStateRepository,
 )
