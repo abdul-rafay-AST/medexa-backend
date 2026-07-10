@@ -23,37 +23,34 @@ class DeepgramDiarizationResult:
 
 
 class DeepgramSpeakerRoleMapper:
-    """Session-stable mapping from Deepgram speaker indices to clinical roles.
+    """Maps Deepgram speaker indices to therapist/patient within a single upload.
 
-    Deepgram separates *who spoke* (acoustic diarization). This layer resolves
-    *which role* each speaker plays (therapist vs patient) using locked session
-    state plus lexical clinical cues on first encounter — the same enrollment
-    pattern used in production medical scribes.
+    Speaker IDs from Deepgram are **not** comparable across separate HTTP
+    requests. Use :meth:`resolve_within_chunk` for multi-speaker clips only.
+    Cross-chunk role stability is handled by voice clustering elsewhere.
     """
 
     def __init__(self, text_classifier: SpeakerRoleClassifier) -> None:
         self._text_classifier = text_classifier
 
-    def resolve(
+    def resolve_within_chunk(
         self,
         *,
         segments: list[TranscriptSegment],
         full_transcript: str,
-        state: SessionState,
+        last_speaker: SpeakerRole | None,
     ) -> DeepgramDiarizationResult:
-        roles_map = state.ambient_deepgram_speaker_roles
+        """Assign clinical roles for multiple Deepgram speakers in one chunk."""
+        roles_map: dict[str, SpeakerRole] = {}
         speaker_texts = _group_text_by_speaker(segments)
 
         for speaker_id, texts in speaker_texts.items():
-            key = str(speaker_id)
-            if key in roles_map:
-                continue
             combined = " ".join(texts).strip() or full_transcript
             classification = self._text_classifier.classify(
                 combined,
-                last_speaker=state.last_ambient_speaker,
+                last_speaker=last_speaker,
             )
-            roles_map[key] = classification.role
+            roles_map[str(speaker_id)] = classification.role
 
         _reconcile_two_party_roles(roles_map)
 
@@ -73,7 +70,7 @@ class DeepgramSpeakerRoleMapper:
         else:
             classification = self._text_classifier.classify(
                 full_transcript,
-                last_speaker=state.last_ambient_speaker,
+                last_speaker=last_speaker,
             )
             dominant_role = classification.role
             confidence = max(classification.confidence, 0.55)
@@ -84,6 +81,20 @@ class DeepgramSpeakerRoleMapper:
             method="deepgram",
             segments=resolved_segments,
             dominant_speaker_id=dominant_speaker_id,
+        )
+
+    def resolve(
+        self,
+        *,
+        segments: list[TranscriptSegment],
+        full_transcript: str,
+        state: SessionState,
+    ) -> DeepgramDiarizationResult:
+        """Backward-compatible alias — does not persist cross-chunk speaker locks."""
+        return self.resolve_within_chunk(
+            segments=segments,
+            full_transcript=full_transcript,
+            last_speaker=state.last_ambient_speaker,
         )
 
 

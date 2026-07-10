@@ -36,6 +36,7 @@ from medexa.core.entity_extractor import EntityExtractor
 from medexa.core.insights_builder import InsightsBuilder
 from medexa.core.ncci_conflict_checker import NcciConflictChecker
 from medexa.core.suggestion_generator import SuggestionGenerator
+from medexa.core.ambient_diarization_resolver import AmbientDiarizationResolver
 from medexa.core.ambient_speaker_diarizer import AmbientSpeakerDiarizer
 from medexa.core.deepgram_speaker_mapper import DeepgramSpeakerRoleMapper
 from medexa.core.speaker_role_classifier import SpeakerRoleClassifier, format_labeled_utterance
@@ -95,6 +96,10 @@ class ServiceContainer:
         self.speaker_role_classifier = SpeakerRoleClassifier()
         self.ambient_speaker_diarizer = AmbientSpeakerDiarizer(self.speaker_role_classifier)
         self.deepgram_speaker_mapper = DeepgramSpeakerRoleMapper(self.speaker_role_classifier)
+        self.ambient_diarization_resolver = AmbientDiarizationResolver(
+            voice_diarizer=self.ambient_speaker_diarizer,
+            deepgram_mapper=self.deepgram_speaker_mapper,
+        )
         self._region_runtimes: dict[str, RegionRuntime] = {}
         default_runtime = self.runtime_for_region("US")
         self.entity_extractor = EntityExtractor(self.hybrid_cpt_index, self.region_normalizer)

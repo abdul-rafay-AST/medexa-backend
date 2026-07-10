@@ -151,51 +151,68 @@ async def transcribe_audio(
             audio_segments=[],
         )
 
-    if result.diarization_method == "deepgram":
-        deepgram = container.deepgram_speaker_mapper.resolve(
-            segments=result.segments,
-            full_transcript=transcript,
-            state=state,
+    if not transcript:
+        state.last_updated = now
+        container.session_repo.save(state)
+        analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(state, "", "")
+        base = runtime.path_a_snapshot.to_contract(analysis, state)
+        return c.ApiAudioTranscriptionAnalysis(
+            **base.model_dump(),
+            transcript="",
+            speaker=state.last_ambient_speaker or "patient",
+            speaker_confidence=0.0,
+            at_seconds=int(elapsed),
+            audio_segments=[],
         )
-        classification_role = deepgram.role
-        classification_confidence = deepgram.confidence
-        classification_method = deepgram.method
-        diarized_segments = deepgram.segments
-    else:
-        ambient = container.ambient_speaker_diarizer.classify(
-            audio=audio,
-            content_type=file.content_type,
-            transcript=transcript,
-            state=state,
-            client_pitch_hz=client_pitch_hz,
-        )
-        classification_role = ambient.role
-        classification_confidence = ambient.confidence
-        classification_method = ambient.method
-        diarized_segments = [
-            segment.model_copy(update={"speaker_role": ambient.role})
-            for segment in result.segments
-        ]
+
+    diarized = container.ambient_diarization_resolver.resolve(
+        audio=audio,
+        content_type=file.content_type,
+        transcript=transcript,
+        transcription=result,
+        state=state,
+        client_pitch_hz=client_pitch_hz,
+        chunk_start_ts=elapsed,
+        chunk_end_ts=end_ts,
+    )
+    classification_role = diarized.primary_role
+    classification_confidence = diarized.confidence
+    classification_method = diarized.method
+    diarized_segments = diarized.segments
 
     state.last_ambient_speaker = classification_role
-    labeled_text = format_labeled_utterance(classification_role, transcript)
+    labeled_text = " ".join(
+        format_labeled_utterance(utterance.speaker, utterance.text)
+        for utterance in diarized.utterances
+        if utterance.text.strip()
+    ) or format_labeled_utterance(classification_role, transcript)
 
     chunk = container.chunk_ingest.ingest(
         state, labeled_text, start_ts=elapsed, end_ts=end_ts
     )
     chunk.speaker_role = classification_role
 
-    utterance = TranscriptUtterance(
-        utterance_id=str(uuid.uuid4()),
-        speaker=classification_role,
-        text=transcript,
-        start_ts=elapsed,
-        end_ts=end_ts,
-        confidence=classification_confidence,
-        source_chunk_id=chunk.chunk_id,
-        diarization_method=classification_method,
-    )
-    state.transcript_utterances.append(utterance)
+    for utterance in diarized.utterances:
+        if not utterance.text.strip():
+            continue
+        start_ts = elapsed + utterance.start_offset
+        end_ts_utt = (
+            elapsed + utterance.end_offset
+            if utterance.end_offset > utterance.start_offset
+            else end_ts
+        )
+        state.transcript_utterances.append(
+            TranscriptUtterance(
+                utterance_id=str(uuid.uuid4()),
+                speaker=utterance.speaker,
+                text=utterance.text.strip(),
+                start_ts=start_ts,
+                end_ts=end_ts_utt,
+                confidence=utterance.confidence,
+                source_chunk_id=chunk.chunk_id,
+                diarization_method=utterance.method,
+            )
+        )
 
     path_result = runtime.path_a_processor.process(state, chunk, now)
     await container.path_a_dispatcher.dispatch(state, path_result, now=now)
@@ -214,6 +231,7 @@ async def transcribe_audio(
         speaker=classification_role,
         speaker_confidence=classification_confidence,
         diarization_method=classification_method,
+        transcription_provider=result.provider,
         at_seconds=int(elapsed),
         audio_segments=[
             c.ApiAudioSegment(
