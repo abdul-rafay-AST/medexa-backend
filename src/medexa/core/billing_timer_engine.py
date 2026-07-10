@@ -54,7 +54,7 @@ class BillingTimerEngine:
         return False
 
     def stop_all_running(self, state: SessionState, now: datetime) -> None:
-        """Stop every running segment (used on pause/end)."""
+        """Stop every running segment (used on pause/end/switch)."""
         for seg in state.timer_segments:
             if seg.stop_time is None:
                 self._finalize(seg, now)

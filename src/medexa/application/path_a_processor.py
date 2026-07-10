@@ -76,7 +76,6 @@ class PathAProcessor:
         }
 
         entities, new_suggestions = self._processor.process(state, chunk, now)
-        self._refresh_rules_insights(state)
         self._reconcile_ncci_alerts(state)
         if self._regional is not None:
             regional_alerts = self._regional.reconcile_chunk(
@@ -111,25 +110,6 @@ class PathAProcessor:
             new_alerts=new_alerts,
         )
 
-    def _refresh_rules_insights(self, state: SessionState) -> None:
-        fresh: list[ProtocolInsight] = []
-        for suggestion in state.suggestions:
-            if suggestion.status in ("dismissed", "applied", "expired") or not suggestion.cpt_code:
-                continue
-            key = f"{suggestion.cpt_code}:{suggestion.body_region or ''}"
-            display = self._meta.get_display_name(suggestion.cpt_code)
-            fresh.append(
-                ProtocolInsight(
-                    insight_id=m._insight_id("detected", key),
-                    type="detected",
-                    label=display,
-                    question=f"Bill {display} ({suggestion.cpt_code})?",
-                    description=suggestion.message,
-                )
-            )
-        non_detected = [i for i in state.insights if i.type != "detected"]
-        state.insights = m.merge_insights(non_detected, fresh)
-
     def _reconcile_ncci_alerts(self, state: SessionState) -> None:
         if not self._enable_ncci:
             return
@@ -160,6 +140,7 @@ class PathAProcessor:
                     else "Review billing conflict"
                 ),
                 description=alert.message,
+                status="approved",
             )
             state.insights = m.merge_insights(state.insights, [billing_insight])
 
