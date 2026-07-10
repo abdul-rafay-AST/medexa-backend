@@ -6,8 +6,7 @@ from fastapi import APIRouter, Depends
 
 from medexa.api import contracts as c
 from medexa.api.dependencies import ServiceContainer, get_container
-from medexa.api.routers._common import build_timer_state, refresh_and_publish, require_state
-from medexa.utils.time import now_utc
+from medexa.api.routers._common import build_timer_state, billing_now, refresh_and_publish, require_state
 
 router = APIRouter(prefix="/sessions", tags=["timers"])
 
@@ -36,7 +35,7 @@ async def pause_session_timer(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
-    container.timer_engine.stop_all_running(state, now_utc())
+    container.timer_engine.stop_all_running(state, billing_now(state))
     state.status = "paused"
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
@@ -51,7 +50,7 @@ async def resume_session_timer(
     state.status = "active"
     if state.active_cpt:
         container.timer_engine.start_segment(
-            state, state.active_cpt, state.active_body_region, now_utc()
+            state, state.active_cpt, state.active_body_region, billing_now(state)
         )
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
@@ -63,7 +62,7 @@ async def stop_session_timer(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
-    container.timer_engine.stop_all_running(state, now_utc())
+    container.timer_engine.stop_all_running(state, billing_now(state))
     state.status = "paused"
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
@@ -79,7 +78,7 @@ async def start_cpt_timer(
     state = require_state(session_id, container)
     state.cpt_timer_source = body.source
     state.cpt_timer_reason = body.reason or None
-    container.timer_engine.switch_segment(state, body.code, state.active_body_region, now_utc())
+    container.timer_engine.switch_segment(state, body.code, state.active_body_region, billing_now(state))
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
     return build_timer_state(state, container)
@@ -90,7 +89,7 @@ async def pause_cpt_timer(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
-    container.timer_engine.stop_all_running(state, now_utc())
+    container.timer_engine.stop_all_running(state, billing_now(state))
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
     return build_timer_state(state, container)
@@ -103,7 +102,7 @@ async def resume_cpt_timer(
     state = require_state(session_id, container)
     if state.active_cpt:
         container.timer_engine.start_segment(
-            state, state.active_cpt, state.active_body_region, now_utc()
+            state, state.active_cpt, state.active_body_region, billing_now(state)
         )
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
@@ -115,7 +114,7 @@ async def stop_cpt_timer(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
-    container.timer_engine.stop_all_running(state, now_utc())
+    container.timer_engine.stop_all_running(state, billing_now(state))
     state.active_cpt = None
     state.active_body_region = None
     state.cpt_timer_source = None
