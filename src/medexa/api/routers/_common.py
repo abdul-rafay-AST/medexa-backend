@@ -22,6 +22,12 @@ def require_state(session_id: str, container: ServiceContainer) -> SessionState:
     return state
 
 
+def reload_session_state(session_id: str, container: ServiceContainer, fallback: SessionState) -> SessionState:
+    """Re-read persisted session after event handlers (e.g. Path B) may have updated it."""
+    refreshed = container.session_repo.get(session_id)
+    return refreshed if refreshed is not None else fallback
+
+
 def session_clock(state: SessionState, elapsed_seconds: int) -> datetime:
     """Map session-relative elapsed seconds onto an absolute datetime for timers.
 

@@ -9,7 +9,7 @@ from medexa.api import contracts as c
 from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.body_region_labels import body_region_display
-from medexa.api.routers._common import billing_now, refresh_and_publish, require_state
+from medexa.api.routers._common import billing_now, refresh_and_publish, reload_session_state, require_state
 from medexa.core.speaker_role_classifier import format_labeled_utterance
 from medexa.core.voice_fingerprint import resolve_chunk_duration_seconds
 from medexa.config import settings as app_settings
@@ -59,7 +59,7 @@ def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer
 
 
 def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -> tuple[float, float]:
-    """Resolve chunk window from simulated clock, MM:SS labels, or prior elapsed."""
+    """Resolve chunk window from client wall-clock offset or MM:SS labels."""
     if req.elapsed_seconds is not None:
         start = float(max(0, req.elapsed_seconds))
     else:
@@ -69,7 +69,7 @@ def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -
             if len(parts) == 2:
                 start = float(int(parts[0]) * 60 + int(parts[1]))
 
-    duration = max(1, int(req.duration_seconds or 15))
+    duration = max(1, int(req.duration_seconds or 3))
     end = start + float(duration)
     if req.end_time and ":" in req.end_time:
         parts = req.end_time.split(":")
@@ -78,6 +78,15 @@ def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -
     if end <= start:
         end = start + float(duration)
     return start, end
+
+
+def _resolve_client_elapsed(
+    state: SessionState,
+    client_elapsed_seconds: float | None,
+) -> float:
+    if client_elapsed_seconds is not None and client_elapsed_seconds >= 0:
+        return float(client_elapsed_seconds)
+    return float(state.client_elapsed_seconds or 0)
 
 
 @router.post("/{session_id}/analyze-transcript-chunk", response_model=c.ApiTranscriptAnalysis)
@@ -92,22 +101,26 @@ async def analyze_transcript_chunk(
     runtime = container.runtime_for_state(state.billing_region)
 
     start_ts, end_ts = _elapsed_bounds(state, req)
-    state.client_elapsed_seconds = int(end_ts)
     # Billing segments use wall clock while the session is live.
     now = billing_now(state)
 
     chunk = container.chunk_ingest.ingest(
         state, req.chunk_text, start_ts=start_ts, end_ts=end_ts
     )
-    result = runtime.path_a_processor.process(state, chunk, now)
+    result = await asyncio.to_thread(
+        runtime.path_a_processor.process,
+        state,
+        chunk,
+        now,
+    )
 
     await container.path_a_dispatcher.dispatch(state, result, now=now)
 
-    state.last_updated = now
-    container.session_repo.save(state)
-
+    state = reload_session_state(session_id, container, state)
     analysis = runtime.path_a_snapshot.build_analysis(state, req.chunk_text, chunk.chunk_id)
     state.latest_analysis = analysis
+    state.last_updated = now
+    state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
     container.session_repo.save(state)
 
     latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
@@ -131,6 +144,7 @@ async def transcribe_audio(
     file: UploadFile = File(...),
     client_pitch_hz: float | None = Form(default=None),
     client_duration_seconds: float | None = Form(default=None),
+    client_elapsed_seconds: float | None = Form(default=None),
     container: ServiceContainer = Depends(get_container),
 ) -> c.ApiAudioTranscriptionAnalysis:
     state = require_state(session_id, container)
@@ -151,9 +165,9 @@ async def transcribe_audio(
         client_duration_seconds=client_duration_seconds,
     )
     now = billing_now(state)
-    elapsed = float(state.client_elapsed_seconds or 0)
+    elapsed = _resolve_client_elapsed(state, client_elapsed_seconds)
+    state.client_elapsed_seconds = int(elapsed)
     end_ts = elapsed + chunk_duration
-    state.client_elapsed_seconds = int(end_ts)
 
     transcript = result.transcript.strip()
     if not transcript:
@@ -224,8 +238,15 @@ async def transcribe_audio(
     state.last_updated = now
     container.session_repo.save(state)
 
-    path_result = runtime.path_a_processor.process(state, chunk, now)
+    path_result = await asyncio.to_thread(
+        runtime.path_a_processor.process,
+        state,
+        chunk,
+        now,
+    )
     await container.path_a_dispatcher.dispatch(state, path_result, now=now)
+    state = reload_session_state(session_id, container, state)
+    state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
     state.last_updated = now
     container.session_repo.save(state)
 

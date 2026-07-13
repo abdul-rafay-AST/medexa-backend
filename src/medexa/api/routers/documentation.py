@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 from fastapi import APIRouter, Depends
 
 from medexa.api import contracts as c
@@ -35,7 +37,15 @@ async def generate_soap_notes(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.SoapDataDTO:
     state = require_state(session_id, container)
-    state.soap = container.soap_generator.generate(state)
+    context = container.finalize_orchestrator.context_builder.build(state)
+    documentation = await asyncio.to_thread(
+        container.documentation_service.generate,
+        state,
+        context,
+    )
+    state.soap = documentation.soap
+    if documentation.patient_summary and not state.patient_summary.summary.strip():
+        state.patient_summary.summary = documentation.patient_summary
     container.session_repo.save(state)
     return m.soap_to_dto(state.soap)
 
@@ -66,7 +76,15 @@ async def generate_patient_summary(
     session_id: str, container: ServiceContainer = Depends(get_container)
 ) -> c.PatientSummaryDTO:
     state = require_state(session_id, container)
-    state.patient_summary.summary = container.summary_generator.generate(state)
+    context = container.finalize_orchestrator.context_builder.build(state)
+    documentation = await asyncio.to_thread(
+        container.documentation_service.generate,
+        state,
+        context,
+    )
+    state.patient_summary.summary = documentation.patient_summary
+    if documentation.soap and not state.soap.subjective.chief_complaint.strip():
+        state.soap = documentation.soap
     container.session_repo.save(state)
     return c.PatientSummaryDTO(summary=state.patient_summary.summary, sent=state.patient_summary.sent)
 
