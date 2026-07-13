@@ -23,7 +23,15 @@ logger = get_logger("medexa.api.live")
 
 def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer) -> None:
     """Push Modifier 59 / NCCI billing insights using region-aware conflict rules."""
-    segments = [(seg.cpt_code, seg.body_region) for seg in state.timer_segments]
+    segments: list[tuple[str, str | None]] = [
+        (seg.cpt_code, seg.body_region) for seg in state.timer_segments if seg.cpt_code
+    ]
+    for entity in state.detected_entities:
+        if entity.possible_cpt:
+            segments.append((entity.possible_cpt, entity.body_region))
+    for suggestion in state.suggestions:
+        if suggestion.cpt_code:
+            segments.append((suggestion.cpt_code, suggestion.body_region))
     alerts = container.ncci_checker.check_conflicts(state.session_id, segments)
     fresh: list[ProtocolInsight] = []
     for alert in alerts:
@@ -42,7 +50,7 @@ def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer
                     else "Review billing conflict"
                 ),
                 description=alert.message,
-                status="approved",
+                status="pending",
             )
         )
     if fresh:

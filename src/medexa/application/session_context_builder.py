@@ -40,8 +40,8 @@ class SessionFinalizeContext:
 class SessionContextBuilder:
     """Builder pattern — aggregates Path A/B evidence for finalize."""
 
-    def __init__(self) -> None:
-        self._clinical_evidence_builder = SessionClinicalEvidenceBuilder()
+    def __init__(self, icd_loader: IcdLookupLoader | None = None) -> None:
+        self._clinical_evidence_builder = SessionClinicalEvidenceBuilder(icd_loader)
 
     def build(self, state: SessionState) -> SessionFinalizeContext:
         transcript = self._full_transcript(state)

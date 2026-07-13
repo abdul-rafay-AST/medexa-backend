@@ -79,6 +79,8 @@ def extract_transcript_clinical_facts(transcript: str) -> TranscriptClinicalFact
         if value not in facts.pain_scales:
             facts.pain_scales.append(value)
 
+    _extract_contextual_pain_scales(text, lowered, facts)
+
     for pattern, label in _ROM_PATTERNS:
         for match in pattern.finditer(text):
             rendered = label.format(value=match.group(1))
@@ -175,6 +177,9 @@ def _assess_compliance_gaps(text: str, facts: TranscriptClinicalFacts) -> None:
         facts.compliance_gaps.append(
             "Baseline manual muscle testing (MMT) was not documented before therapeutic exercise."
         )
+        facts.compliance_gaps.append(
+            "Suggested fix: document baseline MMT grades for involved muscles before skilled exercise."
+        )
 
     hep_question_early = bool(
         re.search(
@@ -186,6 +191,9 @@ def _assess_compliance_gaps(text: str, facts: TranscriptClinicalFacts) -> None:
     if facts.hep_mentions and not hep_question_early and patient_asked_hep:
         facts.compliance_gaps.append(
             "Home exercise program (HEP) compliance was not assessed until the patient asked at end of visit."
+        )
+        facts.compliance_gaps.append(
+            "Suggested fix: ask about HEP compliance at the start of the next visit."
         )
 
 
@@ -228,3 +236,25 @@ def _extract_block_minutes(text: str, *, block_type: str) -> int | None:
 
 def _clean_snippet(value: str) -> str:
     return re.sub(r"\s+", " ", value.strip().rstrip(".,;"))
+
+
+def _extract_contextual_pain_scales(
+    text: str,
+    lowered: str,
+    facts: TranscriptClinicalFacts,
+) -> None:
+    """Capture resting vs provocative pain ratings when phrasing distinguishes them."""
+    contextual_patterns: tuple[tuple[re.Pattern[str], str], ...] = (
+        (re.compile(r"(?:resting|at rest|baseline).{0,40}?(\d+)\s*(?:out\s+of|/)\s*10", re.I), "Resting {value}/10"),
+        (re.compile(r"(?:sharp|catch|pinch|movement|overhead).{0,50}?(\d+)\s*(?:out\s+of|/)\s*10", re.I), "Sharp catch {value}/10"),
+        (re.compile(r"(\d+)\s*(?:out\s+of|/)\s*10.{0,40}?(?:sharp|catch|pinch)", re.I), "Sharp catch {value}/10"),
+        (re.compile(r"(\d+)\s*(?:out\s+of|/)\s*10.{0,40}?(?:resting|at rest)", re.I), "Resting {value}/10"),
+    )
+    for pattern, label in contextual_patterns:
+        for match in pattern.finditer(text):
+            rendered = label.format(value=match.group(1))
+            if rendered not in facts.pain_scales:
+                facts.pain_scales.append(rendered)
+
+    if "adhesive capsulitis" in lowered and not any("capsulitis" in p.lower() for p in facts.pain_scales):
+        pass  # diagnosis handled separately

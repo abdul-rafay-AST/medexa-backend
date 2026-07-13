@@ -1,3 +1,4 @@
+from medexa.api.dependencies import ServiceContainer
 from medexa.application.documentation_service import DocumentationService
 from medexa.application.session_clinical_evidence import SessionClinicalEvidenceBuilder
 from medexa.application.session_context_builder import SessionContextBuilder
@@ -34,6 +35,7 @@ def test_shoulder_transcript_extracts_specific_interventions():
 
 
 def test_soap_enricher_injects_billing_and_intervention_specificity():
+    container = ServiceContainer()
     state = SessionState(
         session_id="shoulder-1",
         patient_name="Sarah Example",
@@ -93,8 +95,8 @@ def test_soap_enricher_injects_billing_and_intervention_specificity():
         )
     )
 
-    context = SessionContextBuilder().build(state)
-    service = DocumentationService(RulesDocumentationGenerator())
+    context = SessionContextBuilder(container.icd_loader).build(state)
+    service = DocumentationService(RulesDocumentationGenerator(), icd_loader=container.icd_loader)
     result = service.generate(state, context)
 
     objective = result.soap.objective.observation_notes.lower()
@@ -107,3 +109,5 @@ def test_soap_enricher_injects_billing_and_intervention_specificity():
     assert "manual therapy" in objective or "mobilization" in objective
     assert "isometric" in objective or "therapeutic exercise" in objective
     assert any("mmt" in gap.lower() for gap in billing.compliance_gaps)
+    assert result.soap.assessment.primary_diagnosis_code in {"M75.01", "M75.00"}
+    assert result.soap.billing_documentation.ncci_alerts

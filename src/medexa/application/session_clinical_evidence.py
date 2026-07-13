@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from medexa.core.clinical_transcript_extractor import TranscriptClinicalFacts, extract_transcript_clinical_facts
+from medexa.loaders.icd_lookup_loader import IcdLookupLoader
 from medexa.schemas import SessionState
 
 
@@ -18,6 +19,8 @@ class SessionClinicalEvidence:
     billing_timers: list[dict[str, Any]] = field(default_factory=list)
     compliance_gaps: list[str] = field(default_factory=list)
     assistant_hints: list[str] = field(default_factory=list)
+    primary_diagnosis_code: str | None = None
+    icd10_codes: list[str] = field(default_factory=list)
 
     def to_prompt_dict(self) -> dict[str, Any]:
         facts = self.transcript_facts
@@ -47,11 +50,16 @@ class SessionClinicalEvidence:
             "billing_timers": self.billing_timers,
             "compliance_gaps": self.compliance_gaps,
             "assistant_hints": self.assistant_hints,
+            "primary_diagnosis_code": self.primary_diagnosis_code,
+            "icd10_codes": self.icd10_codes,
         }
 
 
 class SessionClinicalEvidenceBuilder:
     """Build authoritative structured evidence from Path A state + full transcript."""
+
+    def __init__(self, icd_loader: IcdLookupLoader | None = None) -> None:
+        self._icd_loader = icd_loader
 
     def build(self, state: SessionState, *, full_transcript: str) -> SessionClinicalEvidence:
         facts = extract_transcript_clinical_facts(full_transcript)
@@ -139,4 +147,24 @@ class SessionClinicalEvidenceBuilder:
             if line not in evidence.assistant_hints:
                 evidence.assistant_hints.append(line)
 
+        evidence.primary_diagnosis_code = self._resolve_primary_icd(full_transcript, state)
+        if evidence.primary_diagnosis_code:
+            evidence.icd10_codes = [evidence.primary_diagnosis_code]
+
         return evidence
+
+    def _resolve_primary_icd(self, transcript: str, state: SessionState) -> str | None:
+        lowered = transcript.lower()
+        if self._icd_loader is not None:
+            matches = self._icd_loader.find_matches(lowered)
+            if matches:
+                return matches[0][1]
+
+        if "adhesive capsulitis" in lowered or "frozen shoulder" in lowered:
+            regions = {entity.body_region for entity in state.detected_entities if entity.body_region}
+            if "shoulder_right" in regions or "right shoulder" in lowered:
+                return "M75.01"
+            if "shoulder_left" in regions or "left shoulder" in lowered:
+                return "M75.02"
+            return "M75.00"
+        return None

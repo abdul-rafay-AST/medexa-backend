@@ -3,6 +3,7 @@ import uuid
 
 from medexa.schemas import Alert
 from medexa.loaders.ncci_rules_loader import NcciRule, NcciRulesLoader
+from medexa.core.ncci_alert_formatter import format_ncci_conflict_message
 
 class NcciConflictChecker:
     """
@@ -63,9 +64,12 @@ class NcciConflictChecker:
                     continue
                 seen.add(dedupe_key)
 
-                message = f"Potential conflict between {cpt_a} and {cpt_b}. " + rule["explanation"]
-                if rule["modifier_59_possible"]:
-                    message += " Modifier 59 may apply if services were distinct."
+                message = format_ncci_conflict_message(
+                    cpt_a,
+                    cpt_b,
+                    body_region=conflict_region,
+                    rule=rule,
+                )
 
                 alerts.append(
                     Alert(

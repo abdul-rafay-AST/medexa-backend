@@ -119,7 +119,9 @@ class ServiceContainer:
         self.summary_generator = build_summary_generator(settings)
         self.transcription_provider = build_transcription_provider(settings)
         self.guardrails = LocalGuardrails()
-        self.documentation_service = build_documentation_service(settings, self.guardrails)
+        self.documentation_service = build_documentation_service(
+            settings, self.guardrails, icd_loader=self.icd_loader
+        )
 
         self.chunk_ingest = ChunkIngestService()
         self.session_enrichment = SessionEnrichmentService()
@@ -129,7 +131,7 @@ class ServiceContainer:
         self.pre_auth_reconciliation_service = PreAuthReconciliationService()
         self.finalize_orchestrator = FinalizeSessionOrchestrator(
             documentation_service=self.documentation_service,
-            context_builder=SessionContextBuilder(),
+            context_builder=SessionContextBuilder(self.icd_loader),
             review_builder=DocumentationReviewBuilder(),
             timer_engine=self.timer_engine,
             fhir_export_service=self.fhir_export_service,

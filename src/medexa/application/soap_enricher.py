@@ -56,7 +56,10 @@ class SoapEnricher:
         if facts.denies_radicular and "radicular" not in complaint.lower():
             complaint = f"{complaint} Denies radicular symptoms/tingling.".strip()
 
-        pain_scale = subjective.pain_scale.strip() or ", ".join(facts.pain_scales)
+        pain_scale = subjective.pain_scale.strip()
+        if facts.pain_scales:
+            extracted = "; ".join(dict.fromkeys(facts.pain_scales))
+            pain_scale = extracted if not pain_scale else f"{pain_scale}; {extracted}"
         return SoapSubjective(
             chief_complaint=complaint,
             pain_scale=pain_scale,
@@ -109,14 +112,26 @@ class SoapEnricher:
             if dx.lower() not in summary.lower():
                 summary = f"{summary} Clinical focus: {dx}.".strip()
 
-        gap_text = "; ".join(evidence.compliance_gaps)
+        gap_text = "; ".join(
+            gap for gap in evidence.compliance_gaps if not gap.lower().startswith("suggested fix")
+        )
         if gap_text and gap_text.lower() not in summary.lower():
             summary = f"{summary} Documentation gaps to address: {gap_text}.".strip()
 
+        primary_code = (
+            assessment.primary_diagnosis_code.strip()
+            or evidence.primary_diagnosis_code
+            or ""
+        )
+        severity = assessment.severity.strip() or self._infer_severity(facts)
+        if facts.rom_measurements and "rom" not in severity.lower():
+            rom_bits = "; ".join(facts.rom_measurements[:2])
+            severity = f"{severity} — functional impact supported by ROM deficits ({rom_bits})."
+
         return SoapAssessment(
             diagnosis_summary=summary or "Clinician to confirm assessment.",
-            primary_diagnosis_code=assessment.primary_diagnosis_code,
-            severity=assessment.severity or "Moderate",
+            primary_diagnosis_code=primary_code,
+            severity=severity,
         )
 
     def _enrich_plan(self, plan: SoapPlan, evidence: SessionClinicalEvidence, facts) -> SoapPlan:
@@ -126,10 +141,14 @@ class SoapEnricher:
             if hep.lower() not in follow_up.lower():
                 follow_up = f"{follow_up} HEP: continue {hep}.".strip()
 
+        for gap in evidence.compliance_gaps:
+            if gap.lower().startswith("suggested fix:") and gap.lower() not in follow_up.lower():
+                follow_up = f"{follow_up} {gap}".strip()
+
         if evidence.ncci_alerts:
-            ncci = evidence.ncci_alerts[0]
-            if ncci.lower() not in follow_up.lower():
-                follow_up = f"{follow_up} Billing note: {ncci}".strip()
+            for ncci in evidence.ncci_alerts:
+                if ncci.lower() not in follow_up.lower():
+                    follow_up = f"{follow_up} Billing: {ncci}".strip()
 
         return SoapPlan(follow_up_plan=follow_up)
 
@@ -160,6 +179,14 @@ class SoapEnricher:
             compliance_gaps=list(evidence.compliance_gaps),
             total_session_minutes=evidence.transcript_facts.session_duration_minutes,
         )
+
+    @staticmethod
+    def _infer_severity(facts) -> str:
+        if facts.rom_measurements:
+            return "Moderate"
+        if facts.symptoms:
+            return "Moderate"
+        return "Moderate"
 
     @staticmethod
     def _contains_intervention_keywords(text: str) -> bool:

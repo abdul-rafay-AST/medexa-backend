@@ -113,10 +113,7 @@ class PathAProcessor:
     def _reconcile_ncci_alerts(self, state: SessionState) -> None:
         if not self._enable_ncci:
             return
-        segments = [(seg.cpt_code, seg.body_region) for seg in state.timer_segments]
-        for suggestion in state.suggestions:
-            if suggestion.status == "applied" and suggestion.cpt_code:
-                segments.append((suggestion.cpt_code, suggestion.body_region))
+        segments = self._active_cpt_segments(state)
         fresh_alerts = self._ncci.check_conflicts(state.session_id, segments)
         existing_keys = {
             (tuple(sorted(a.cpt_codes)), a.body_region) for a in state.alerts
@@ -140,9 +137,23 @@ class PathAProcessor:
                     else "Review billing conflict"
                 ),
                 description=alert.message,
-                status="approved",
+                status="pending",
             )
             state.insights = m.merge_insights(state.insights, [billing_insight])
+
+    @staticmethod
+    def _active_cpt_segments(state: SessionState) -> list[tuple[str, str | None]]:
+        """All billable CPT + region pairs currently known to Path A."""
+        segments: list[tuple[str, str | None]] = [
+            (seg.cpt_code, seg.body_region) for seg in state.timer_segments if seg.cpt_code
+        ]
+        for entity in state.detected_entities:
+            if entity.possible_cpt:
+                segments.append((entity.possible_cpt, entity.body_region))
+        for suggestion in state.suggestions:
+            if suggestion.cpt_code:
+                segments.append((suggestion.cpt_code, suggestion.body_region))
+        return segments
 
     def _collect_events(
         self,
