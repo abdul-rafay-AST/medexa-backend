@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import uuid
@@ -39,7 +40,8 @@ class BedrockClinicalAssistant:
         user_prompt = self._build_user_prompt(session_id, scrubbed, context)
 
         try:
-            raw = self._client.converse(
+            raw = await asyncio.to_thread(
+                self._client.converse,
                 system=PATH_B_SYSTEM_PROMPT,
                 user_message=user_prompt,
                 max_tokens=1536,

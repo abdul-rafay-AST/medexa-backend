@@ -33,6 +33,7 @@ class DeepgramClient:
         self._api_key = api_key.strip()
         self._base_url = base_url.rstrip("/")
         self._timeout = timeout_seconds
+        self._http = httpx.Client(timeout=self._timeout)
 
     def transcribe_file(
         self,
@@ -67,13 +68,12 @@ class DeepgramClient:
             "Authorization": f"Token {self._api_key}",
             "Content-Type": content_type,
         }
-        with httpx.Client(timeout=self._timeout) as client:
-            response = client.post(
-                f"{self._base_url}/v1/listen",
-                headers=headers,
-                params=params,
-                content=audio,
-            )
+        response = self._http.post(
+            f"{self._base_url}/v1/listen",
+            headers=headers,
+            params=params,
+            content=audio,
+        )
         if response.status_code >= 400:
             detail = response.text[:800]
             logger.warning(

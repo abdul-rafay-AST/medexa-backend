@@ -178,8 +178,8 @@ def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvide
             return UnavailableTranscriptionProvider()
         return DeepgramNovaTranscriptionProvider(
             api_key=api_key,
-            model=settings.deepgram_model,
-            diarize_model=settings.deepgram_diarize_model,
+            model=settings.deepgram_model.strip(),
+            diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
             base_url=settings.deepgram_base_url,
             language=settings.deepgram_language,
         )

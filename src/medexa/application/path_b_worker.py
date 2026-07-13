@@ -115,6 +115,12 @@ class PathBWorker:
                 )
             except Exception as e:
                 logger.exception("Failed to run assistant in background", exc_info=e)
+                refreshed = self._session_repo.get(event.session_id)
+                if refreshed is not None:
+                    trigger = self._find_trigger(refreshed, event.trigger_id)
+                    if trigger is not None:
+                        trigger.status = "skipped"
+                    self._session_repo.save(refreshed)
 
         import sys
         if "pytest" in sys.modules:
