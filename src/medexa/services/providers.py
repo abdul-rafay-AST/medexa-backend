@@ -49,6 +49,8 @@ from medexa.services.transcription import (
     UnavailableTranscriptionProvider,
 )
 
+from medexa.services.llm_provider_resolver import ResolvedLlmProviders, resolve_llm_providers
+
 logger = logging.getLogger(__name__)
 
 
@@ -67,13 +69,13 @@ def build_documentation_service(
     guardrails: GuardrailsPort,
     *,
     icd_loader: IcdLookupLoader | None = None,
+    resolved: ResolvedLlmProviders | None = None,
 ) -> DocumentationService:
     rules = RulesDocumentationGenerator()
-    uses_groq = settings.soap_generator == "groq" or settings.summary_generator == "groq"
-    uses_bedrock = settings.soap_generator == "bedrock" or settings.summary_generator == "bedrock"
+    active = resolved or resolve_llm_providers(settings)
 
     generator: DocumentationPort
-    if uses_groq:
+    if active.path_c_backend == "groq":
         api_key = _groq_key(settings)
         if not api_key:
             logger.warning("groq_path_c_missing_key_fallback_rules")
@@ -86,9 +88,10 @@ def build_documentation_service(
                 guardrails=guardrails,
                 base_url=settings.groq_base_url,
             )
-    elif uses_bedrock:
+    elif active.path_c_backend == "bedrock":
+        groq_fallback = _build_groq_documentation(settings, guardrails, rules)
         generator = BedrockDocumentationGenerator(
-            fallback=rules,
+            fallback=groq_fallback or rules,
             model_id=settings.path_c_model_id,
             region_name=settings.aws_region,
             guardrails=guardrails,
@@ -98,14 +101,33 @@ def build_documentation_service(
     return DocumentationService(generator, icd_loader=icd_loader)
 
 
+def _build_groq_documentation(
+    settings: MedexaConfig,
+    guardrails: GuardrailsPort,
+    rules: RulesDocumentationGenerator,
+) -> GroqDocumentationGenerator | None:
+    api_key = _groq_key(settings)
+    if not api_key:
+        return None
+    return GroqDocumentationGenerator(
+        fallback=rules,
+        api_key=api_key,
+        model_id=settings.groq_path_c_model_id or settings.path_c_model_id,
+        guardrails=guardrails,
+        base_url=settings.groq_base_url,
+    )
+
+
 def build_clinical_assistant(
     settings: MedexaConfig,
     guardrails: GuardrailsPort,
+    resolved: ResolvedLlmProviders | None = None,
 ) -> ClinicalAssistantPort:
-    if not settings.path_b_enabled:
+    active = resolved or resolve_llm_providers(settings)
+    if active.path_b_backend == "noop":
         return NoOpClinicalAssistant()
 
-    if settings.path_b_provider == "groq":
+    if active.path_b_backend == "groq":
         api_key = _groq_key(settings)
         if not api_key:
             logger.warning("groq_path_b_missing_key_fallback_noop")
@@ -117,10 +139,27 @@ def build_clinical_assistant(
             base_url=settings.groq_base_url,
         )
 
+    groq_assistant = _build_groq_assistant(settings, guardrails)
     return BedrockClinicalAssistant(
         model_id=settings.path_b_model_id,
         region_name=settings.aws_region,
         guardrails=guardrails,
+        groq_fallback=groq_assistant,
+    )
+
+
+def _build_groq_assistant(
+    settings: MedexaConfig,
+    guardrails: GuardrailsPort,
+) -> GroqClinicalAssistant | None:
+    api_key = _groq_key(settings)
+    if not api_key:
+        return None
+    return GroqClinicalAssistant(
+        api_key=api_key,
+        model_id=settings.groq_path_b_model_id or settings.path_b_model_id,
+        guardrails=guardrails,
+        base_url=settings.groq_base_url,
     )
 
 

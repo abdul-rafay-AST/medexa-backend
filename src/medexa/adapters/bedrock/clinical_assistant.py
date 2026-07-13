@@ -8,6 +8,7 @@ from typing import Any
 
 from medexa.adapters.bedrock.converse_client import BedrockConverseClient, BedrockConverseError
 from medexa.adapters.llm.path_prompts import PATH_B_SYSTEM_PROMPT
+from medexa.ports.clinical_assistant import ClinicalAssistantPort
 from medexa.ports.guardrails import GuardrailsPort
 
 logger = logging.getLogger(__name__)
@@ -22,10 +23,12 @@ class BedrockClinicalAssistant:
         model_id: str,
         region_name: str,
         guardrails: GuardrailsPort,
+        groq_fallback: ClinicalAssistantPort | None = None,
     ) -> None:
         self._client = BedrockConverseClient(model_id=model_id, region_name=region_name)
         self._guardrails = guardrails
         self._model_id = model_id
+        self._groq_fallback = groq_fallback
 
     async def suggest(
         self,
@@ -48,7 +51,13 @@ class BedrockClinicalAssistant:
                 temperature=0.2,
             )
             return self._parse_response(raw)
-        except BedrockConverseError:
+        except BedrockConverseError as exc:
+            if self._groq_fallback is not None:
+                logger.warning(
+                    "bedrock_path_b_groq_fallback",
+                    extra={"extra_fields": {"session_id": session_id, "error": str(exc)}},
+                )
+                return await self._groq_fallback.suggest(session_id, buffered_transcript, context)
             raise
         except Exception:
             logger.warning(
