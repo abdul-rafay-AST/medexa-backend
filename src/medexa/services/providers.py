@@ -65,6 +65,8 @@ def _deepgram_key(settings: MedexaConfig) -> str | None:
 def build_documentation_service(
     settings: MedexaConfig,
     guardrails: GuardrailsPort,
+    *,
+    icd_loader: IcdLookupLoader | None = None,
 ) -> DocumentationService:
     rules = RulesDocumentationGenerator()
     uses_groq = settings.soap_generator == "groq" or settings.summary_generator == "groq"
@@ -93,7 +95,7 @@ def build_documentation_service(
         )
     else:
         generator = rules
-    return DocumentationService(generator)
+    return DocumentationService(generator, icd_loader=icd_loader)
 
 
 def build_clinical_assistant(

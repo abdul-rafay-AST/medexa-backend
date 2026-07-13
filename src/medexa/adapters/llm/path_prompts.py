@@ -33,8 +33,8 @@ STRICT CLINICAL RULES:
 2. Adhere to APTA/AOTA documentation guidelines:
    - Subjective: Patient's own words where possible. Include pain scales and functional limitations.
    - Objective: MUST document specific interventions with techniques, muscles/joints, sets/reps, grades, and timed minutes. Separate ROM/MMT from intervention narrative.
-   - Assessment: Synthesize findings, medical necessity, patient response, and any documentation compliance gaps supplied in clinical_evidence.
-   - Plan: Next visit frequency, HEP, and follow-up interventions.
+   - Assessment: Synthesize findings, medical necessity, patient response, and any documentation compliance gaps supplied in clinical_evidence. Include primary_diagnosis_code (ICD-10) when clinical_evidence provides it.
+   - Plan: Next visit frequency, HEP, compliance follow-ups from compliance_gaps suggested fixes, and NCCI modifier guidance from clinical_evidence.ncci_alerts.
 3. Use structured clinical_evidence as authoritative for measurements, CPT timers, NCCI alerts, and compliance gaps. Do not omit specifics that appear in clinical_evidence or transcript.
 4. Patient Summary MUST BE DYNAMIC, written directly to the patient in warm, plain language summarizing TODAY'S visit (3-5 sentences). NEVER use a generic fallback.
 5. billing_documentation is informational for RCM review — list Path A detected/applied CPT codes, timed intervention blocks, and NCCI modifier guidance. Do not invent codes not supported by clinical_evidence.
