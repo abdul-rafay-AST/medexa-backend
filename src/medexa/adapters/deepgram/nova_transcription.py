@@ -7,7 +7,7 @@ from collections import defaultdict
 from typing import Any
 
 from medexa.adapters.deepgram.client import DeepgramClient, DeepgramClientError
-from medexa.core.voice_fingerprint import AudioDecodeError, transcode_to_wav_bytes
+from medexa.core.voice_fingerprint import AudioDecodeError, is_mono_16k_wav, transcode_to_wav_bytes
 from medexa.services.transcription import (
     TranscriptionResult,
     TranscriptionUnavailable,
@@ -58,15 +58,19 @@ class DeepgramNovaTranscriptionProvider:
             )
 
         ctype = (content_type or "audio/webm").split(";")[0].strip().lower()
-        upload_audio = audio
-        upload_ctype = _CONTENT_TYPE_MAP.get(ctype, ctype)
-        try:
-            upload_audio, upload_ctype = transcode_to_wav_bytes(audio, ctype)
-        except AudioDecodeError as exc:
-            logger.warning("deepgram_transcode_failed: %s", exc)
-            raise TranscriptionUnavailable(
-                "Could not decode microphone audio — speak a little longer and try again."
-            ) from exc
+        if is_mono_16k_wav(audio, ctype):
+            upload_audio = audio
+            upload_ctype = "audio/wav"
+        else:
+            upload_audio = audio
+            upload_ctype = _CONTENT_TYPE_MAP.get(ctype, ctype)
+            try:
+                upload_audio, upload_ctype = transcode_to_wav_bytes(audio, ctype)
+            except AudioDecodeError as exc:
+                logger.warning("deepgram_transcode_failed: %s", exc)
+                raise TranscriptionUnavailable(
+                    "Could not decode microphone audio — speak a little longer and try again."
+                ) from exc
 
         if len(upload_audio) < MIN_AUDIO_BYTES:
             raise TranscriptionUnavailable(

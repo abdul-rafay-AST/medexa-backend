@@ -19,7 +19,7 @@ RUN apt-get update \
 # Install dependencies first for better layer caching.
 COPY pyproject.toml README.md ./
 COPY src ./src
-RUN pip install --upgrade pip && pip install .
+RUN pip install --upgrade pip && pip install ".[aws]"
 
 RUN mkdir -p /app/data/sessions
 

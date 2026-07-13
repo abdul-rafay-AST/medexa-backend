@@ -67,10 +67,26 @@ def resolve_chunk_duration_seconds(
     client_duration_seconds: float | None = None,
 ) -> float:
     """Pick a stable utterance duration from decoded audio and optional client hint."""
-    decoded = estimate_audio_duration_seconds(audio, content_type)
     if client_duration_seconds is not None and client_duration_seconds > 0:
-        return max(0.25, min(float(client_duration_seconds), decoded + 0.35, 120.0))
+        return max(0.25, min(float(client_duration_seconds), 120.0))
+    decoded = estimate_audio_duration_seconds(audio, content_type)
     return max(0.25, min(decoded, 120.0))
+
+
+def is_mono_16k_wav(audio: bytes, content_type: str | None = None) -> bool:
+    """True when bytes are already mono 16-bit PCM WAV at 16 kHz."""
+    ctype = (content_type or "").split(";")[0].strip().lower()
+    if ctype not in {"audio/wav", "audio/x-wav"} and audio[:4] != b"RIFF":
+        return False
+    try:
+        with wave.open(io.BytesIO(audio), "rb") as wf:
+            return (
+                wf.getnchannels() == 1
+                and wf.getframerate() == TARGET_SAMPLE_RATE
+                and wf.getsampwidth() == 2
+            )
+    except wave.Error:
+        return False
 
 
 def transcode_to_wav_bytes(audio: bytes, content_type: str | None = None) -> tuple[bytes, str]:

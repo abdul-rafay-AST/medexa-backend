@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile
 
 from medexa.api import contracts as c
 from medexa.api import mappers as m
@@ -19,6 +20,31 @@ from medexa.utils.time import now_utc
 
 router = APIRouter(prefix="/sessions", tags=["live"])
 logger = get_logger("medexa.api.live")
+
+
+async def _run_transcribe_path_a(
+    *,
+    session_id: str,
+    chunk_id: str,
+    transcript: str,
+    container: ServiceContainer,
+    billing_region: str,
+) -> None:
+    """Run Path A billing/rules after transcript is already returned to the client."""
+    state = container.session_repo.get(session_id)
+    if state is None:
+        return
+    runtime = container.runtime_for_state(billing_region)
+    chunk = next((item for item in state.transcript_chunks if item.chunk_id == chunk_id), None)
+    if chunk is None:
+        return
+    now = billing_now(state)
+    path_result = runtime.path_a_processor.process(state, chunk, now)
+    await container.path_a_dispatcher.dispatch(state, path_result, now=now)
+    state.last_updated = now
+    analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
+    state.latest_analysis = analysis
+    container.session_repo.save(state)
 
 
 def _sync_ncci_billing_insights(state: SessionState, container: ServiceContainer) -> None:
@@ -127,6 +153,7 @@ async def analyze_transcript_chunk(
 @router.post("/{session_id}/transcribe-audio", response_model=c.ApiAudioTranscriptionAnalysis)
 async def transcribe_audio(
     session_id: str,
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     client_pitch_hz: float | None = Form(default=None),
     client_duration_seconds: float | None = Form(default=None),
@@ -136,7 +163,11 @@ async def transcribe_audio(
     runtime = container.runtime_for_state(state.billing_region)
     audio = await file.read()
     try:
-        result = container.transcription_provider.transcribe(audio, file.content_type)
+        result = await asyncio.to_thread(
+            container.transcription_provider.transcribe,
+            audio,
+            file.content_type,
+        )
     except TranscriptionUnavailable as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
@@ -166,7 +197,8 @@ async def transcribe_audio(
             audio_segments=[],
         )
 
-    diarized = container.ambient_diarization_resolver.resolve(
+    diarized = await asyncio.to_thread(
+        container.ambient_diarization_resolver.resolve,
         audio=audio,
         content_type=file.content_type,
         transcript=transcript,
@@ -215,13 +247,20 @@ async def transcribe_audio(
             )
         )
 
-    path_result = runtime.path_a_processor.process(state, chunk, now)
-    await container.path_a_dispatcher.dispatch(state, path_result, now=now)
     state.last_updated = now
     container.session_repo.save(state)
 
-    analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
+    analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
     base = runtime.path_a_snapshot.to_contract(analysis, state)
+
+    background_tasks.add_task(
+        _run_transcribe_path_a,
+        session_id=session_id,
+        chunk_id=chunk.chunk_id,
+        transcript=transcript,
+        container=container,
+        billing_region=state.billing_region,
+    )
 
     def _segment_speaker(segment: TranscriptSegment) -> str:
         return segment.speaker_role or classification_role
