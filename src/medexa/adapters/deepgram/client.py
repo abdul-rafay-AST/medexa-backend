@@ -40,18 +40,29 @@ class DeepgramClient:
         audio: bytes,
         content_type: str,
         model: str,
-        diarize_model: str = "latest",
+        diarize_model: str | None = "latest",
         language: str = "en-US",
     ) -> dict[str, Any]:
-        """Transcribe raw audio bytes with medical model + speaker diarization."""
-        params = {
+        """Transcribe raw audio bytes with medical model + optional speaker diarization."""
+        params: dict[str, str] = {
             "model": model,
-            "diarize_model": diarize_model,
             "smart_format": "true",
             "punctuate": "true",
             "utterances": "true",
             "language": language,
         }
+        if diarize_model:
+            params["diarize_model"] = diarize_model
+
+        return self._post_listen(audio=audio, content_type=content_type, params=params)
+
+    def _post_listen(
+        self,
+        *,
+        audio: bytes,
+        content_type: str,
+        params: dict[str, str],
+    ) -> dict[str, Any]:
         headers = {
             "Authorization": f"Token {self._api_key}",
             "Content-Type": content_type,
@@ -64,8 +75,13 @@ class DeepgramClient:
                 content=audio,
             )
         if response.status_code >= 400:
+            detail = response.text[:800]
+            logger.warning(
+                "deepgram_listen_error",
+                extra={"extra_fields": {"status": response.status_code, "detail": detail}},
+            )
             raise DeepgramClientError(
-                f"Deepgram listen failed ({response.status_code}): {response.text[:400]}"
+                f"Deepgram listen failed ({response.status_code}): {detail}"
             )
         try:
             payload = response.json()

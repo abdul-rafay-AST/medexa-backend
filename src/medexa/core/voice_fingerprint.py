@@ -73,6 +73,19 @@ def resolve_chunk_duration_seconds(
     return max(0.25, min(decoded, 120.0))
 
 
+def transcode_to_wav_bytes(audio: bytes, content_type: str | None = None) -> tuple[bytes, str]:
+    """Decode arbitrary browser audio to mono WAV for reliable STT upload."""
+    pcm = decode_audio_bytes(audio, content_type)
+    buffer = io.BytesIO()
+    with wave.open(buffer, "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(pcm.sample_rate)
+        clipped = np.clip(pcm.samples, -1.0, 1.0)
+        wf.writeframes((clipped * 32767.0).astype(np.int16).tobytes())
+    return buffer.getvalue(), "audio/wav"
+
+
 def extract_voice_fingerprint(audio: bytes, content_type: str | None = None) -> np.ndarray:
     pcm = decode_audio_bytes(audio, content_type)
     return fingerprint_from_pcm(pcm.samples, pcm.sample_rate)
