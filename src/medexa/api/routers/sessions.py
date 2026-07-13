@@ -206,6 +206,7 @@ async def finalize_session(
         session_id=session_id,
         soap_note=m.soap_to_dto(result.state.soap),
         summary=result.state.patient_summary.summary,
+        documentation_source=result.documentation_source,
         billing_summary={
             "total_seconds": sum(item.total_seconds for item in summary.line_items),
             "cpt_code": active_code,

@@ -120,6 +120,16 @@ class PathBWorker:
                     trigger = self._find_trigger(refreshed, event.trigger_id)
                     if trigger is not None:
                         trigger.status = "skipped"
+                    refreshed.audit_log.append(
+                        ComplianceAuditEntry(
+                            entry_id=str(uuid.uuid4()),
+                            session_id=refreshed.session_id,
+                            action=AuditAction.ASSISTANT_SUGGESTION_CREATED,
+                            actor="system",
+                            target_id=event.trigger_id,
+                            detail=f"path_b_error:{e}",
+                        )
+                    )
                     self._session_repo.save(refreshed)
 
         import sys

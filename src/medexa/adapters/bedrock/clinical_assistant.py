@@ -6,7 +6,7 @@ import logging
 import uuid
 from typing import Any
 
-from medexa.adapters.bedrock.converse_client import BedrockConverseClient
+from medexa.adapters.bedrock.converse_client import BedrockConverseClient, BedrockConverseError
 from medexa.adapters.llm.path_prompts import PATH_B_SYSTEM_PROMPT
 from medexa.ports.guardrails import GuardrailsPort
 
@@ -48,6 +48,8 @@ class BedrockClinicalAssistant:
                 temperature=0.2,
             )
             return self._parse_response(raw)
+        except BedrockConverseError:
+            raise
         except Exception:
             logger.warning(
                 "bedrock_path_b_failed",

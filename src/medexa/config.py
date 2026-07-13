@@ -31,15 +31,15 @@ class MedexaConfig(BaseSettings):
     # Path B — live assistant (rules path stays Path A only).
     path_b_enabled: bool = False
     path_b_provider: Literal["bedrock", "groq"] = "bedrock"
-    path_b_model_id: str = "anthropic.claude-3-haiku-20240307-v1:0"
-    path_b_interval_seconds: int = 20
+    path_b_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+    path_b_interval_seconds: int = 12
     path_b_transcript_window_minutes: int = 10
     path_b_transcript_max_chunks: int = 24
 
     clinical_analyzer: Literal["rules", "bedrock"] = "rules"
     soap_generator: Literal["rules", "bedrock", "groq"] = "rules"
     summary_generator: Literal["rules", "bedrock", "groq"] = "rules"
-    path_c_model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    path_c_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
 
     # Groq (temporary Path B/C + Whisper STT until Bedrock IAM is ready).
     groq_api_key: str | None = None
@@ -52,13 +52,13 @@ class MedexaConfig(BaseSettings):
     deepgram_api_key: str | None = None
     deepgram_base_url: str = "https://api.deepgram.com"
     deepgram_model: str = "nova-3-medical"
-    deepgram_diarize_model: str = "latest"
+    deepgram_diarize_model: str = ""
     deepgram_language: str = "en-US"
 
     transcription_provider: Literal[
         "none", "aws_transcribe", "groq_whisper", "deepgram"
     ] = "none"
-    bedrock_model_id: str = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    bedrock_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
     transcribe_s3_bucket: str | None = None
 
     host: str = "0.0.0.0"

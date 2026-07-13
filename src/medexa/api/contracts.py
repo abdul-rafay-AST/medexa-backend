@@ -455,6 +455,7 @@ class FinalizeSessionResponse(CamelModel):
     session_id: str
     soap_note: SoapDataDTO
     summary: str
+    documentation_source: str | None = None
     billing_summary: dict[str, Any]
     redirect_url: str
     fhir_export: FhirExportSummary | None = None
