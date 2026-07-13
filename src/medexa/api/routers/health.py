@@ -88,6 +88,34 @@ async def health_bedrock() -> dict[str, object]:
         "aws_region": settings.aws_region,
         "path_b": path_b,
         "path_c": path_c,
+        "try_other_models": "/health/bedrock/models",
+    }
+
+
+@router.get("/health/bedrock/models")
+async def health_bedrock_models() -> dict[str, object]:
+    """Probe common Haiku model IDs with the deployed AWS credentials."""
+    if not _aws_extras_installed():
+        return {"status": "degraded", "detail": "boto3 not installed", "models": []}
+
+    from medexa.adapters.bedrock.health_probe import probe_bedrock_model
+
+    candidates = [
+        "us.anthropic.claude-haiku-4-5-20251001-v1:0",
+        "us.anthropic.claude-3-haiku-20240307-v1:0",
+        "anthropic.claude-3-haiku-20240307-v1:0",
+        "us.anthropic.claude-3-5-haiku-20241022-v1:0",
+    ]
+    models: list[dict[str, object]] = []
+    for model_id in candidates:
+        ok, detail = probe_bedrock_model(model_id)
+        models.append({"model": model_id, "ok": ok, "detail": detail})
+
+    any_ok = any(item["ok"] for item in models)
+    return {
+        "status": "ok" if any_ok else "degraded",
+        "aws_region": settings.aws_region,
+        "models": models,
     }
 
 
