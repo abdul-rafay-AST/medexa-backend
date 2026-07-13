@@ -7,6 +7,7 @@ from collections import defaultdict
 from typing import Any
 
 from medexa.adapters.deepgram.client import DeepgramClient, DeepgramClientError
+from medexa.core.voice_fingerprint import AudioDecodeError, transcode_to_wav_bytes
 from medexa.services.transcription import (
     TranscriptionResult,
     TranscriptionUnavailable,
@@ -15,7 +16,7 @@ from medexa.services.transcription import (
 
 logger = logging.getLogger(__name__)
 
-MIN_AUDIO_BYTES = 1000
+MIN_AUDIO_BYTES = 400
 
 _CONTENT_TYPE_MAP = {
     "audio/webm": "audio/webm",
@@ -57,15 +58,17 @@ class DeepgramNovaTranscriptionProvider:
             )
 
         ctype = (content_type or "audio/webm").split(";")[0].strip().lower()
-        deepgram_ctype = _CONTENT_TYPE_MAP.get(ctype, ctype)
+        upload_audio = audio
+        upload_ctype = _CONTENT_TYPE_MAP.get(ctype, ctype)
+        try:
+            upload_audio, upload_ctype = transcode_to_wav_bytes(audio, ctype)
+        except AudioDecodeError as exc:
+            logger.warning("deepgram_transcode_failed: %s", exc)
 
         try:
-            payload = self._client.transcribe_file(
-                audio=audio,
-                content_type=deepgram_ctype,
-                model=self._model,
-                diarize_model=self._diarize_model,
-                language=self._language,
+            payload = self._transcribe_with_fallback(
+                audio=upload_audio,
+                content_type=upload_ctype,
             )
         except DeepgramClientError as exc:
             logger.warning("deepgram_transcribe_failed", exc_info=True)
@@ -75,6 +78,27 @@ class DeepgramNovaTranscriptionProvider:
             raise TranscriptionUnavailable(f"Deepgram transcription failed: {exc}") from exc
 
         return _parse_deepgram_payload(payload)
+
+    def _transcribe_with_fallback(self, *, audio: bytes, content_type: str) -> dict[str, Any]:
+        try:
+            return self._client.transcribe_file(
+                audio=audio,
+                content_type=content_type,
+                model=self._model,
+                diarize_model=self._diarize_model,
+                language=self._language,
+            )
+        except DeepgramClientError as exc:
+            if "400" not in str(exc) or not self._diarize_model:
+                raise
+            logger.warning("deepgram_retry_without_diarization")
+            return self._client.transcribe_file(
+                audio=audio,
+                content_type=content_type,
+                model=self._model,
+                diarize_model=None,
+                language=self._language,
+            )
 
 
 def _parse_deepgram_payload(payload: dict[str, Any]) -> TranscriptionResult:
