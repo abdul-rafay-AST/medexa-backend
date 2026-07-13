@@ -64,6 +64,14 @@ class DeepgramNovaTranscriptionProvider:
             upload_audio, upload_ctype = transcode_to_wav_bytes(audio, ctype)
         except AudioDecodeError as exc:
             logger.warning("deepgram_transcode_failed: %s", exc)
+            raise TranscriptionUnavailable(
+                "Could not decode microphone audio — speak a little longer and try again."
+            ) from exc
+
+        if len(upload_audio) < MIN_AUDIO_BYTES:
+            raise TranscriptionUnavailable(
+                "Audio chunk too short for transcription — speak a little longer."
+            )
 
         try:
             payload = self._transcribe_with_fallback(
