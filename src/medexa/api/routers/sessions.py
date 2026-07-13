@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import uuid
 
 from fastapi import APIRouter, Depends
@@ -163,7 +164,8 @@ async def finalize_session(
     now = now_utc()
     runtime = container.runtime_for_state(state.billing_region)
 
-    result = container.finalize_orchestrator.finalize(
+    result = await asyncio.to_thread(
+        container.finalize_orchestrator.finalize,
         state,
         runtime,
         body,

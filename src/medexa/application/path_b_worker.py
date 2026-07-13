@@ -64,11 +64,12 @@ class PathBWorker:
 
         async def _run_bg() -> None:
             try:
-                before = self._billing_snapshot(state)
-                suggestions = await self._run_assistant(state, event)
                 refreshed = self._session_repo.get(event.session_id)
                 if refreshed is None:
                     return
+
+                before = self._billing_snapshot(refreshed)
+                suggestions = await self._run_assistant(refreshed, event)
 
                 after = self._billing_snapshot(refreshed)
                 if before != after:
