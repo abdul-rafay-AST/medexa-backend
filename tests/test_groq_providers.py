@@ -8,7 +8,6 @@ from medexa.adapters.groq.documentation_generator import GroqDocumentationGenera
 from medexa.adapters.groq.whisper import GroqWhisperTranscriptionProvider
 from medexa.adapters.guardrails.local_guardrails import LocalGuardrails
 from medexa.config import MedexaConfig
-from medexa.services import llm_provider_resolver as resolver
 from medexa.services.providers import (
     build_clinical_assistant,
     build_documentation_service,
@@ -18,7 +17,6 @@ from medexa.services.transcription import UnavailableTranscriptionProvider
 
 
 def test_providers_select_groq_when_configured() -> None:
-    resolver.clear_resolver_cache()
     settings = MedexaConfig(
         path_b_enabled=True,
         path_b_provider="groq",
@@ -39,7 +37,6 @@ def test_providers_select_groq_when_configured() -> None:
 
 
 def test_providers_fallback_without_groq_key() -> None:
-    resolver.clear_resolver_cache()
     settings = MedexaConfig(
         path_b_enabled=True,
         path_b_provider="groq",

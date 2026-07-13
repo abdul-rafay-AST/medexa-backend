@@ -23,12 +23,10 @@ def _aws_extras_installed() -> bool:
 
 @router.get("/health")
 async def health() -> dict[str, object]:
-    """Fast config check — reports resolved Path B/C backends (with Bedrock→Groq failover)."""
-    from medexa.services.llm_provider_resolver import resolve_llm_providers
-
+    """Fast config check — use /health/bedrock for a live Bedrock Converse probe."""
     deepgram_configured = bool((settings.deepgram_api_key or "").strip())
     groq_configured = bool((settings.groq_api_key or "").strip())
-    resolved = resolve_llm_providers(settings)
+    aws_ready = _aws_extras_installed()
     return {
         "status": "ok",
         "transcription_provider": settings.transcription_provider,
@@ -37,57 +35,26 @@ async def health() -> dict[str, object]:
         "deepgram_diarize_model": settings.deepgram_diarize_model or None,
         "path_b_enabled": settings.path_b_enabled,
         "path_b_provider": settings.path_b_provider,
-        "path_b_active_backend": resolved.path_b_backend,
         "path_b_model": settings.path_b_model_id,
-        "path_b_configured": settings.path_b_enabled and resolved.path_b_backend != "noop",
-        "path_b_resolution": resolved.path_b_reason,
+        "path_b_configured": settings.path_b_enabled
+        and (
+            (settings.path_b_provider == "groq" and groq_configured)
+            or (settings.path_b_provider == "bedrock" and aws_ready)
+        ),
         "path_c_model": settings.path_c_model_id,
         "soap_generator": settings.soap_generator,
         "summary_generator": settings.summary_generator,
-        "path_c_active_backend": resolved.path_c_backend,
-        "path_c_configured": resolved.path_c_backend in {"bedrock", "groq"},
-        "path_c_resolution": resolved.path_c_reason,
-        "groq_configured": groq_configured,
-        "aws_extras_installed": _aws_extras_installed(),
+        "path_c_configured": (
+            (settings.soap_generator == "groq" or settings.summary_generator == "groq")
+            and groq_configured
+        )
+        or (
+            (settings.soap_generator == "bedrock" or settings.summary_generator == "bedrock")
+            and aws_ready
+        ),
+        "aws_extras_installed": aws_ready,
         "aws_region": settings.aws_region,
         "verify_bedrock": "/health/bedrock",
-        "verify_llm": "/health/llm",
-    }
-
-
-@router.get("/health/llm")
-async def health_llm() -> dict[str, object]:
-    """Resolved Path B/C backends after Bedrock probe and Groq failover."""
-    from medexa.services.llm_provider_resolver import resolve_llm_providers
-
-    resolved = resolve_llm_providers(settings, force_refresh=True)
-    groq_configured = bool((settings.groq_api_key or "").strip())
-    path_b_ok = not settings.path_b_enabled or resolved.path_b_backend != "noop"
-    path_c_wants_llm = (
-        settings.soap_generator in {"bedrock", "groq"}
-        or settings.summary_generator in {"bedrock", "groq"}
-    )
-    path_c_ok = not path_c_wants_llm or resolved.path_c_backend in {"bedrock", "groq"}
-    healthy = path_b_ok and path_c_ok
-    return {
-        "status": "ok" if healthy else "degraded",
-        "groq_configured": groq_configured,
-        "path_b": {
-            "configured": settings.path_b_enabled,
-            "requested_provider": settings.path_b_provider,
-            "active_backend": resolved.path_b_backend,
-            "reason": resolved.path_b_reason,
-            "model": settings.path_b_model_id,
-        },
-        "path_c": {
-            "requested": {
-                "soap": settings.soap_generator,
-                "summary": settings.summary_generator,
-            },
-            "active_backend": resolved.path_c_backend,
-            "reason": resolved.path_c_reason,
-            "model": settings.path_c_model_id,
-        },
     }
 
 

@@ -65,7 +65,6 @@ from medexa.services.providers import (
     build_summary_generator,
     build_transcription_provider,
 )
-from medexa.services.llm_provider_resolver import resolve_llm_providers
 from medexa.state import (
     DynamoDbSessionStateRepository,
     FileSessionStateRepository,
@@ -120,9 +119,8 @@ class ServiceContainer:
         self.summary_generator = build_summary_generator(settings)
         self.transcription_provider = build_transcription_provider(settings)
         self.guardrails = LocalGuardrails()
-        self.resolved_llm = resolve_llm_providers(settings)
         self.documentation_service = build_documentation_service(
-            settings, self.guardrails, icd_loader=self.icd_loader, resolved=self.resolved_llm
+            settings, self.guardrails, icd_loader=self.icd_loader
         )
 
         self.chunk_ingest = ChunkIngestService()
@@ -149,9 +147,7 @@ class ServiceContainer:
         self.event_bus = InProcessEventBus()
         self.realtime = build_realtime_adapter(settings, self.live_broker)
         self.session_repo: SessionStateRepository = self._build_repository()
-        self.clinical_assistant = build_clinical_assistant(
-            settings, self.guardrails, resolved=self.resolved_llm
-        )
+        self.clinical_assistant = build_clinical_assistant(settings, self.guardrails)
         self.path_b_trigger_evaluator = PathBTriggerEvaluator(settings.path_b_interval_seconds)
         self.path_b_worker = PathBWorker(
             settings=settings,
