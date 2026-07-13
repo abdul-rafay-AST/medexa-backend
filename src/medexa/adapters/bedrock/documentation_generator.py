@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Any
 
-from medexa.adapters.bedrock.converse_client import BedrockConverseClient
+from medexa.adapters.bedrock.converse_client import BedrockConverseClient, BedrockConverseError
 from medexa.adapters.llm.path_prompts import PATH_C_SYSTEM_PROMPT
 from medexa.ports.documentation_port import DocumentationPort, DocumentationResult
 from medexa.ports.guardrails import GuardrailsPort
@@ -70,6 +70,18 @@ class BedrockDocumentationGenerator:
                 temperature=0.2,
             )
             return self._parse_response(raw)
+        except BedrockConverseError as exc:
+            logger.error(
+                "bedrock_path_c_failed",
+                exc_info=True,
+                extra={"extra_fields": {"model_id": self._model_id, "error": str(exc)}},
+            )
+            fallback = self._fallback.generate(context)
+            return DocumentationResult(
+                soap=fallback.soap,
+                patient_summary=fallback.patient_summary,
+                source="rules_fallback",
+            )
         except Exception:
             logger.warning(
                 "bedrock_path_c_fallback",

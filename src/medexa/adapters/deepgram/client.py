@@ -11,7 +11,7 @@ import httpx
 logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://api.deepgram.com"
-DEFAULT_TIMEOUT_SECONDS = 90.0
+DEFAULT_TIMEOUT_SECONDS = 45.0
 
 
 class DeepgramClientError(RuntimeError):
@@ -32,8 +32,7 @@ class DeepgramClient:
             raise ValueError("Deepgram API key is required")
         self._api_key = api_key.strip()
         self._base_url = base_url.rstrip("/")
-        self._timeout = timeout_seconds
-        self._http = httpx.Client(timeout=self._timeout)
+        self._http = httpx.Client(timeout=timeout_seconds)
 
     def transcribe_file(
         self,
@@ -49,10 +48,11 @@ class DeepgramClient:
             "model": model,
             "smart_format": "true",
             "punctuate": "true",
-            "utterances": "true",
             "language": language,
         }
+        # Utterances + diarization add latency; voice clustering handles cross-chunk roles.
         if diarize_model:
+            params["utterances"] = "true"
             params["diarize_model"] = diarize_model
 
         return self._post_listen(audio=audio, content_type=content_type, params=params)

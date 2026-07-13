@@ -25,6 +25,7 @@ from medexa.schemas import BillingSummary, SessionState
 class FinalizeSessionResult:
     state: SessionState
     billing_summary: BillingSummary
+    documentation_source: str = "rules"
     fhir_export: FhirExportArtifact | None = None
     pre_auth_reconciliation: PreAuthReconciliationReport | None = None
     documentation_review: DocumentationReviewReport | None = None
@@ -129,6 +130,7 @@ class FinalizeSessionOrchestrator:
         return FinalizeSessionResult(
             state=state,
             billing_summary=billing_summary,
+            documentation_source=documentation.source,
             fhir_export=fhir_artifact,
             pre_auth_reconciliation=reconciliation,
             documentation_review=review,
