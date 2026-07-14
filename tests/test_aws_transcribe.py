@@ -60,6 +60,7 @@ def test_build_transcription_provider_aws_requires_bucket() -> None:
         transcription_provider="aws_transcribe",
         s3_bucket=None,
         transcribe_s3_bucket=None,
+        deepgram_api_key=None,
     )
     provider = build_transcription_provider(settings)
     assert isinstance(provider, UnavailableTranscriptionProvider)
@@ -71,9 +72,23 @@ def test_build_transcription_provider_aws_with_bucket() -> None:
         aws_region="us-east-2",
         s3_bucket="medexa-storage",
         transcribe_enable_speaker_labels=True,
+        deepgram_api_key=None,
     )
     provider = build_transcription_provider(settings)
     assert isinstance(provider, AwsTranscribeProvider)
+
+
+def test_build_transcription_provider_aws_with_deepgram_failover() -> None:
+    from medexa.services.transcription import FallbackTranscriptionProvider
+
+    settings = MedexaConfig(
+        transcription_provider="aws_transcribe",
+        aws_region="us-east-2",
+        s3_bucket="medexa-storage",
+        deepgram_api_key="dg_test_key",
+    )
+    provider = build_transcription_provider(settings)
+    assert isinstance(provider, FallbackTranscriptionProvider)
 
 
 def test_aws_provider_missing_bucket_raises_unavailable() -> None:
