@@ -9,7 +9,7 @@ from medexa.api import contracts as c
 from medexa.api import mappers as m
 from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.body_region_labels import body_region_display
-from medexa.api.routers._common import billing_now, refresh_and_publish, reload_session_state, require_state
+from medexa.api.routers._common import billing_now, refresh_and_publish, reload_session_state, require_state, save_session_state
 from medexa.core.speaker_role_classifier import format_labeled_utterance
 from medexa.core.voice_fingerprint import resolve_chunk_duration_seconds
 from medexa.config import settings as app_settings
@@ -120,8 +120,8 @@ async def analyze_transcript_chunk(
     state.latest_analysis = analysis
     state.last_updated = now
     state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-    # Must persist BEFORE any reload — DynamoDB reload would otherwise wipe Path A.
-    await asyncio.to_thread(container.session_repo.save, state)
+    # Persist with retry — Path B worker may bump Dynamo version in parallel.
+    state = await save_session_state(container, state)
     state = reload_session_state(session_id, container, state)
 
     latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
