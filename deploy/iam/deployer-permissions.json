@@ -1,0 +1,70 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudFormationDeploy",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateStack",
+        "cloudformation:UpdateStack",
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:GetTemplate",
+        "cloudformation:ValidateTemplate",
+        "cloudformation:ListStacks"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:*:*:stack/medexa-*/*",
+        "arn:aws:cloudformation:*:*:stackset/medexa-*:*"
+      ]
+    },
+    {
+      "Sid": "IamForMedexaRoles",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:GetRole",
+        "iam:PassRole",
+        "iam:TagRole",
+        "iam:PutRolePolicy",
+        "iam:DeleteRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:CreateOpenIDConnectProvider",
+        "iam:GetOpenIDConnectProvider",
+        "iam:TagOpenIDConnectProvider"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:role/medexa-*",
+        "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com"
+      ]
+    },
+    {
+      "Sid": "EcrAppRunnerSecrets",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:*",
+        "apprunner:*",
+        "secretsmanager:CreateSecret",
+        "secretsmanager:PutSecretValue",
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:TagResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DataPlane",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:*",
+        "s3:*",
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

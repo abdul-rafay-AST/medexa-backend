@@ -35,7 +35,7 @@ class TranscriptUtterance(BaseModel):
     end_ts: float
     confidence: float = 0.5
     source_chunk_id: str
-    diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
+    diarization_method: Literal["voice", "text", "hybrid", "deepgram", "aws_transcribe"] | None = None
 
 
 class DetectedEntity(BaseModel):

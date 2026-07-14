@@ -63,6 +63,7 @@ nosetests.xml
 .env
 .env.*
 !.env.example
+!.env.aws.example
 hf
 .hf_token
 *.pem

@@ -195,7 +195,15 @@ def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvide
         )
     if settings.transcription_provider == "aws_transcribe":
         bucket = settings.transcribe_s3_bucket or settings.s3_bucket
+        if not bucket:
+            logger.warning("aws_transcribe_missing_bucket_fallback_unavailable")
+            return UnavailableTranscriptionProvider()
         return AwsTranscribeProvider(
-            region_name=settings.aws_region, s3_bucket=bucket
+            region_name=settings.aws_region,
+            s3_bucket=bucket,
+            enable_speaker_labels=settings.transcribe_enable_speaker_labels,
+            max_speaker_labels=settings.transcribe_max_speakers,
+            poll_timeout_seconds=settings.transcribe_poll_timeout_seconds,
+            language_code=settings.transcribe_language_code,
         )
     return UnavailableTranscriptionProvider()

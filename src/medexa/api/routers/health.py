@@ -55,6 +55,11 @@ async def health() -> dict[str, object]:
         "aws_extras_installed": aws_ready,
         "aws_region": settings.aws_region,
         "verify_bedrock": "/health/bedrock",
+        "verify_transcribe": "/health/transcribe",
+        "transcribe_s3_bucket": settings.transcribe_s3_bucket or settings.s3_bucket,
+        "transcribe_speaker_labels": settings.transcribe_enable_speaker_labels
+        if settings.transcription_provider == "aws_transcribe"
+        else None,
     }
 
 
@@ -116,6 +121,38 @@ async def health_bedrock_models() -> dict[str, object]:
         "status": "ok" if any_ok else "degraded",
         "aws_region": settings.aws_region,
         "models": models,
+    }
+
+
+@router.get("/health/transcribe")
+async def health_transcribe() -> dict[str, object]:
+    """Verify Amazon Transcribe (standard) API + S3 staging bucket (no job started)."""
+    bucket = settings.transcribe_s3_bucket or settings.s3_bucket
+    configured = settings.transcription_provider == "aws_transcribe"
+    if not _aws_extras_installed():
+        return {
+            "status": "degraded",
+            "configured": configured,
+            "detail": "boto3 not installed",
+            "bucket": bucket,
+        }
+
+    from medexa.adapters.aws.transcribe_health import probe_transcribe
+
+    ok, detail = probe_transcribe(region=settings.aws_region, bucket=bucket)
+    return {
+        "status": "ok" if ok else "degraded",
+        "configured_as_default": configured,
+        "aws_region": settings.aws_region,
+        "bucket": bucket,
+        "speaker_labels": settings.transcribe_enable_speaker_labels,
+        "max_speakers": settings.transcribe_max_speakers,
+        "ok": ok,
+        "detail": detail,
+        "note": (
+            "Batch Amazon Transcribe is higher latency than Deepgram; "
+            "set MEDEXA_TRANSCRIPTION_PROVIDER=aws_transcribe to use it for ambient."
+        ),
     }
 
 

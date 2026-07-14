@@ -1,0 +1,435 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Medexa Phase-1 AWS runtime — App Runner (long-lived FastAPI) + ECR + DynamoDB +
+  S3 + Secrets Manager. Uses an IAM instance role for Bedrock (no static AWS keys
+  on the service). Keeps Path A rules / Path B+C Bedrock logic unchanged.
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: staging
+    AllowedValues: [staging, prod]
+  AwsRegionShort:
+    Type: String
+    Default: us-east-2
+    Description: Must match a Bedrock-enabled region (e.g. us-east-2).
+  CorsAllowOrigins:
+    Type: String
+    Default: "https://localhost:3000"
+    Description: Comma-separated frontend origins (include Vercel URL).
+  ExistingDynamoTableName:
+    Type: String
+    Default: medexa-sessions
+    Description: Use existing table if already provisioned; leave empty to create.
+  ExistingS3BucketName:
+    Type: String
+    Default: medexa-storage
+    Description: Use existing bucket if already provisioned; leave empty to create.
+  DeepgramApiKey:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: Optional Deepgram key stored in Secrets Manager for STT.
+  ImageTag:
+    Type: String
+    Default: latest
+  CreateAppRunnerService:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: >
+      Set true only after an image exists in ECR (after first CI push). First stack
+      deploy should leave this false so IAM/ECR/secrets are ready.
+  CreateGithubOidcProvider:
+    Type: String
+    Default: "false"
+    AllowedValues: ["true", "false"]
+    Description: Set true once per account if token.actions.githubusercontent.com OIDC is missing.
+  ExistingOidcProviderArn:
+    Type: String
+    Default: ""
+    Description: Existing GitHub OIDC provider ARN when CreateGithubOidcProvider=false.
+
+Conditions:
+  CreateDynamoTable: !Equals [!Ref ExistingDynamoTableName, ""]
+  CreateS3Bucket: !Equals [!Ref ExistingS3BucketName, ""]
+  HasDeepgramKey: !Not [!Equals [!Ref DeepgramApiKey, ""]]
+  EnableAppRunner: !Equals [!Ref CreateAppRunnerService, "true"]
+  CreateOidc: !Equals [!Ref CreateGithubOidcProvider, "true"]
+  HasExistingOidc: !Not [!Equals [!Ref ExistingOidcProviderArn, ""]]
+  WireGitHubDeployRole: !Or [!Condition CreateOidc, !Condition HasExistingOidc]
+
+Resources:
+  # ── Data plane ──────────────────────────────────────────────
+  SessionsTable:
+    Type: AWS::DynamoDB::Table
+    Condition: CreateDynamoTable
+    Properties:
+      TableName: !Sub medexa-sessions-${EnvironmentName}
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: session_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: session_id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true
+      Tags:
+        - Key: Project
+          Value: Medexa
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Condition: CreateS3Bucket
+    Properties:
+      BucketName: !Sub medexa-storage-${EnvironmentName}-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-transcribe-temp
+            Status: Enabled
+            Prefix: transcribe/
+            ExpirationInDays: 7
+          - Id: expire-exports-temp
+            Status: Enabled
+            Prefix: exports/
+            ExpirationInDays: 30
+      Tags:
+        - Key: Project
+          Value: Medexa
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  DeepgramSecret:
+    Type: AWS::SecretsManager::Secret
+    Condition: HasDeepgramKey
+    Properties:
+      Name: !Sub medexa/${EnvironmentName}/deepgram
+      Description: Medexa Deepgram API key (ambient STT)
+      SecretString: !Ref DeepgramApiKey
+      Tags:
+        - Key: Project
+          Value: Medexa
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  # ── ECR ─────────────────────────────────────────────────────
+  ContainerRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      RepositoryName: !Sub medexa-api-${EnvironmentName}
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      ImageTagMutability: MUTABLE
+      EncryptionConfiguration:
+        EncryptionType: AES256
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Keep last 10 images",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": { "type": "expire" }
+              }
+            ]
+          }
+      Tags:
+        - Key: Project
+          Value: Medexa
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+  # ── IAM — App Runner instance role (Bedrock + data plane) ───
+  AppRunnerInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub medexa-apprunner-instance-${EnvironmentName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: tasks.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: MedexaRuntimeAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: BedrockInvoke
+                Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: "*"
+              - Sid: Transcribe
+                Effect: Allow
+                Action:
+                  - transcribe:StartTranscriptionJob
+                  - transcribe:GetTranscriptionJob
+                  - transcribe:ListTranscriptionJobs
+                Resource: "*"
+              - Sid: DynamoSessions
+                Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:DescribeTable
+                Resource:
+                  - !If
+                    - CreateDynamoTable
+                    - !GetAtt SessionsTable.Arn
+                    - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${ExistingDynamoTableName}
+              - Sid: S3Storage
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Resource:
+                  - !If
+                    - CreateS3Bucket
+                    - !GetAtt StorageBucket.Arn
+                    - !Sub arn:aws:s3:::${ExistingS3BucketName}
+                  - !If
+                    - CreateS3Bucket
+                    - !Sub ${StorageBucket.Arn}/*
+                    - !Sub arn:aws:s3:::${ExistingS3BucketName}/*
+              - Sid: ReadDeepgramSecret
+                Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !If
+                  - HasDeepgramKey
+                  - !Ref DeepgramSecret
+                  - !Sub arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:medexa/*
+      Tags:
+        - Key: Project
+          Value: Medexa
+
+  AppRunnerEcrAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub medexa-apprunner-ecr-access-${EnvironmentName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: build.apprunner.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess
+      Tags:
+        - Key: Project
+          Value: Medexa
+
+  # ── GitHub Actions OIDC deployer (optional, recommended) ───
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: CreateOidc
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - ffffffff00000000000000000000000000000001
+
+  GitHubDeployRole:
+    Type: AWS::IAM::Role
+    Condition: WireGitHubDeployRole
+    Properties:
+      RoleName: !Sub medexa-github-deploy-${EnvironmentName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !If
+                - CreateOidc
+                - !Ref GitHubOidcProvider
+                - !Ref ExistingOidcProviderArn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: repo:abdul-rafay-AST/medexa-backend:*
+      Policies:
+        - PolicyName: EcrPushAndAppRunnerDeploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:CompleteLayerUpload
+                  - ecr:InitiateLayerUpload
+                  - ecr:PutImage
+                  - ecr:UploadLayerPart
+                  - ecr:BatchGetImage
+                  - ecr:DescribeRepositories
+                  - ecr:GetDownloadUrlForLayer
+                Resource: !GetAtt ContainerRepository.Arn
+              - Effect: Allow
+                Action:
+                  - apprunner:ListServices
+                  - apprunner:DescribeService
+                  - apprunner:UpdateService
+                  - apprunner:StartDeployment
+                  - apprunner:ListOperations
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !GetAtt AppRunnerInstanceRole.Arn
+                  - !GetAtt AppRunnerEcrAccessRole.Arn
+      Tags:
+        - Key: Project
+          Value: Medexa
+
+  # ── App Runner service (after first image push) ─────────────
+  AppRunnerService:
+    Type: AWS::AppRunner::Service
+    Condition: EnableAppRunner
+    Properties:
+      ServiceName: !Sub medexa-api-${EnvironmentName}
+      SourceConfiguration:
+        AuthenticationConfiguration:
+          AccessRoleArn: !GetAtt AppRunnerEcrAccessRole.Arn
+        AutoDeploymentsEnabled: true
+        ImageRepository:
+          ImageIdentifier: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ContainerRepository}:${ImageTag}
+          ImageRepositoryType: ECR
+          ImageConfiguration:
+            Port: "8000"
+            RuntimeEnvironmentVariables:
+              - Name: MEDEXA_HOST
+                Value: "0.0.0.0"
+              - Name: MEDEXA_PORT
+                Value: "8000"
+              - Name: MEDEXA_LOG_LEVEL
+                Value: INFO
+              - Name: MEDEXA_AWS_REGION
+                Value: !Ref AWS::Region
+              - Name: MEDEXA_AWS_ENVIRONMENT
+                Value: !Ref EnvironmentName
+              - Name: MEDEXA_USE_DYNAMODB
+                Value: "true"
+              - Name: MEDEXA_DYNAMODB_TABLE_NAME
+                Value: !If
+                  - CreateDynamoTable
+                  - !Ref SessionsTable
+                  - !Ref ExistingDynamoTableName
+              - Name: MEDEXA_S3_BUCKET
+                Value: !If
+                  - CreateS3Bucket
+                  - !Ref StorageBucket
+                  - !Ref ExistingS3BucketName
+              - Name: MEDEXA_TRANSCRIBE_S3_BUCKET
+                Value: !If
+                  - CreateS3Bucket
+                  - !Ref StorageBucket
+                  - !Ref ExistingS3BucketName
+              - Name: MEDEXA_CONFIG_SOURCE
+                Value: local
+              - Name: MEDEXA_PATH_B_ENABLED
+                Value: "true"
+              - Name: MEDEXA_PATH_B_PROVIDER
+                Value: bedrock
+              - Name: MEDEXA_PATH_B_MODEL_ID
+                Value: us.anthropic.claude-haiku-4-5-20251001-v1:0
+              - Name: MEDEXA_SOAP_GENERATOR
+                Value: bedrock
+              - Name: MEDEXA_SUMMARY_GENERATOR
+                Value: bedrock
+              - Name: MEDEXA_PATH_C_MODEL_ID
+                Value: us.anthropic.claude-haiku-4-5-20251001-v1:0
+              - Name: MEDEXA_BEDROCK_MODEL_ID
+                Value: us.anthropic.claude-haiku-4-5-20251001-v1:0
+              - Name: MEDEXA_TRANSCRIPTION_PROVIDER
+                Value: deepgram
+              - Name: MEDEXA_DEEPGRAM_MODEL
+                Value: nova-3-medical
+              - Name: MEDEXA_CORS_ALLOW_ORIGINS
+                Value: !Ref CorsAllowOrigins
+            RuntimeEnvironmentSecrets:
+              !If
+                - HasDeepgramKey
+                - - Name: MEDEXA_DEEPGRAM_API_KEY
+                    Value: !Ref DeepgramSecret
+                - !Ref AWS::NoValue
+      InstanceConfiguration:
+        Cpu: "1 vCPU"
+        Memory: "2 GB"
+        InstanceRoleArn: !GetAtt AppRunnerInstanceRole.Arn
+      HealthCheckConfiguration:
+        Protocol: HTTP
+        Path: /health
+        Interval: 10
+        Timeout: 5
+        HealthyThreshold: 1
+        UnhealthyThreshold: 5
+      Tags:
+        - Key: Project
+          Value: Medexa
+        - Key: Environment
+          Value: !Ref EnvironmentName
+
+Outputs:
+  EcrRepositoryUri:
+    Description: Push Medexa Docker images here
+    Value: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ContainerRepository}
+  AppRunnerServiceUrl:
+    Condition: EnableAppRunner
+    Description: Public HTTPS URL for the API
+    Value: !GetAtt AppRunnerService.ServiceUrl
+  InstanceRoleArn:
+    Value: !GetAtt AppRunnerInstanceRole.Arn
+  GitHubDeployRoleArn:
+    Condition: WireGitHubDeployRole
+    Description: Use as AWS_ROLE_ARN in GitHub Actions OIDC
+    Value: !GetAtt GitHubDeployRole.Arn
+  DynamoTableName:
+    Value: !If
+      - CreateDynamoTable
+      - !Ref SessionsTable
+      - !Ref ExistingDynamoTableName
+  S3BucketName:
+    Value: !If
+      - CreateS3Bucket
+      - !Ref StorageBucket
+      - !Ref ExistingS3BucketName
+  DeepgramSecretArn:
+    Condition: HasDeepgramKey
+    Value: !Ref DeepgramSecret

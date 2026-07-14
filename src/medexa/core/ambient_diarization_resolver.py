@@ -11,7 +11,7 @@ from medexa.core.speaker_role_classifier import SpeakerRole
 from medexa.schemas import SessionState
 from medexa.services.transcription import TranscriptionResult, TranscriptSegment
 
-DiarizationMethod = Literal["deepgram", "voice", "text", "hybrid"]
+DiarizationMethod = Literal["deepgram", "aws_transcribe", "voice", "text", "hybrid"]
 
 
 @dataclass(frozen=True)
@@ -78,12 +78,17 @@ class AmbientDiarizationResolver:
                 full_transcript=transcript,
                 last_speaker=state.last_ambient_speaker,
             )
+            stt_method: DiarizationMethod = (
+                "aws_transcribe"
+                if transcription.provider == "aws_transcribe"
+                else "deepgram"
+            )
             utterances = [
                 ResolvedUtterance(
                     speaker=segment.speaker_role or mapped.role,
                     text=segment.text.strip(),
                     confidence=mapped.confidence,
-                    method="deepgram",
+                    method=stt_method,
                     start_offset=segment.start,
                     end_offset=segment.end,
                 )
@@ -96,13 +101,13 @@ class AmbientDiarizationResolver:
                         speaker=mapped.role,
                         text=transcript,
                         confidence=mapped.confidence,
-                        method="deepgram",
+                        method=stt_method,
                     )
                 ]
             return ChunkDiarizationResult(
                 primary_role=utterances[-1].speaker,
                 confidence=mapped.confidence,
-                method="deepgram",
+                method=stt_method,
                 segments=mapped.segments,
                 utterances=utterances,
             )
@@ -115,7 +120,9 @@ class AmbientDiarizationResolver:
             client_pitch_hz=client_pitch_hz,
         )
         method: DiarizationMethod = (
-            "hybrid" if transcription.provider == "deepgram" else voice.method
+            "hybrid"
+            if transcription.provider in {"deepgram", "aws_transcribe"}
+            else voice.method
         )
         if not segments:
             segments = [

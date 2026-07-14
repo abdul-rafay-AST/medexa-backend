@@ -1,0 +1,58 @@
+name: Deploy Medexa API to AWS App Runner
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "config/**"
+      - "scripts/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - "deploy/**"
+      - ".github/workflows/deploy-aws.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-2
+  ENVIRONMENT: staging
+  IMAGE_TAG: latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: medexa-api-${{ env.ENVIRONMENT }}
+        run: |
+          docker build -t "$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}" .
+          docker push "$REGISTRY/$REPOSITORY:${{ env.IMAGE_TAG }}"
+
+      - name: Start App Runner deployment
+        env:
+          SERVICE_ARN: ${{ secrets.AWS_APPRUNNER_SERVICE_ARN }}
+        run: |
+          if [ -z "$SERVICE_ARN" ]; then
+            echo "AWS_APPRUNNER_SERVICE_ARN not set — image pushed only."
+            exit 0
+          fi
+          aws apprunner start-deployment --service-arn "$SERVICE_ARN" --region "$AWS_REGION"
