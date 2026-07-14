@@ -140,3 +140,4 @@ frontend/
 
 # Docs build output
 site/
+logs/

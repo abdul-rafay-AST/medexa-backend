@@ -6,7 +6,7 @@ from medexa.regions import RegionRegistry
 
 
 def test_registry_resolves_all_supported_profiles() -> None:
-    registry = RegionRegistry(Path("config"), Path("MEDEXA CPT FILES"))
+    registry = RegionRegistry(Path("config"), Path("data/cpt_files"))
 
     us = registry.resolve("US")
     sa = registry.resolve("SA")
@@ -21,7 +21,7 @@ def test_registry_resolves_all_supported_profiles() -> None:
 
 
 def test_us_bundle_uses_legacy_files_until_phase1_asset_copy() -> None:
-    registry = RegionRegistry(Path("config"), Path("MEDEXA CPT FILES"))
+    registry = RegionRegistry(Path("config"), Path("data/cpt_files"))
     us = registry.resolve("US")
 
     cpt_lookup = us.asset_path("codes/cpt_lookup.json")

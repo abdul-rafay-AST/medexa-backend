@@ -5,7 +5,7 @@ from medexa.loaders.body_region_normalizer import BodyRegionNormalizer
 from medexa.loaders.hybrid_cpt_rule_index import HybridCptRuleIndex
 
 extractor = EntityExtractor(
-    HybridCptRuleIndex(Path("config"), Path("MEDEXA CPT FILES")),
+    HybridCptRuleIndex(Path("config"), Path("data/cpt_files")),
     BodyRegionNormalizer(Path("config/body_regions.json")),
 )
 

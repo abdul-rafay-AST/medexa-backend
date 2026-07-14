@@ -16,7 +16,7 @@ class MedexaConfig(BaseSettings):
     )
 
     config_dir: Path = Path("config")
-    cpt_files_dir: Path = Path("MEDEXA CPT FILES")
+    cpt_files_dir: Path = Path("data/cpt_files")
     suggestion_cooldown_seconds: int = 120
     max_session_duration_minutes: int = 240
     use_sse: bool = True
