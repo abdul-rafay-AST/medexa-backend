@@ -242,14 +242,14 @@ class ApiDiarizedUtterance(CamelModel):
     at_seconds: int = 0
     end_seconds: int = 0
     confidence: float = 0.5
-    diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
+    diarization_method: Literal["voice", "text", "hybrid", "deepgram", "aws_transcribe"] | None = None
 
 
 class ApiAudioTranscriptionAnalysis(ApiTranscriptAnalysis):
     transcript: str
     speaker: Literal["therapist", "patient"] = "patient"
     speaker_confidence: float = 0.5
-    diarization_method: Literal["voice", "text", "hybrid", "deepgram"] | None = None
+    diarization_method: Literal["voice", "text", "hybrid", "deepgram", "aws_transcribe"] | None = None
     transcription_provider: Literal["deepgram", "groq_whisper", "aws_transcribe"] | None = None
     at_seconds: int = 0
     end_seconds: int = 0

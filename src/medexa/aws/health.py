@@ -55,6 +55,19 @@ def _check_sts() -> ServiceCheck:
         return ServiceCheck("sts", False, str(exc))
 
 
+def _check_transcribe() -> ServiceCheck:
+    if settings.transcription_provider != "aws_transcribe":
+        return ServiceCheck("transcribe", True, "not selected (provider != aws_transcribe)")
+    bucket = settings.s3_bucket or settings.transcribe_s3_bucket
+    try:
+        from medexa.adapters.aws.transcribe_health import probe_transcribe
+
+        ok, detail = probe_transcribe(region=settings.aws_region, bucket=bucket)
+        return ServiceCheck("transcribe", ok, detail)
+    except Exception as exc:  # noqa: BLE001
+        return ServiceCheck("transcribe", False, str(exc))
+
+
 def check_all() -> AwsHealthReport:
-    checks = [_check_sts(), _check_dynamodb(), _check_s3()]
+    checks = [_check_sts(), _check_dynamodb(), _check_s3(), _check_transcribe()]
     return AwsHealthReport(healthy=all(c.ok for c in checks), checks=checks)

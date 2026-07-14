@@ -60,6 +60,11 @@ class MedexaConfig(BaseSettings):
     ] = "none"
     bedrock_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
     transcribe_s3_bucket: str | None = None
+    # Amazon Transcribe standard (when transcription_provider=aws_transcribe)
+    transcribe_enable_speaker_labels: bool = True
+    transcribe_max_speakers: int = 2
+    transcribe_poll_timeout_seconds: float = 120.0
+    transcribe_language_code: str = "en-US"
 
     host: str = "0.0.0.0"
     port: int = 8000
