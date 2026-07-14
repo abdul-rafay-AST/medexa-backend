@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from datetime import datetime, timedelta
 from typing import Literal
 
@@ -26,6 +27,48 @@ def reload_session_state(session_id: str, container: ServiceContainer, fallback:
     """Re-read persisted session after event handlers (e.g. Path B) may have updated it."""
     refreshed = container.session_repo.get(session_id)
     return refreshed if refreshed is not None else fallback
+
+
+async def save_session_state(
+    container: ServiceContainer,
+    state: SessionState,
+    *,
+    attempts: int = 5,
+) -> SessionState:
+    """Persist session state with Dynamo optimistic-lock retries.
+
+    On conflict, adopt the newer ``version`` (and Path B fields already written by
+    the background worker) while keeping Path A mutations from ``state``.
+    """
+    last_error: Exception | None = None
+    for attempt in range(attempts):
+        try:
+            await asyncio.to_thread(container.session_repo.save, state)
+            return state
+        except RuntimeError as exc:
+            if "Concurrent modification" not in str(exc):
+                raise
+            last_error = exc
+            latest = await asyncio.to_thread(container.session_repo.get, state.session_id)
+            if latest is None:
+                raise
+            state.version = latest.version
+            # Keep Path B progress written by the async worker.
+            known_triggers = {t.trigger_id: t for t in state.path_b_triggers}
+            for other in latest.path_b_triggers:
+                existing = known_triggers.get(other.trigger_id)
+                if existing is None:
+                    state.path_b_triggers.append(other)
+                elif other.status != existing.status:
+                    existing.status = other.status
+            known_suggestions = {s.suggestion_id for s in state.assistant_suggestions}
+            for suggestion in latest.assistant_suggestions:
+                if suggestion.suggestion_id not in known_suggestions:
+                    state.assistant_suggestions.append(suggestion)
+            await asyncio.sleep(0.05 * (attempt + 1))
+    if last_error is not None:
+        raise last_error
+    return state
 
 
 def session_clock(state: SessionState, elapsed_seconds: int) -> datetime:
