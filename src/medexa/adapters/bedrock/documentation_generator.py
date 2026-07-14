@@ -66,7 +66,7 @@ class BedrockDocumentationGenerator:
             raw = self._client.converse(
                 system=PATH_C_SYSTEM_PROMPT,
                 user_message=user_prompt,
-                max_tokens=4096,
+                max_tokens=3072,
                 temperature=0.2,
             )
             return self._parse_response(raw)

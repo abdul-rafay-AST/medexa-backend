@@ -46,7 +46,7 @@ class BedrockClinicalAssistant:
                 self._client.converse,
                 system=PATH_B_SYSTEM_PROMPT,
                 user_message=user_prompt,
-                max_tokens=1536,
+                max_tokens=768,
                 temperature=0.2,
             )
             return self._parse_response(raw)
