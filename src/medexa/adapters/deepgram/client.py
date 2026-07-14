@@ -50,8 +50,10 @@ class DeepgramClient:
             "punctuate": "true",
             "language": language,
         }
-        # Utterances + diarization add latency; voice clustering handles cross-chunk roles.
+        # Deepgram requires diarize=true for speaker labels; utterances expose turns.
+        # Without this flag, ambient always falls back to weak pitch/lex heuristics.
         if diarize_model:
+            params["diarize"] = "true"
             params["utterances"] = "true"
             params["diarize_model"] = diarize_model
 

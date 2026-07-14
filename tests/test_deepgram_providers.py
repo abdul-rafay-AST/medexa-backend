@@ -64,6 +64,38 @@ def test_parse_deepgram_payload_builds_diarized_segments() -> None:
     assert result.segments[1].speaker_id == 1
 
 
+def test_segments_from_words_keeps_temporal_turns() -> None:
+    from medexa.adapters.deepgram.nova_transcription import _segments_from_words
+
+    words = [
+        {"word": "can", "punctuated_word": "Can", "start": 0.0, "end": 0.2, "speaker": 0},
+        {"word": "you", "punctuated_word": "you", "start": 0.2, "end": 0.3, "speaker": 0},
+        {"word": "it", "punctuated_word": "It", "start": 0.4, "end": 0.5, "speaker": 1},
+        {"word": "hurts", "punctuated_word": "hurts", "start": 0.5, "end": 0.7, "speaker": 1},
+        {"word": "flex", "punctuated_word": "Flex", "start": 0.8, "end": 0.9, "speaker": 0},
+    ]
+    segments = _segments_from_words(words)
+    assert len(segments) == 3
+    assert [s.speaker_id for s in segments] == [0, 1, 0]
+    assert segments[0].text == "Can you"
+    assert segments[1].text == "It hurts"
+    assert segments[2].text == "Flex"
+
+
+def test_providers_prefer_deepgram_when_aws_selected_and_key_present() -> None:
+    settings = MedexaConfig(
+        transcription_provider="aws_transcribe",
+        deepgram_api_key="dg_test_key",
+        transcribe_s3_bucket="bucket",
+        s3_bucket="bucket",
+    )
+    provider = build_transcription_provider(settings)
+    from medexa.services.transcription import FallbackTranscriptionProvider
+
+    assert isinstance(provider, FallbackTranscriptionProvider)
+    assert isinstance(provider._primary, DeepgramNovaTranscriptionProvider)
+
+
 def test_providers_select_deepgram_when_configured() -> None:
     settings = MedexaConfig(
         transcription_provider="deepgram",

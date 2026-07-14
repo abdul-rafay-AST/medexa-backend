@@ -70,7 +70,7 @@ class SpeakerRoleClassifier:
     ) -> SpeakerClassification:
         clean = text.strip()
         if not clean:
-            role: SpeakerRole = last_speaker or "patient"
+            role: SpeakerRole = last_speaker or "therapist"
             return SpeakerClassification(
                 role=role,
                 confidence=0.3,
@@ -99,7 +99,8 @@ class SpeakerRoleClassifier:
         margin = abs(t_score - p_score)
         if margin < self._low_threshold:
             if last_speaker is None:
-                role = "patient"
+                # Ambient sessions typically open with therapist instruction.
+                role = "therapist"
             else:
                 role = "patient" if last_speaker == "therapist" else "therapist"
             confidence = 0.45 + min(0.2, margin)

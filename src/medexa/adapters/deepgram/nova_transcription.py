@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from collections import defaultdict
 from typing import Any
 
 from medexa.adapters.deepgram.client import DeepgramClient, DeepgramClientError
@@ -39,7 +38,7 @@ class DeepgramNovaTranscriptionProvider:
         *,
         api_key: str,
         model: str = "nova-3-medical",
-        diarize_model: str = "latest",
+        diarize_model: str | None = "latest",
         base_url: str | None = None,
         language: str = "en-US",
     ) -> None:
@@ -182,10 +181,34 @@ def _segments_from_utterances(utterances: object) -> list[TranscriptSegment]:
 
 
 def _segments_from_words(words: object) -> list[TranscriptSegment]:
+    """Build contiguous speaker turns in time order (not one mega-blob per ID)."""
     if not isinstance(words, list) or not words:
         return []
 
-    grouped: dict[int | None, list[dict[str, Any]]] = defaultdict(list)
+    segments: list[TranscriptSegment] = []
+    current_id: int | None = None
+    current_words: list[dict[str, Any]] = []
+
+    def _flush() -> None:
+        nonlocal current_words
+        if not current_words:
+            return
+        text = " ".join(
+            str(w.get("punctuated_word") or w.get("word") or "").strip() for w in current_words
+        ).strip()
+        if text:
+            start = float(current_words[0].get("start") or 0)
+            end = float(current_words[-1].get("end") or start)
+            segments.append(
+                TranscriptSegment(
+                    start=start,
+                    end=end,
+                    text=text,
+                    speaker_id=current_id,
+                )
+            )
+        current_words = []
+
     for word in words:
         if not isinstance(word, dict):
             continue
@@ -194,24 +217,9 @@ def _segments_from_words(words: object) -> list[TranscriptSegment]:
             continue
         speaker_raw = word.get("speaker")
         speaker_id = int(speaker_raw) if speaker_raw is not None else None
-        grouped[speaker_id].append(word)
-
-    segments: list[TranscriptSegment] = []
-    for speaker_id, speaker_words in grouped.items():
-        text = " ".join(
-            str(w.get("punctuated_word") or w.get("word") or "").strip() for w in speaker_words
-        ).strip()
-        if not text:
-            continue
-        start = float(speaker_words[0].get("start") or 0)
-        end = float(speaker_words[-1].get("end") or start)
-        segments.append(
-            TranscriptSegment(
-                start=start,
-                end=end,
-                text=text,
-                speaker_id=speaker_id,
-            )
-        )
-    segments.sort(key=lambda segment: segment.start)
+        if current_words and speaker_id != current_id:
+            _flush()
+        current_id = speaker_id
+        current_words.append(word)
+    _flush()
     return segments

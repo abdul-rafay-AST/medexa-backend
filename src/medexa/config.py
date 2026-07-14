@@ -52,12 +52,13 @@ class MedexaConfig(BaseSettings):
     deepgram_api_key: str | None = None
     deepgram_base_url: str = "https://api.deepgram.com"
     deepgram_model: str = "nova-3-medical"
-    deepgram_diarize_model: str = ""
+    # "latest" enables native speaker labels; empty disables Deepgram diarize.
+    deepgram_diarize_model: str = "latest"
     deepgram_language: str = "en-US"
 
     transcription_provider: Literal[
         "none", "aws_transcribe", "groq_whisper", "deepgram"
-    ] = "none"
+    ] = "deepgram"
     bedrock_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
     transcribe_s3_bucket: str | None = None
     # Amazon Transcribe standard (when transcription_provider=aws_transcribe)

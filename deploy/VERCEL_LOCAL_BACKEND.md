@@ -15,7 +15,8 @@ MEDEXA_PATH_B_ENABLED=true
 MEDEXA_PATH_B_PROVIDER=bedrock
 MEDEXA_SOAP_GENERATOR=bedrock
 MEDEXA_SUMMARY_GENERATOR=bedrock
-MEDEXA_TRANSCRIPTION_PROVIDER=aws_transcribe
+# Prefer Deepgram for live ambient (batch Transcribe is 15–90s and breaks UX).
+MEDEXA_TRANSCRIPTION_PROVIDER=deepgram
 MEDEXA_S3_BUCKET=medexa-storage
 MEDEXA_TRANSCRIBE_S3_BUCKET=medexa-storage
 MEDEXA_AWS_REGION=us-east-2
