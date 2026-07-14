@@ -121,7 +121,7 @@ async def analyze_transcript_chunk(
     state.latest_analysis = analysis
     state.last_updated = now
     state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-    container.session_repo.save(state)
+    await asyncio.to_thread(container.session_repo.save, state)
 
     latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
     logger.info(

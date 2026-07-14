@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import uuid
 from datetime import datetime
 
@@ -86,7 +87,7 @@ class PathAEventDispatcher:
             created_at=event.occurred_at,
         )
         state.path_b_triggers.append(record)
-        self._session_repo.save(state)
+        await asyncio.to_thread(self._session_repo.save, state)
         await self._realtime.publish(
             event.session_id,
             LiveEventFactory.path_b_trigger(event.session_id, record, event_id=event.trigger_id),

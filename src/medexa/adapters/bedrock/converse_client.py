@@ -44,7 +44,13 @@ class BedrockConverseClient:
     ) -> str:
         client = self._get_client()
         errors: list[str] = []
-        for candidate in bedrock_model_candidates(self._model_id):
+        # Prefer previously successful model id (avoids multi-candidate latency).
+        candidates = bedrock_model_candidates(self._model_id)
+        if self._resolved_model_id and self._resolved_model_id in candidates:
+            candidates = [self._resolved_model_id] + [
+                c for c in candidates if c != self._resolved_model_id
+            ]
+        for candidate in candidates:
             try:
                 response = client.converse(
                     modelId=candidate,

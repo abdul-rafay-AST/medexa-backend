@@ -32,9 +32,9 @@ class MedexaConfig(BaseSettings):
     path_b_enabled: bool = False
     path_b_provider: Literal["bedrock", "groq"] = "bedrock"
     path_b_model_id: str = "us.anthropic.claude-haiku-4-5-20251001-v1:0"
-    path_b_interval_seconds: int = 12
-    path_b_transcript_window_minutes: int = 10
-    path_b_transcript_max_chunks: int = 24
+    path_b_interval_seconds: int = 20
+    path_b_transcript_window_minutes: int = 8
+    path_b_transcript_max_chunks: int = 16
 
     clinical_analyzer: Literal["rules", "bedrock"] = "rules"
     soap_generator: Literal["rules", "bedrock", "groq"] = "rules"
