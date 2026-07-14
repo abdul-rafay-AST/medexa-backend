@@ -22,10 +22,12 @@ class BedrockClinicalAssistant:
         model_id: str,
         region_name: str,
         guardrails: GuardrailsPort,
+        groq_fallback: Any | None = None,
     ) -> None:
         self._client = BedrockConverseClient(model_id=model_id, region_name=region_name)
         self._guardrails = guardrails
         self._model_id = model_id
+        self._groq_fallback = groq_fallback
 
     async def suggest(
         self,
@@ -48,14 +50,20 @@ class BedrockClinicalAssistant:
                 temperature=0.2,
             )
             return self._parse_response(raw)
-        except BedrockConverseError:
-            raise
         except Exception:
             logger.warning(
                 "bedrock_path_b_failed",
-                exc_info=True,
                 extra={"extra_fields": {"session_id": session_id, "model_id": self._model_id}},
+                exc_info=True,
             )
+            if self._groq_fallback is not None:
+                logger.info(
+                    "path_b_groq_failover",
+                    extra={"extra_fields": {"session_id": session_id}},
+                )
+                return await self._groq_fallback.suggest(
+                    session_id, buffered_transcript, context
+                )
             return []
 
     def _build_user_prompt(self, session_id: str, transcript: str, context: dict[str, Any]) -> str:

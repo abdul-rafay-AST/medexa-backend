@@ -9,8 +9,11 @@ Healthcare / ops notes:
 from __future__ import annotations
 
 from typing import Literal, Protocol, runtime_checkable
+import logging
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class TranscriptSegment(BaseModel):
@@ -89,3 +92,22 @@ class AwsTranscribeProvider:
                 "Set it to enable Amazon Transcribe."
             )
         return self._impl.transcribe(audio, content_type)
+
+
+class FallbackTranscriptionProvider:
+    """Try primary STT first; on ``TranscriptionUnavailable`` use secondary.
+
+    Used on HF Space so Amazon Transcribe is preferred and Deepgram keeps ambient
+    alive if Transcribe/S3 is denied from the Space IP.
+    """
+
+    def __init__(self, *, primary: TranscriptionProvider, fallback: TranscriptionProvider) -> None:
+        self._primary = primary
+        self._fallback = fallback
+
+    def transcribe(self, audio: bytes, content_type: str | None = None) -> TranscriptionResult:
+        try:
+            return self._primary.transcribe(audio, content_type)
+        except TranscriptionUnavailable as exc:
+            logger.warning("stt_primary_unavailable_failover: %s", exc)
+            return self._fallback.transcribe(audio, content_type)

@@ -45,6 +45,7 @@ from medexa.services.summary_generator import (
 )
 from medexa.services.transcription import (
     AwsTranscribeProvider,
+    FallbackTranscriptionProvider,
     TranscriptionProvider,
     UnavailableTranscriptionProvider,
 )
@@ -71,24 +72,34 @@ def build_documentation_service(
     rules = RulesDocumentationGenerator()
     uses_groq = settings.soap_generator == "groq" or settings.summary_generator == "groq"
     uses_bedrock = settings.soap_generator == "bedrock" or settings.summary_generator == "bedrock"
+    groq_key = _groq_key(settings)
 
     generator: DocumentationPort
     if uses_groq:
-        api_key = _groq_key(settings)
-        if not api_key:
+        if not groq_key:
             logger.warning("groq_path_c_missing_key_fallback_rules")
             generator = rules
         else:
             generator = GroqDocumentationGenerator(
                 fallback=rules,
-                api_key=api_key,
+                api_key=groq_key,
                 model_id=settings.groq_path_c_model_id or settings.path_c_model_id,
                 guardrails=guardrails,
                 base_url=settings.groq_base_url,
             )
     elif uses_bedrock:
+        # Prefer Bedrock; if HF/cloud IAM denies it, Path C falls through to Groq then rules.
+        groq_fallback: DocumentationPort = rules
+        if groq_key:
+            groq_fallback = GroqDocumentationGenerator(
+                fallback=rules,
+                api_key=groq_key,
+                model_id=settings.groq_path_c_model_id or settings.path_c_model_id,
+                guardrails=guardrails,
+                base_url=settings.groq_base_url,
+            )
         generator = BedrockDocumentationGenerator(
-            fallback=rules,
+            fallback=groq_fallback,
             model_id=settings.path_c_model_id,
             region_name=settings.aws_region,
             guardrails=guardrails,
@@ -105,22 +116,28 @@ def build_clinical_assistant(
     if not settings.path_b_enabled:
         return NoOpClinicalAssistant()
 
-    if settings.path_b_provider == "groq":
-        api_key = _groq_key(settings)
-        if not api_key:
-            logger.warning("groq_path_b_missing_key_fallback_noop")
-            return NoOpClinicalAssistant()
-        return GroqClinicalAssistant(
-            api_key=api_key,
+    groq_key = _groq_key(settings)
+    groq_assistant: GroqClinicalAssistant | None = None
+    if groq_key:
+        groq_assistant = GroqClinicalAssistant(
+            api_key=groq_key,
             model_id=settings.groq_path_b_model_id or settings.path_b_model_id,
             guardrails=guardrails,
             base_url=settings.groq_base_url,
         )
 
+    if settings.path_b_provider == "groq":
+        if not groq_assistant:
+            logger.warning("groq_path_b_missing_key_fallback_noop")
+            return NoOpClinicalAssistant()
+        return groq_assistant
+
+    # Prefer Bedrock; Groq is request-level failover for HF Space (Bedrock IP deny).
     return BedrockClinicalAssistant(
         model_id=settings.path_b_model_id,
         region_name=settings.aws_region,
         guardrails=guardrails,
+        groq_fallback=groq_assistant,
     )
 
 
@@ -197,8 +214,18 @@ def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvide
         bucket = settings.transcribe_s3_bucket or settings.s3_bucket
         if not bucket:
             logger.warning("aws_transcribe_missing_bucket_fallback_unavailable")
+            # Prefer Deepgram over hard failure when Transcribe bucket is missing.
+            dg = _deepgram_key(settings)
+            if dg:
+                return DeepgramNovaTranscriptionProvider(
+                    api_key=dg,
+                    model=settings.deepgram_model.strip(),
+                    diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
+                    base_url=settings.deepgram_base_url,
+                    language=settings.deepgram_language,
+                )
             return UnavailableTranscriptionProvider()
-        return AwsTranscribeProvider(
+        primary = AwsTranscribeProvider(
             region_name=settings.aws_region,
             s3_bucket=bucket,
             enable_speaker_labels=settings.transcribe_enable_speaker_labels,
@@ -206,4 +233,15 @@ def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvide
             poll_timeout_seconds=settings.transcribe_poll_timeout_seconds,
             language_code=settings.transcribe_language_code,
         )
+        dg_key = _deepgram_key(settings)
+        if dg_key:
+            fallback = DeepgramNovaTranscriptionProvider(
+                api_key=dg_key,
+                model=settings.deepgram_model.strip(),
+                diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
+                base_url=settings.deepgram_base_url,
+                language=settings.deepgram_language,
+            )
+            return FallbackTranscriptionProvider(primary=primary, fallback=fallback)
+        return primary
     return UnavailableTranscriptionProvider()
