@@ -122,8 +122,28 @@ class PathAEventDispatcher:
             status="pending",
             created_at=event.occurred_at,
         )
-        state.path_b_triggers.append(record)
-        await asyncio.to_thread(self._session_repo.save, state)
+        if not any(t.trigger_id == event.trigger_id for t in state.path_b_triggers):
+            state.path_b_triggers.append(record)
+
+        # Always persist the Path A–enriched in-memory state. On Dynamo conflict,
+        # adopt the newer version number but do NOT discard Path A mutations.
+        for attempt in range(5):
+            try:
+                await asyncio.to_thread(self._session_repo.save, state)
+                break
+            except RuntimeError as exc:
+                if "Concurrent modification" not in str(exc) or attempt == 4:
+                    raise
+                latest = await asyncio.to_thread(self._session_repo.get, event.session_id)
+                if latest is None:
+                    raise
+                state.version = latest.version
+                known = {t.trigger_id for t in state.path_b_triggers}
+                for other in latest.path_b_triggers:
+                    if other.trigger_id not in known:
+                        state.path_b_triggers.append(other)
+                await asyncio.sleep(0.05 * (attempt + 1))
+
         await self._realtime.publish(
             event.session_id,
             LiveEventFactory.path_b_trigger(event.session_id, record, event_id=event.trigger_id),

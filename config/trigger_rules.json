@@ -27,7 +27,8 @@
         "pain level", "pain scale", "rate your pain", "rate the pain",
         "pain is worse", "pain is better", "pain increased", "pain decreased",
         "hurts more", "hurts less", "sharp pain", "dull pain", "throbbing",
-        "out of ten", "out of 10", "/10"
+        "out of ten", "out of 10", "/10", "seven out of ten", "7/10", "6/10",
+        "pain is", "my pain", "it hurts", "hurting"
       ],
       "max_fires_per_session": 2,
       "cooldown_seconds": 60,
