@@ -63,6 +63,27 @@ def _deepgram_key(settings: MedexaConfig) -> str | None:
     return key or None
 
 
+def _deepgram_diarize_model(settings: MedexaConfig) -> str | None:
+    """Native Deepgram diarize — on by default; set to none/off to disable."""
+    raw = (settings.deepgram_diarize_model or "").strip()
+    if raw.lower() in {"none", "off", "false", "0"}:
+        return None
+    return raw or "latest"
+
+
+def _build_deepgram(settings: MedexaConfig) -> DeepgramNovaTranscriptionProvider | None:
+    api_key = _deepgram_key(settings)
+    if not api_key:
+        return None
+    return DeepgramNovaTranscriptionProvider(
+        api_key=api_key,
+        model=settings.deepgram_model.strip() or "nova-3-medical",
+        diarize_model=_deepgram_diarize_model(settings),
+        base_url=settings.deepgram_base_url,
+        language=settings.deepgram_language,
+    )
+
+
 def build_documentation_service(
     settings: MedexaConfig,
     guardrails: GuardrailsPort,
@@ -189,17 +210,11 @@ def build_summary_generator(settings: MedexaConfig) -> PatientSummaryGenerator:
 
 def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvider:
     if settings.transcription_provider == "deepgram":
-        api_key = _deepgram_key(settings)
-        if not api_key:
+        provider = _build_deepgram(settings)
+        if provider is None:
             logger.warning("deepgram_missing_key_fallback_unavailable")
             return UnavailableTranscriptionProvider()
-        return DeepgramNovaTranscriptionProvider(
-            api_key=api_key,
-            model=settings.deepgram_model.strip(),
-            diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
-            base_url=settings.deepgram_base_url,
-            language=settings.deepgram_language,
-        )
+        return provider
     if settings.transcription_provider == "groq_whisper":
         api_key = _groq_key(settings)
         if not api_key:
@@ -211,37 +226,28 @@ def build_transcription_provider(settings: MedexaConfig) -> TranscriptionProvide
             base_url=settings.groq_base_url,
         )
     if settings.transcription_provider == "aws_transcribe":
+        # Live ambient must not block on Transcribe batch (15–90s). Prefer Deepgram
+        # when a key is present; keep AWS as failover for archival/denied Deepgram.
+        deepgram = _build_deepgram(settings)
         bucket = settings.transcribe_s3_bucket or settings.s3_bucket
-        if not bucket:
-            logger.warning("aws_transcribe_missing_bucket_fallback_unavailable")
-            # Prefer Deepgram over hard failure when Transcribe bucket is missing.
-            dg = _deepgram_key(settings)
-            if dg:
-                return DeepgramNovaTranscriptionProvider(
-                    api_key=dg,
-                    model=settings.deepgram_model.strip(),
-                    diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
-                    base_url=settings.deepgram_base_url,
-                    language=settings.deepgram_language,
-                )
-            return UnavailableTranscriptionProvider()
-        primary = AwsTranscribeProvider(
-            region_name=settings.aws_region,
-            s3_bucket=bucket,
-            enable_speaker_labels=settings.transcribe_enable_speaker_labels,
-            max_speaker_labels=settings.transcribe_max_speakers,
-            poll_timeout_seconds=settings.transcribe_poll_timeout_seconds,
-            language_code=settings.transcribe_language_code,
-        )
-        dg_key = _deepgram_key(settings)
-        if dg_key:
-            fallback = DeepgramNovaTranscriptionProvider(
-                api_key=dg_key,
-                model=settings.deepgram_model.strip(),
-                diarize_model=(settings.deepgram_diarize_model or "").strip() or None,
-                base_url=settings.deepgram_base_url,
-                language=settings.deepgram_language,
+        aws: TranscriptionProvider | None = None
+        if bucket:
+            aws = AwsTranscribeProvider(
+                region_name=settings.aws_region,
+                s3_bucket=bucket,
+                enable_speaker_labels=settings.transcribe_enable_speaker_labels,
+                max_speaker_labels=settings.transcribe_max_speakers,
+                poll_timeout_seconds=settings.transcribe_poll_timeout_seconds,
+                language_code=settings.transcribe_language_code,
             )
-            return FallbackTranscriptionProvider(primary=primary, fallback=fallback)
-        return primary
+        if deepgram and aws:
+            logger.info("stt_live_deepgram_primary_aws_fallback")
+            return FallbackTranscriptionProvider(primary=deepgram, fallback=aws)
+        if deepgram:
+            logger.warning("aws_transcribe_missing_bucket_using_deepgram")
+            return deepgram
+        if aws:
+            return aws
+        logger.warning("aws_transcribe_unavailable_no_bucket_or_deepgram")
+        return UnavailableTranscriptionProvider()
     return UnavailableTranscriptionProvider()

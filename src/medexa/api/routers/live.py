@@ -121,7 +121,8 @@ async def analyze_transcript_chunk(
     state.latest_analysis = analysis
     state.last_updated = now
     state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-    await asyncio.to_thread(container.session_repo.save, state)
+    # Persist off the critical path — chat UX must not wait on disk/DynamoDB.
+    asyncio.create_task(asyncio.to_thread(container.session_repo.save, state))
 
     latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
     logger.info(
@@ -147,6 +148,7 @@ async def transcribe_audio(
     client_elapsed_seconds: float | None = Form(default=None),
     container: ServiceContainer = Depends(get_container),
 ) -> c.ApiAudioTranscriptionAnalysis:
+    """Ambient STT + diarization — Path A runs in background so mic UX stays live."""
     state = require_state(session_id, container)
     runtime = container.runtime_for_state(state.billing_region)
     audio = await file.read()
@@ -172,13 +174,13 @@ async def transcribe_audio(
     transcript = result.transcript.strip()
     if not transcript:
         state.last_updated = now
-        container.session_repo.save(state)
+        await asyncio.to_thread(container.session_repo.save, state)
         analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(state, "", "")
         base = runtime.path_a_snapshot.to_contract(analysis, state)
         return c.ApiAudioTranscriptionAnalysis(
             **base.model_dump(),
             transcript="",
-            speaker=state.last_ambient_speaker or "patient",
+            speaker=state.last_ambient_speaker or "therapist",
             speaker_confidence=0.0,
             at_seconds=int(elapsed),
             end_seconds=int(end_ts),
@@ -236,21 +238,24 @@ async def transcribe_audio(
         )
 
     state.last_updated = now
-    container.session_repo.save(state)
-
-    path_result = await asyncio.to_thread(
-        runtime.path_a_processor.process,
-        state,
-        chunk,
-        now,
-    )
-    await container.path_a_dispatcher.dispatch(state, path_result, now=now)
-    state = reload_session_state(session_id, container, state)
     state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-    state.last_updated = now
-    container.session_repo.save(state)
+    await asyncio.to_thread(container.session_repo.save, state)
 
-    analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
+    # Path A/B must not block ambient transcription response (tunnel + rules + LLM).
+    asyncio.create_task(
+        _finalize_ambient_path_a(
+            session_id=session_id,
+            chunk_id=chunk.chunk_id,
+            transcript=transcript,
+            end_ts=end_ts,
+            container=container,
+            processed_at=now,
+        )
+    )
+
+    analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(
+        state, transcript, chunk.chunk_id
+    )
     base = runtime.path_a_snapshot.to_contract(analysis, state)
 
     def _segment_speaker(segment: TranscriptSegment) -> str:
@@ -283,6 +288,44 @@ async def transcribe_audio(
             )
         ],
     )
+
+
+async def _finalize_ambient_path_a(
+    *,
+    session_id: str,
+    chunk_id: str,
+    transcript: str,
+    end_ts: float,
+    container: ServiceContainer,
+    processed_at,
+) -> None:
+    """Run Path A + sparse Path B after STT returned — never block the mic loop."""
+    try:
+        state = await asyncio.to_thread(container.session_repo.get, session_id)
+        if state is None:
+            return
+        runtime = container.runtime_for_state(state.billing_region)
+        chunk = next((item for item in state.transcript_chunks if item.chunk_id == chunk_id), None)
+        if chunk is None:
+            return
+        path_result = await asyncio.to_thread(
+            runtime.path_a_processor.process,
+            state,
+            chunk,
+            processed_at,
+        )
+        await container.path_a_dispatcher.dispatch(state, path_result, now=processed_at)
+        state = reload_session_state(session_id, container, state)
+        analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
+        state.latest_analysis = analysis
+        state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
+        state.last_updated = processed_at
+        await asyncio.to_thread(container.session_repo.save, state)
+    except Exception:
+        logger.exception(
+            "ambient_path_a_background_failed",
+            extra={"extra_fields": {"session_id": session_id, "chunk_id": chunk_id}},
+        )
 
 
 @router.get("/{session_id}/insights", response_model=list[c.ApiInsight])

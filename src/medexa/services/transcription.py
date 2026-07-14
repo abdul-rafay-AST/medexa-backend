@@ -97,8 +97,8 @@ class AwsTranscribeProvider:
 class FallbackTranscriptionProvider:
     """Try primary STT first; on ``TranscriptionUnavailable`` use secondary.
 
-    Used on HF Space so Amazon Transcribe is preferred and Deepgram keeps ambient
-    alive if Transcribe/S3 is denied from the Space IP.
+    Live ambient prefers Deepgram (low latency) with optional Amazon Transcribe
+    batch as failover — never put Transcribe batch on the hot path first.
     """
 
     def __init__(self, *, primary: TranscriptionProvider, fallback: TranscriptionProvider) -> None:

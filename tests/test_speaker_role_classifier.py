@@ -19,7 +19,8 @@ def test_turn_taking_on_ambiguous_chunk():
     clf = SpeakerRoleClassifier()
     first = clf.classify("Hmm.", last_speaker=None)
     second = clf.classify("Hmm.", last_speaker=first.role)
-    assert first.role != second.role
+    assert first.role == "therapist"
+    assert second.role == "patient"
 
 
 def test_format_labeled_utterance():

@@ -141,11 +141,24 @@ class AmbientDiarizationResolver:
         utterances = [
             ResolvedUtterance(
                 speaker=voice.role,
-                text=transcript,
+                text=segment.text.strip() or transcript,
                 confidence=voice.confidence,
                 method=method,
+                start_offset=segment.start,
+                end_offset=segment.end,
             )
+            for segment in segments
+            if (segment.text.strip() or transcript)
         ]
+        if not utterances:
+            utterances = [
+                ResolvedUtterance(
+                    speaker=voice.role,
+                    text=transcript,
+                    confidence=voice.confidence,
+                    method=method,
+                )
+            ]
         return ChunkDiarizationResult(
             primary_role=voice.role,
             confidence=voice.confidence,

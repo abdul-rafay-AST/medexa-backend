@@ -44,8 +44,9 @@ those IPs. Local laptop Bedrock still works. Failover keeps Vercel usable:
 | `MEDEXA_SOAP_GENERATOR` | `bedrock` |
 | `MEDEXA_SUMMARY_GENERATOR` | `bedrock` |
 | `MEDEXA_PATH_C_MODEL_ID` | `us.anthropic.claude-haiku-4-5-20251001-v1:0` |
-| `MEDEXA_TRANSCRIPTION_PROVIDER` | `aws_transcribe` |
-| `MEDEXA_TRANSCRIBE_ENABLE_SPEAKER_LABELS` | `true` |
+| `MEDEXA_TRANSCRIPTION_PROVIDER` | `deepgram` (live ambient — not `aws_transcribe`) |
+| `MEDEXA_DEEPGRAM_DIARIZE_MODEL` | `latest` |
+| `MEDEXA_TRANSCRIBE_ENABLE_SPEAKER_LABELS` | `true` (only if using AWS failover) |
 | `MEDEXA_TRANSCRIBE_MAX_SPEAKERS` | `2` |
 | `MEDEXA_DEEPGRAM_MODEL` | `nova-3-medical` |
 | `MEDEXA_CORS_ALLOW_ORIGINS` | `https://YOUR-APP.vercel.app,http://localhost:3000` |

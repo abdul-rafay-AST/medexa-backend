@@ -126,7 +126,14 @@ def _reconcile_two_party_roles(
     if len(roles_map) < 2:
         return
     keys = sorted(roles_map.keys(), key=lambda key: int(key) if key.isdigit() else key)
-    first_role = roles_map[keys[0]]
-    for key in keys[1:]:
-        if roles_map[key] == first_role:
-            roles_map[key] = "patient" if first_role == "therapist" else "therapist"
+    # Prefer assigning speaker 0 as therapist when signals collide — therapists
+    # typically initiate instructions in PT visits.
+    first = keys[0]
+    second = keys[1]
+    if roles_map[first] == roles_map[second]:
+        roles_map[first] = "therapist"
+        roles_map[second] = "patient"
+    for key in keys[2:]:
+        # Extra labels (rare) alternate against the previous role.
+        prev = roles_map[keys[keys.index(key) - 1]]
+        roles_map[key] = "patient" if prev == "therapist" else "therapist"
