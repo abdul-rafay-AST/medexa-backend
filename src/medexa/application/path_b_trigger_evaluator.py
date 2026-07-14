@@ -65,11 +65,12 @@ class TriggerRule:
     max_fires_per_session: int
     cooldown_seconds: int
     event_type: str | None = None
-    match_mode: str | None = None  # "keywords" | "time_milestone" | None
+    match_mode: str | None = None  # "keywords" | "time_milestone" | "interval" | None
     keywords: tuple[str, ...] = ()
     condition: str | None = None
     severity_filter: tuple[str, ...] = ()
     milestone_minutes: int | None = None
+    interval_seconds: int | None = None
     once_per_match: bool = False
 
     @staticmethod
@@ -86,6 +87,7 @@ class TriggerRule:
             condition=data.get("condition"),
             severity_filter=tuple(data.get("severity_filter", ())),
             milestone_minutes=data.get("milestone_minutes"),
+            interval_seconds=data.get("interval_seconds"),
             once_per_match=bool(data.get("once_per_match", False)),
         )
 
@@ -271,6 +273,16 @@ class PathBTriggerEvaluator:
                 return TriggerDecision(
                     reason=f"{rule.id}:{rule.milestone_minutes}m",
                     source_event_type="timer_milestone",
+                    critical=False,
+                    rule_id=rule.id,
+                )
+            return None
+
+        if rule.match_mode == "interval" and rule.interval_seconds is not None:
+            if elapsed_seconds >= rule.interval_seconds:
+                return TriggerDecision(
+                    reason=rule.id,
+                    source_event_type="interval",
                     critical=False,
                     rule_id=rule.id,
                 )

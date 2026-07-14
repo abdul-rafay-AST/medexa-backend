@@ -79,6 +79,7 @@ The "Trigger reason" field tells you WHY:
 • documentation_gap → Address the specific missing element
 • clinical_context → General documentation quality check
 • session_milestone → Mid-session or end-of-session documentation completeness check
+• periodic_context_review → Evaluate recent speech for missing subjective/objective info. If speech is just small talk or nothing is missing, output NO suggestions.
 
 ═══════════════════════════════════════════════════════════════
 OUTPUT FORMAT
@@ -98,7 +99,8 @@ Return ONLY valid JSON. No markdown fences. No commentary.
 }
 
 RULES for suggestions array:
-• Return 1-3 suggestions maximum. Fewer is better — only flag genuine gaps.
+- If the trigger is `periodic_context_review` and the transcript reveals no missing information (e.g., just casual small talk), return an empty array `[]`. Do NOT force a suggestion.
+- MAXIMUM 2 suggestions total. Only the most critical.
 • If the transcript is too short or no gaps exist, return {"suggestions": []}.
 • "high" confidence = the gap is clearly present in the transcript.
 • "medium" = likely present but needs clinician judgment.
