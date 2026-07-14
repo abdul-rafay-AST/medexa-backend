@@ -263,7 +263,7 @@ class PathBTriggerEvaluator:
         chunk_text: str | None,
         elapsed_seconds: float,
     ) -> TriggerDecision | None:
-        if not self._can_fire(clock, rule, now):
+        if not self._can_fire(clock, rule, now, elapsed_seconds):
             return None
 
         # Keyword / clinical narrative — evaluate even when an event_type is also set.
@@ -376,7 +376,7 @@ class PathBTriggerEvaluator:
             rule_id=rule.id,
         )
 
-    def _can_fire(self, clock: _SessionClock, rule: TriggerRule, now: datetime) -> bool:
+    def _can_fire(self, clock: _SessionClock, rule: TriggerRule, now: datetime, elapsed_seconds: float = 0.0) -> bool:
         rc = clock.rule_clocks.get(rule.id)
         if rc is None:
             return True
