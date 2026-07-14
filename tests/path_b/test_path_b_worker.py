@@ -158,3 +158,75 @@ async def test_path_b_worker_persists_suggestions_without_mutating_billing() -> 
     event = await queue.get()
     assert event is not None
     assert event.kind == "assistant_suggestion"
+
+
+@pytest.mark.asyncio
+async def test_path_b_worker_retries_concurrent_save() -> None:
+    class _FlakyRepo(InMemorySessionStateRepository):
+        def __init__(self) -> None:
+            super().__init__()
+            self.failures_left = 2
+
+        def save(self, state: SessionState) -> None:
+            if self.failures_left > 0:
+                self.failures_left -= 1
+                raise RuntimeError(
+                    f"Concurrent modification detected for session {state.session_id}"
+                )
+            super().save(state)
+
+    repo = _FlakyRepo()
+    trigger_id = "t3"
+    state = SessionState(
+        session_id="s3",
+        transcript_chunks=[
+            TranscriptChunk(
+                session_id="s3",
+                chunk_id="c1",
+                text="patient reports knee pain 7/10",
+                start_ts=0,
+                end_ts=15,
+                sequence=0,
+            )
+        ],
+        path_b_triggers=[
+            PathBTriggerRecord(
+                trigger_id=trigger_id,
+                session_id="s3",
+                reason="pain_scale_mentioned",
+                source_event_type="chunk_processed",
+            )
+        ],
+    )
+    InMemorySessionStateRepository.save(repo, state)
+    repo.failures_left = 2
+
+    settings = MedexaConfig(path_b_enabled=True)
+    assistant = _FakeAssistant(
+        [
+            {
+                "kind": "documentation_reminder",
+                "title": "Document pain",
+                "body": "Capture current pain score.",
+                "confidence": "high",
+            }
+        ]
+    )
+    worker = PathBWorker(
+        settings=settings,
+        session_repo=repo,
+        assistant=assistant,
+        realtime=SseRealtimeAdapter(InProcessBroker()),
+    )
+    await worker.handle(
+        PathBTriggerRequested(
+            session_id="s3",
+            trigger_id=trigger_id,
+            reason="pain_scale_mentioned",
+            source_event_type="chunk_processed",
+        )
+    )
+    updated = repo.get("s3")
+    assert updated is not None
+    assert updated.path_b_triggers[0].status == "completed"
+    assert len(updated.assistant_suggestions) == 1
