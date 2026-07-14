@@ -314,6 +314,7 @@ class PathBTriggerRecord(BaseModel):
 
 class SessionState(BaseModel):
     session_id: str
+    version: int = 1
     billing_region: BillingRegion = DEFAULT_BILLING_REGION
     emirate: Literal["DHA", "DOH", "MOHAP"] | None = None
     patient_id: str | None = None

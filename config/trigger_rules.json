@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "description": "Declarative Path B trigger rules — controls when the LLM clinical assistant fires during a live session.",
+  "triggers": [
+    {
+      "id": "body_region_transition",
+      "description": "New body region mentioned or changed during session",
+      "event_type": "body_region_changed",
+      "max_fires_per_session": 4,
+      "cooldown_seconds": 45,
+      "priority": "high"
+    },
+    {
+      "id": "cpt_code_detected",
+      "description": "New CPT activity code detected from transcript",
+      "event_type": "chunk_processed",
+      "condition": "has_new_cpt",
+      "max_fires_per_session": 6,
+      "cooldown_seconds": 30,
+      "priority": "high"
+    },
+    {
+      "id": "pain_scale_mentioned",
+      "description": "Patient mentions pain level, scale, or severity change",
+      "match_mode": "keywords",
+      "keywords": [
+        "pain level", "pain scale", "rate your pain", "rate the pain",
+        "pain is worse", "pain is better", "pain increased", "pain decreased",
+        "hurts more", "hurts less", "sharp pain", "dull pain", "throbbing",
+        "out of ten", "out of 10", "/10"
+      ],
+      "max_fires_per_session": 2,
+      "cooldown_seconds": 60,
+      "priority": "medium"
+    },
+    {
+      "id": "functional_limitation",
+      "description": "Patient describes functional limitation or ADL difficulty",
+      "match_mode": "keywords",
+      "keywords": [
+        "can't reach", "unable to", "difficulty walking", "hard to lift",
+        "struggle with", "limited range", "can not bend", "cannot turn",
+        "trouble sleeping", "can't drive", "stairs are hard", "trouble dressing",
+        "can't grip", "dropping things", "balance issues", "falling"
+      ],
+      "max_fires_per_session": 2,
+      "cooldown_seconds": 90,
+      "priority": "medium"
+    },
+    {
+      "id": "medication_allergy",
+      "description": "Medication or allergy is mentioned — critical for safety documentation",
+      "match_mode": "keywords",
+      "keywords": [
+        "medication", "medicine", "taking ibuprofen", "prescribed",
+        "allergy", "allergic to", "reaction to", "blood thinner",
+        "steroid", "injection", "epidural", "cortisone"
+      ],
+      "max_fires_per_session": 1,
+      "cooldown_seconds": 0,
+      "priority": "medium"
+    },
+    {
+      "id": "ncci_billing_conflict",
+      "description": "NCCI code conflict detected needing modifier guidance",
+      "event_type": "ncci_conflict_found",
+      "severity_filter": ["high", "medium"],
+      "max_fires_per_session": 3,
+      "cooldown_seconds": 30,
+      "priority": "critical"
+    },
+    {
+      "id": "pre_auth_violation",
+      "description": "Pre-authorization policy violation detected",
+      "event_type": "pre_auth_violation_found",
+      "severity_filter": ["high", "medium"],
+      "max_fires_per_session": 2,
+      "cooldown_seconds": 30,
+      "priority": "critical"
+    },
+    {
+      "id": "code_conflict",
+      "description": "Regional billing code conflict detected",
+      "event_type": "code_conflict_found",
+      "severity_filter": ["high", "medium"],
+      "max_fires_per_session": 2,
+      "cooldown_seconds": 30,
+      "priority": "critical"
+    },
+    {
+      "id": "activity_transition",
+      "description": "Therapy activity changes (e.g., exercise to manual therapy)",
+      "event_type": "activity_changed",
+      "max_fires_per_session": 4,
+      "cooldown_seconds": 45,
+      "priority": "high"
+    },
+    {
+      "id": "documentation_gap_first",
+      "description": "First documentation gap detected for a CPT code",
+      "event_type": "documentation_gap_detected",
+      "max_fires_per_session": 3,
+      "cooldown_seconds": 60,
+      "priority": "medium"
+    },
+    {
+      "id": "patient_history_disclosure",
+      "description": "Patient reveals medical history, prior surgery, or chronic condition",
+      "match_mode": "keywords",
+      "keywords": [
+        "surgery", "operation", "history of", "diagnosed with",
+        "chronic", "years ago", "previous injury", "had a fall",
+        "car accident", "work injury", "joint replacement", "fracture",
+        "herniated", "torn", "rupture"
+      ],
+      "max_fires_per_session": 1,
+      "cooldown_seconds": 0,
+      "priority": "medium"
+    },
+    {
+      "id": "rom_mmt_measurement",
+      "description": "Range of motion or manual muscle test being performed",
+      "match_mode": "keywords",
+      "keywords": [
+        "range of motion", "rom", "manual muscle test", "mmt",
+        "degrees of flexion", "degrees of extension", "degrees of abduction",
+        "grade three", "grade four", "grade five", "muscle grade",
+        "goniometer", "strength testing", "active range", "passive range"
+      ],
+      "max_fires_per_session": 2,
+      "cooldown_seconds": 60,
+      "priority": "medium"
+    },
+    {
+      "id": "session_milestone_15m",
+      "description": "Session reaches 15-minute mark",
+      "match_mode": "time_milestone",
+      "milestone_minutes": 15,
+      "max_fires_per_session": 1,
+      "cooldown_seconds": 0,
+      "priority": "low"
+    },
+    {
+      "id": "session_milestone_30m",
+      "description": "Session reaches 30-minute mark — common session midpoint",
+      "match_mode": "time_milestone",
+      "milestone_minutes": 30,
+      "max_fires_per_session": 1,
+      "cooldown_seconds": 0,
+      "priority": "low"
+    },
+    {
+      "id": "session_milestone_45m",
+      "description": "Session reaches 45-minute mark — nearing session end",
+      "match_mode": "time_milestone",
+      "milestone_minutes": 45,
+      "max_fires_per_session": 1,
+      "cooldown_seconds": 0,
+      "priority": "low"
+    },
+    {
+      "id": "high_severity_alert",
+      "description": "Any high-severity Path A alert raised",
+      "event_type": "path_a_alert_raised",
+      "severity_filter": ["high"],
+      "max_fires_per_session": 3,
+      "cooldown_seconds": 20,
+      "priority": "critical"
+    }
+  ]
+}

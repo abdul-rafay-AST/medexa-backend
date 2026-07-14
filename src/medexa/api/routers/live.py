@@ -299,33 +299,66 @@ async def _finalize_ambient_path_a(
     container: ServiceContainer,
     processed_at,
 ) -> None:
-    """Run Path A + sparse Path B after STT returned — never block the mic loop."""
-    try:
-        state = await asyncio.to_thread(container.session_repo.get, session_id)
-        if state is None:
-            return
-        runtime = container.runtime_for_state(state.billing_region)
-        chunk = next((item for item in state.transcript_chunks if item.chunk_id == chunk_id), None)
-        if chunk is None:
-            return
-        path_result = await asyncio.to_thread(
-            runtime.path_a_processor.process,
-            state,
-            chunk,
-            processed_at,
-        )
-        await container.path_a_dispatcher.dispatch(state, path_result, now=processed_at)
-        state = reload_session_state(session_id, container, state)
-        analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
-        state.latest_analysis = analysis
-        state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-        state.last_updated = processed_at
-        await asyncio.to_thread(container.session_repo.save, state)
-    except Exception:
-        logger.exception(
-            "ambient_path_a_background_failed",
-            extra={"extra_fields": {"session_id": session_id, "chunk_id": chunk_id}},
-        )
+    """Run Path A + sparse Path B after STT returned — never block the mic loop.
+
+    Retries once on transient errors (DynamoDB throttle, Bedrock timeout).
+    Re-reads state before saving to handle concurrent modifications.
+    """
+    for attempt in range(2):
+        try:
+            state = await asyncio.to_thread(container.session_repo.get, session_id)
+            if state is None:
+                return
+            runtime = container.runtime_for_state(state.billing_region)
+            chunk = next(
+                (item for item in state.transcript_chunks if item.chunk_id == chunk_id), None
+            )
+            if chunk is None:
+                return
+            path_result = await asyncio.to_thread(
+                runtime.path_a_processor.process,
+                state,
+                chunk,
+                processed_at,
+            )
+            await container.path_a_dispatcher.dispatch(state, path_result, now=processed_at)
+
+            # Re-read state before saving to avoid overwriting concurrent Path B writes.
+            fresh_state = reload_session_state(session_id, container, state)
+            analysis = runtime.path_a_snapshot.build_analysis(
+                fresh_state, transcript, chunk.chunk_id
+            )
+            fresh_state.latest_analysis = analysis
+            fresh_state.client_elapsed_seconds = max(
+                int(fresh_state.client_elapsed_seconds or 0), int(end_ts)
+            )
+            fresh_state.last_updated = processed_at
+            await asyncio.to_thread(container.session_repo.save, fresh_state)
+            return  # Success — no retry needed.
+        except Exception:
+            if attempt == 0:
+                logger.warning(
+                    "ambient_path_a_transient_failure_retrying",
+                    extra={
+                        "extra_fields": {
+                            "session_id": session_id,
+                            "chunk_id": chunk_id,
+                            "attempt": attempt + 1,
+                        }
+                    },
+                    exc_info=True,
+                )
+                await asyncio.sleep(1.0)
+            else:
+                logger.exception(
+                    "ambient_path_a_background_failed_final",
+                    extra={
+                        "extra_fields": {
+                            "session_id": session_id,
+                            "chunk_id": chunk_id,
+                        }
+                    },
+                )
 
 
 @router.get("/{session_id}/insights", response_model=list[c.ApiInsight])

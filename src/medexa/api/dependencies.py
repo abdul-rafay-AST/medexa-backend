@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
+
 
 from medexa.adapters.events.in_process_bus import InProcessEventBus
 from medexa.adapters.guardrails.local_guardrails import LocalGuardrails
@@ -73,11 +75,39 @@ from medexa.state import (
 )
 
 
+_dep_logger = logging.getLogger("medexa.api.dependencies")
+
+
 class ServiceContainer:
     def __init__(self, config_dir: Path | None = None, cpt_files_dir: Path | None = None) -> None:
         cfg = config_dir or settings.config_dir
         cpt_dir = cpt_files_dir or settings.cpt_files_dir
-        self.region_registry = RegionRegistry(cfg, cpt_dir)
+
+        # S3 config loader — warm cache at startup when config_source is s3.
+        self.s3_config_loader = None
+        if getattr(settings, "config_source", "local") == "s3":
+            try:
+                from medexa.aws.s3_config_loader import S3ConfigLoader
+
+                self.s3_config_loader = S3ConfigLoader(
+                    bucket=settings.s3_bucket or "medexa-storage",
+                    region_name=settings.aws_region,
+                )
+                count = self.s3_config_loader.warm_cache("regions/")
+                _dep_logger.info(
+                    "s3_config_loader_ready",
+                    extra={"extra_fields": {"files_cached": count}},
+                )
+            except Exception:
+                _dep_logger.warning(
+                    "s3_config_loader_init_failed_falling_back_to_local",
+                    exc_info=True,
+                )
+                self.s3_config_loader = None
+
+        self.region_registry = RegionRegistry(
+            cfg, cpt_dir, s3_loader=self.s3_config_loader
+        )
         self.default_region_bundle = self.region_registry.resolve("US")
         self.eight_minute_calculator = EightMinuteRuleCalculator()
         self.timer_engine = BillingTimerEngine()
@@ -148,7 +178,9 @@ class ServiceContainer:
         self.realtime = build_realtime_adapter(settings, self.live_broker)
         self.session_repo: SessionStateRepository = self._build_repository()
         self.clinical_assistant = build_clinical_assistant(settings, self.guardrails)
-        self.path_b_trigger_evaluator = PathBTriggerEvaluator(settings.path_b_interval_seconds)
+        self.path_b_trigger_evaluator = PathBTriggerEvaluator(
+            settings.path_b_interval_seconds, config_dir=cfg
+        )
         self.path_b_worker = PathBWorker(
             settings=settings,
             session_repo=self.session_repo,
