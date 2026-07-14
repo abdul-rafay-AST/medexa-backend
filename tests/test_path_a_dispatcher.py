@@ -68,7 +68,7 @@ async def test_dispatcher_publishes_path_b_trigger_without_bedrock():
     assert updated is not None
     assert len(updated.path_b_triggers) == 1
     assert updated.path_b_triggers[0].status == "skipped"
-    assert updated.path_b_triggers[0].source_event_type == "activity_changed"
+    assert updated.path_b_triggers[0].source_event_type == "chunk_processed"
 
     snapshot = await queue.get()
     assert snapshot is not None

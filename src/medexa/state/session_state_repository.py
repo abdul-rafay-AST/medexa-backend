@@ -70,17 +70,53 @@ class DynamoDbSessionStateRepository:
 
     def save(self, state: SessionState) -> None:
         import time
+        from botocore.exceptions import ClientError
+        import logging
+        logger = logging.getLogger(__name__)
 
         ttl_seconds = 7 * 24 * 60 * 60
-        self._table.put_item(
-            Item={
-                "session_id": state.session_id,
-                "status": state.status,
-                "billing_region": state.billing_region,
-                "state": state.model_dump_json(),
+        current_version = state.version
+        next_version = current_version + 1
+        
+        # We need to make sure we don't mutate the state object passed to us if the save fails,
+        # but we do want to update the version if it succeeds so the caller has the latest version.
+        # So we clone it for serialization, with the new version.
+        state_to_save = state.model_copy()
+        state_to_save.version = next_version
+
+        put_kwargs = {
+            "Item": {
+                "session_id": state_to_save.session_id,
+                "status": state_to_save.status,
+                "billing_region": state_to_save.billing_region,
+                "version": next_version,
+                "state": state_to_save.model_dump_json(),
                 "ttl": int(time.time()) + ttl_seconds,
             }
-        )
+        }
+        
+        if current_version > 1:
+            # If version > 1, the item must exist and have the current version.
+            put_kwargs["ConditionExpression"] = "version = :v"
+            put_kwargs["ExpressionAttributeValues"] = {":v": current_version}
+        else:
+            # If version == 1, this is the first save, the item should not exist or not have a version yet.
+            # In a real system you might want attribute_not_exists(session_id), 
+            # but to be safe and idempotent for initial saves, we'll let it overwrite if version isn't set.
+            pass
+
+        try:
+            self._table.put_item(**put_kwargs)
+            # Update the original state's version on success
+            state.version = next_version
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'ConditionalCheckFailedException':
+                logger.warning(
+                    "optimistic_lock_failure",
+                    extra={"extra_fields": {"session_id": state.session_id, "version": current_version}},
+                )
+                raise RuntimeError(f"Concurrent modification detected for session {state.session_id}") from e
+            raise
 
     def delete(self, session_id: str) -> None:
         self._table.delete_item(Key={"session_id": session_id})

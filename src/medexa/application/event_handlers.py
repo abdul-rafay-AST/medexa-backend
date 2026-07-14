@@ -37,40 +37,76 @@ class PathAEventDispatcher:
 
         for alert in result.new_alerts:
             event_id = str(uuid.uuid4())
-            if alert.alert_type == "pre_auth_required":
-                await self._realtime.publish(
-                    state.session_id,
-                    LiveEventFactory.pre_auth_warning(state.session_id, alert, event_id=event_id),
-                )
-            elif alert.alert_type == "billing_conflict":
-                await self._realtime.publish(
-                    state.session_id,
-                    LiveEventFactory.billing_conflict(state.session_id, alert, event_id=event_id),
-                )
-            elif alert.severity == "high":
-                await self._realtime.publish(
-                    state.session_id,
-                    LiveEventFactory.alert(state.session_id, alert, event_id=event_id),
+            try:
+                if alert.alert_type == "pre_auth_required":
+                    await self._realtime.publish(
+                        state.session_id,
+                        LiveEventFactory.pre_auth_warning(
+                            state.session_id, alert, event_id=event_id
+                        ),
+                    )
+                elif alert.alert_type == "billing_conflict":
+                    await self._realtime.publish(
+                        state.session_id,
+                        LiveEventFactory.billing_conflict(
+                            state.session_id, alert, event_id=event_id
+                        ),
+                    )
+                elif alert.severity == "high":
+                    await self._realtime.publish(
+                        state.session_id,
+                        LiveEventFactory.alert(state.session_id, alert, event_id=event_id),
+                    )
+            except Exception:
+                logger.warning(
+                    "realtime_alert_publish_failed",
+                    extra={
+                        "extra_fields": {
+                            "session_id": state.session_id,
+                            "alert_type": alert.alert_type,
+                        }
+                    },
+                    exc_info=True,
                 )
 
+        elapsed_seconds = float(state.client_elapsed_seconds or 0)
         decision = self._evaluator.evaluate_batch(
-            result.events, now=now, chunk_text=result.chunk.text
+            result.events,
+            now=now,
+            chunk_text=result.chunk.text,
+            elapsed_seconds=elapsed_seconds,
         )
-        snapshot_id = str(uuid.uuid4())
-        await self._realtime.publish(
-            state.session_id,
-            LiveEventFactory.path_a_snapshot(state.session_id, result.panel, event_id=snapshot_id),
-        )
-        timer_id = str(uuid.uuid4())
-        await self._realtime.publish(
-            state.session_id,
-            LiveEventFactory.timer_update(
+        try:
+            snapshot_id = str(uuid.uuid4())
+            await self._realtime.publish(
                 state.session_id,
-                event_id=timer_id,
-                session_timer_sec=result.panel.session_timer_sec,
-                active_cpt=state.active_cpt,
-            ),
-        )
+                LiveEventFactory.path_a_snapshot(
+                    state.session_id, result.panel, event_id=snapshot_id
+                ),
+            )
+        except Exception:
+            logger.warning(
+                "realtime_snapshot_publish_failed",
+                extra={"extra_fields": {"session_id": state.session_id}},
+                exc_info=True,
+            )
+        try:
+            timer_id = str(uuid.uuid4())
+            await self._realtime.publish(
+                state.session_id,
+                LiveEventFactory.timer_update(
+                    state.session_id,
+                    event_id=timer_id,
+                    session_timer_sec=result.panel.session_timer_sec,
+                    active_cpt=state.active_cpt,
+                ),
+            )
+        except Exception:
+            logger.warning(
+                "realtime_timer_publish_failed",
+                extra={"extra_fields": {"session_id": state.session_id}},
+                exc_info=True,
+            )
 
         if decision is not None:
             trigger_event = self._evaluator.build_trigger_event(state.session_id, decision)

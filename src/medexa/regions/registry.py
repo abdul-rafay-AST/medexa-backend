@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from medexa.domain.billing_region import BillingRegion, normalize_billing_region
 from medexa.regions.bundle import RegionBundle
@@ -19,9 +20,16 @@ class RegionRegistry:
     before region-specific rules land.
     """
 
-    def __init__(self, config_root: Path, cpt_files_dir: Path) -> None:
+    def __init__(
+        self,
+        config_root: Path,
+        cpt_files_dir: Path,
+        *,
+        s3_loader: Any = None,
+    ) -> None:
         self._config_root = config_root
         self._cpt_files_dir = cpt_files_dir
+        self._s3_loader = s3_loader
         self._cache: dict[BillingRegion, RegionBundle] = {}
 
     def resolve(self, billing_region: BillingRegion | str | None) -> RegionBundle:
@@ -52,6 +60,7 @@ class RegionRegistry:
                 config_root=self._config_root,
                 region_dir=region_dir,
                 legacy_fallbacks={},
+                s3_loader=self._s3_loader,
             ),
             cpt_files_dir=self._cpt_files_dir,
         )
