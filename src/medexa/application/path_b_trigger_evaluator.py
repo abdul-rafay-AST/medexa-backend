@@ -104,6 +104,7 @@ class TriggerDecision:
 class _RuleClock:
     fire_count: int = 0
     last_fired_at: datetime | None = None
+    last_fired_elapsed: float = -1.0
 
 
 @dataclass
@@ -114,6 +115,7 @@ class _SessionClock:
     milestone_fired: set[int] = field(default_factory=set)
     fired_match_keys: set[str] = field(default_factory=set)
     last_any_fire_at: datetime | None = None
+    last_any_fire_elapsed: float = -1.0
 
 
 def load_trigger_rules(config_dir: Path | None = None) -> list[TriggerRule]:
@@ -227,7 +229,12 @@ class PathBTriggerEvaluator:
                 clock.seen_cpt_codes.add(event.cpt_code)
 
         if clock.last_any_fire_at is not None:
-            since = (now - clock.last_any_fire_at).total_seconds()
+            # Prefer using elapsed_seconds (crucial for Simulator tests where real time doesn't advance)
+            if elapsed_seconds > 0 and clock.last_any_fire_elapsed >= 0:
+                since = elapsed_seconds - clock.last_any_fire_elapsed
+            else:
+                since = (now - clock.last_any_fire_at).total_seconds()
+            
             if since < self._global_debounce:
                 # Still allow critical safety during debounce.
                 critical_only = [r for r in self._rules if r.priority == "critical"]
@@ -236,14 +243,14 @@ class PathBTriggerEvaluator:
                         rule, events, clock, now, chunk_text, elapsed_seconds
                     )
                     if decision is not None:
-                        self._mark_fired(session_id, rule, now, decision)
+                        self._mark_fired(session_id, rule, now, decision, elapsed_seconds)
                         return decision
                 return None
 
         for rule in self._rules:
             decision = self._evaluate_rule(rule, events, clock, now, chunk_text, elapsed_seconds)
             if decision is not None:
-                self._mark_fired(session_id, rule, now, decision)
+                self._mark_fired(session_id, rule, now, decision, elapsed_seconds)
                 return decision
         return None
 
@@ -375,20 +382,21 @@ class PathBTriggerEvaluator:
             return True
         if rc.fire_count >= rule.max_fires_per_session:
             return False
-        cooldown = rule.cooldown_seconds
-        if rule.priority == "critical":
-            cooldown = max(cooldown, self._critical_cooldown)
-        if cooldown > 0 and rc.last_fired_at is not None:
-            if (now - rc.last_fired_at).total_seconds() < cooldown:
+        cooldown = self._critical_cooldown if rule.priority == "critical" else rule.cooldown_seconds
+        
+        # Prefer using elapsed_seconds for cooldowns if available
+        if elapsed_seconds > 0 and rc.last_fired_elapsed >= 0:
+            since = elapsed_seconds - rc.last_fired_elapsed
+            if since < cooldown:
+                return False
+        elif rc.last_fired_at is not None:
+            since = (now - rc.last_fired_at).total_seconds()
+            if since < cooldown:
                 return False
         return True
 
     def _mark_fired(
-        self,
-        session_id: str,
-        rule: TriggerRule,
-        now: datetime,
-        decision: TriggerDecision,
+        self, session_id: str, rule: TriggerRule, now: datetime, decision: TriggerDecision, elapsed_seconds: float = 0.0
     ) -> None:
         clock = self._clock(session_id)
         rc = clock.rule_clocks.get(rule.id)
@@ -397,7 +405,9 @@ class PathBTriggerEvaluator:
             clock.rule_clocks[rule.id] = rc
         rc.fire_count += 1
         rc.last_fired_at = now
+        rc.last_fired_elapsed = elapsed_seconds
         clock.last_any_fire_at = now
+        clock.last_any_fire_elapsed = elapsed_seconds
         if rule.once_per_match:
             # reason is "{rule_id}:{detail}"
             detail = decision.reason.split(":", 1)[-1].lower()

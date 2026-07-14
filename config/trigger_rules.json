@@ -71,10 +71,11 @@
       "match_mode": "keywords",
       "keywords": [
         "out of ten", "out of 10", "/10", "7/10", "8/10", "6/10", "9/10", "5/10",
-        "pain level", "pain scale", "rate your pain", "rate the pain",
+        "pain level", "pain scale", "rate your pain", "rate the pain", "pain is bad",
         "pain is worse", "pain is better", "pain increased", "pain decreased",
         "hurts more", "hurts less", "sharp pain", "dull pain", "throbbing",
-        "my pain", "it hurts", "hurting", "pain is", "worse today", "better today"
+        "my pain", "it hurts", "hurting", "pain is", "worse today", "better today",
+        "so painful", "really painful", "aching", "ache", "sore", "soreness"
       ],
       "max_fires_per_session": 4,
       "cooldown_seconds": 12,
@@ -85,11 +86,12 @@
       "description": "Patient or transcript signals incomplete history / missing clinical info",
       "match_mode": "keywords",
       "keywords": [
-        "i don't know", "i do not know", "not sure", "forgot",
-        "didn't bring", "did not bring", "no one told me",
+        "i don't know", "i do not know", "not sure", "forgot", "i forget",
+        "didn't bring", "did not bring", "no one told me", "wasn't told",
         "first time", "never had therapy", "no imaging", "no x-ray",
-        "no mri", "can't remember", "cannot remember",
-        "what else should i", "is there anything else"
+        "no mri", "can't remember", "cannot remember", "don't recall",
+        "what else should i", "is there anything else", "am i supposed to",
+        "what should i be doing", "should i do", "what should i do"
       ],
       "max_fires_per_session": 3,
       "cooldown_seconds": 20,
@@ -113,7 +115,10 @@
         "struggle with", "limited range", "cannot bend", "can't bend",
         "trouble sleeping", "can't drive", "stairs", "trouble dressing",
         "can't grip", "dropping things", "balance", "falling",
-        "work", "job", "adl", "daily activities"
+        "work", "job", "adl", "daily activities", "tried to reach",
+        "tried to", "couldn't reach", "could not reach", "hard to do",
+        "tough to", "difficult to", "it's hard when", "i struggle to",
+        "prevents me from", "stops me from"
       ],
       "max_fires_per_session": 3,
       "cooldown_seconds": 20,

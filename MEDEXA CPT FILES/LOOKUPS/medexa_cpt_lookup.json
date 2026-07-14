@@ -28,6 +28,8 @@
       "resistance exercises",
       "isometric exercise",
       "isometric exercises",
+      "isometric external rotations",
+      "isometric external rotation",
       "isotonic exercise",
       "progressive resistance exercise",
       "active range of motion exercise",
@@ -35,7 +37,23 @@
       "active assisted range of motion",
       "core stabilization exercise",
       "ther ex",
-      "strengthening program"
+      "strengthening program",
+      "stretching",
+      "wall walk",
+      "wall walks",
+      "wall walk exercises",
+      "resistance band",
+      "resistance band exercises",
+      "workout",
+      "do some exercises",
+      "some exercises",
+      "some stretches",
+      "muscle work",
+      "build strength",
+      "get stronger",
+      "rehab exercises",
+      "rehab work",
+      "mobility work"
     ],
     "ncci_conflicts": [
       "97530"
@@ -54,10 +72,16 @@
     "required_context": [
       "working on",
       "doing",
+      "do",
       "started",
       "completed",
       "continued",
-      "we did"
+      "we did",
+      "perform",
+      "performing",
+      "administer",
+      "grab",
+      "grabbing"
     ]
   },
   "97112": {
@@ -135,8 +159,10 @@
     "trigger_phrases": [
       "manual therapy",
       "joint mobilization",
+      "joint mobilizations",
       "joint manipulation",
       "soft tissue mobilization",
+      "soft tissue mobilizations",
       "manual lymphatic drainage",
       "manual traction",
       "myofascial release",
@@ -145,7 +171,20 @@
       "graston",
       "spinal manipulation",
       "thrust manipulation",
-      "mfr"
+      "mfr",
+      "massage",
+      "rub",
+      "rub out",
+      "loosening up",
+      "loosen up",
+      "deep pressure",
+      "trigger point",
+      "crack your back",
+      "crack your neck",
+      "pop your back",
+      "pop your neck",
+      "hands on work",
+      "hands-on work"
     ],
     "ncci_conflicts": [
       "97530",
@@ -164,8 +203,15 @@
     "required_context": [
       "applied",
       "did",
+      "do",
+      "doing",
       "worked on",
-      "completed"
+      "completed",
+      "perform",
+      "performing",
+      "administer",
+      "start",
+      "starting"
     ]
   },
   "97530": {
