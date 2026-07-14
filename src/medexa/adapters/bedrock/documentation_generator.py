@@ -125,7 +125,13 @@ Full transcript:
             clean = clean[:-3]
         clean = clean.strip()
 
-        data = json.loads(clean)
+        try:
+            data = json.loads(clean)
+        except json.JSONDecodeError:
+            # Models sometimes append trailing prose after valid JSON.
+            data, _ = json.JSONDecoder().raw_decode(clean)
+        if not isinstance(data, dict):
+            raise ValueError("Path C response JSON must be an object")
         soap_data = data.get("soap", {})
         subj = soap_data.get("subjective", {})
         obj = soap_data.get("objective", {})

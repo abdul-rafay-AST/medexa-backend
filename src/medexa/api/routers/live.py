@@ -116,13 +116,13 @@ async def analyze_transcript_chunk(
 
     await container.path_a_dispatcher.dispatch(state, result, now=now)
 
-    state = reload_session_state(session_id, container, state)
     analysis = runtime.path_a_snapshot.build_analysis(state, req.chunk_text, chunk.chunk_id)
     state.latest_analysis = analysis
     state.last_updated = now
     state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
-    # Persist off the critical path — chat UX must not wait on disk/DynamoDB.
-    asyncio.create_task(asyncio.to_thread(container.session_repo.save, state))
+    # Must persist BEFORE any reload — DynamoDB reload would otherwise wipe Path A.
+    await asyncio.to_thread(container.session_repo.save, state)
+    state = reload_session_state(session_id, container, state)
 
     latency_ms = int((now_utc() - wall_start).total_seconds() * 1000)
     logger.info(
@@ -136,7 +136,10 @@ async def analyze_transcript_chunk(
             }
         },
     )
-    return runtime.path_a_snapshot.to_contract(analysis, state)
+    return runtime.path_a_snapshot.to_contract(
+        state.latest_analysis or analysis,
+        state,
+    )
 
 
 @router.post("/{session_id}/transcribe-audio", response_model=c.ApiAudioTranscriptionAnalysis)
@@ -323,17 +326,13 @@ async def _finalize_ambient_path_a(
             )
             await container.path_a_dispatcher.dispatch(state, path_result, now=processed_at)
 
-            # Re-read state before saving to avoid overwriting concurrent Path B writes.
-            fresh_state = reload_session_state(session_id, container, state)
-            analysis = runtime.path_a_snapshot.build_analysis(
-                fresh_state, transcript, chunk.chunk_id
-            )
-            fresh_state.latest_analysis = analysis
-            fresh_state.client_elapsed_seconds = max(
-                int(fresh_state.client_elapsed_seconds or 0), int(end_ts)
-            )
-            fresh_state.last_updated = processed_at
-            await asyncio.to_thread(container.session_repo.save, fresh_state)
+            # Save the processed in-memory state. Reloading from Dynamo first would
+            # drop Path A mutations when the processor has not yet been persisted.
+            analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
+            state.latest_analysis = analysis
+            state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
+            state.last_updated = processed_at
+            await asyncio.to_thread(container.session_repo.save, state)
             return  # Success — no retry needed.
         except Exception:
             if attempt == 0:
