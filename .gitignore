@@ -141,3 +141,6 @@ frontend/
 # Docs build output
 site/
 logs/
+
+# Serverless build output
+.serverless/

@@ -1,0 +1,37 @@
+service: medexa-backend
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-2
+  memorySize: 1024
+  timeout: 30
+  environment:
+    MEDEXA_HOST: "0.0.0.0"
+    MEDEXA_PORT: "8000"
+    # Essential settings from your .env
+    MEDEXA_USE_DYNAMODB: "true"
+    MEDEXA_DYNAMODB_TABLE_NAME: "medexa-sessions"
+    MEDEXA_AWS_REGION: "us-east-2"
+    MEDEXA_S3_BUCKET: "medexa-storage"
+    MEDEXA_TRANSCRIBE_S3_BUCKET: "medexa-storage"
+    MEDEXA_CORS_ALLOW_ORIGINS: "*" # Change to your frontend URL in production
+    # Add your secrets below (ideally use AWS SSM or .env locally):
+    # MEDEXA_GROQ_API_KEY: "your-key"
+    # MEDEXA_DEEPGRAM_API_KEY: "your-key"
+
+functions:
+  api:
+    handler: src/medexa/aws/lambda_handler.handler
+    events:
+      - httpApi:
+          path: /{proxy+}
+          method: "*"
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: false
+    slim: true

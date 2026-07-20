@@ -20,30 +20,32 @@ from medexa.schemas import BillingSummary, SessionState
 
 
 @dataclass(frozen=True)
-class NphiesClaimBundleBuilder:
-    """Builds a NPHIES-compliant professional claim-request Bundle.
+class NphiesPriorAuthBundleBuilder:
+    """Builds a NPHIES-compliant professional prior-authorization Bundle.
 
-    Starts from the validated structural template
-    (``config/regions/sa/fhir/templates/professional-claim-request-bundle.template.json``)
-    so every mandatory NPHIES element (extension-episode, full supportingInfo,
-    item extension-maternity/extension-patientInvoice, encounter-claim-AMB
-    profile, ``services`` CodeSystem) is always present.
+    Starts from ``professional-priorauth-request-bundle.template.json``:
+
+    - ``use`` is ``preauthorization`` (not ``claim``)
+    - No ``extension-episode`` (claim-only per NPHIES claim usecase guide)
+    - ``extension-eligibility-response`` links the eligibility check
+    - Item ``extension-package`` / ``extension-maternity`` default to ``false``
+    - Encounter uses ``encounter-auth-*`` (status ``in-progress``)
+    - SBS codes bind to ``CodeSystem/services`` (not ``procedures``)
     """
 
     bundle: RegionBundle
 
     def profile_id(self) -> str:
-        profile = self._profile()
-        return str(profile.get("profile_id", "nphies-professional-claim"))
+        return "nphies-professional-priorauth"
 
     def _profile(self) -> dict[str, Any]:
         return load_fhir_profile(self.bundle, "fhir/fhir_r4_profile_sa.json")
 
-    def build_claim_bundle(self, state: SessionState, summary: BillingSummary) -> dict[str, Any]:
+    def build_priorauth_bundle(self, state: SessionState, summary: BillingSummary) -> dict[str, Any]:
         profile = self._profile()
         template_path = profile.get(
-            "claim_request_template",
-            "fhir/templates/professional-claim-request-bundle.template.json",
+            "priorauth_request_template",
+            "fhir/templates/professional-priorauth-request-bundle.template.json",
         )
         template = deep_copy_template(load_bundle_template(self.bundle, template_path))
 
@@ -60,16 +62,32 @@ class NphiesClaimBundleBuilder:
         message_header["source"]["endpoint"] = "https://medexa.internal/nphies"
 
         claim = find_resource(template, "Claim")
+        claim["identifier"][0]["system"] = "https://medexa.internal/identifiers/authorization"
         claim["identifier"][0]["value"] = state.session_id
         claim["created"] = fhir_instant(now)
 
-        episode_ext = find_extension(claim, "extension-episode")
-        if episode_ext is not None:
-            episode_ext["valueIdentifier"]["system"] = "https://medexa.internal/identifiers/episode"
-            episode_ext["valueIdentifier"]["value"] = state.session_id
+        # Professional prior-auth subtype must be op or emr (P-Auth-1 / BV-00365).
+        claim["subType"] = {
+            "coding": [
+                {
+                    "system": "http://nphies.sa/terminology/CodeSystem/claim-subtype",
+                    "code": "op",
+                    "display": "Outpatient",
+                }
+            ]
+        }
 
-        if state.pre_auth_reference:
-            claim["insurance"][0]["preAuthRef"] = [state.pre_auth_reference]
+        eligibility_ext = find_extension(claim, "extension-eligibility-response")
+        if eligibility_ext is not None:
+            eligibility_ext["valueReference"]["identifier"]["system"] = (
+                "https://medexa.internal/identifiers/eligibility-response"
+            )
+            eligibility_value = ""
+            if state.pre_auth_snapshot is not None:
+                eligibility_value = str(getattr(state.pre_auth_snapshot, "reference", "") or "")
+            if not eligibility_value and state.pre_auth_reference:
+                eligibility_value = state.pre_auth_reference
+            eligibility_ext["valueReference"]["identifier"]["value"] = eligibility_value
 
         care_team = claim.get("careTeam", [{}])[0]
         care_team.get("qualification", {}).get("coding", [{}])[0]["code"] = "16.00"
@@ -103,8 +121,7 @@ class NphiesClaimBundleBuilder:
 
         encounter = find_resource(template, "Encounter")
         encounter["period"]["start"] = fhir_instant(state.created_at)
-        if summary.generated_at:
-            encounter["period"]["end"] = fhir_instant(summary.generated_at)
+        encounter["period"].pop("end", None)
 
         return template
 
@@ -128,13 +145,6 @@ class NphiesClaimBundleBuilder:
                     ext["valueBoolean"] = False
                 if ext["url"].endswith("extension-maternity"):
                     ext["valueBoolean"] = False
-
-            invoice_ext = find_extension(item, "extension-patientInvoice")
-            if invoice_ext is not None:
-                invoice_ext["valueIdentifier"]["system"] = (
-                    "https://medexa.internal/identifiers/patient-invoice"
-                )
-                invoice_ext["valueIdentifier"]["value"] = f"{summary.session_id}-{index}"
 
             items.append(item)
 
