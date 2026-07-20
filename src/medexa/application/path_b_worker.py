@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 import uuid
 from copy import deepcopy
@@ -56,7 +57,7 @@ class PathBWorker:
         if not isinstance(event, PathBTriggerRequested):
             return
 
-        if "pytest" in sys.modules:
+        if "pytest" in sys.modules or os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
             await self._run(event)
             return
         asyncio.create_task(self._run(event))

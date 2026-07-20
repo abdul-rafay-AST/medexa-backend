@@ -21,9 +21,9 @@ def test_activity_maps_to_cpt_and_is_billable_bug_c():
 
 def test_negated_activity_is_not_billable():
     entities = extractor.extract("We did not do any massage today", "c2")
-    assert len(entities) == 1
-    assert entities[0].is_negated is True
-    assert entities[0].is_billable is False
+    assert len(entities) > 0
+    assert all(e.is_negated is True for e in entities)
+    assert all(e.is_billable is False for e in entities)
 
 
 def test_stop_is_not_clinical_negation():

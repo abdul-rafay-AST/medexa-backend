@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime
+import os
 import uuid
+from typing import cast, Literal
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
@@ -69,7 +72,7 @@ def _elapsed_bounds(state: SessionState, req: c.AnalyzeTranscriptChunkRequest) -
             if len(parts) == 2:
                 start = float(int(parts[0]) * 60 + int(parts[1]))
 
-    duration = max(1, int(req.duration_seconds or 3))
+    duration = max(1, req.duration_seconds or 3)
     end = start + float(duration)
     if req.end_time and ":" in req.end_time:
         parts = req.end_time.split(":")
@@ -85,7 +88,7 @@ def _resolve_client_elapsed(
     client_elapsed_seconds: float | None,
 ) -> float:
     if client_elapsed_seconds is not None and client_elapsed_seconds >= 0:
-        return float(client_elapsed_seconds)
+        return client_elapsed_seconds
     return float(state.client_elapsed_seconds or 0)
 
 
@@ -119,7 +122,7 @@ async def analyze_transcript_chunk(
     analysis = runtime.path_a_snapshot.build_analysis(state, req.chunk_text, chunk.chunk_id)
     state.latest_analysis = analysis
     state.last_updated = now
-    state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
+    state.client_elapsed_seconds = max(state.client_elapsed_seconds or 0, int(end_ts))
     # Persist with retry — Path B worker may bump Dynamo version in parallel.
     state = await save_session_state(container, state)
     state = reload_session_state(session_id, container, state)
@@ -241,20 +244,25 @@ async def transcribe_audio(
         )
 
     state.last_updated = now
-    state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
+    state.client_elapsed_seconds = max(state.client_elapsed_seconds or 0, int(end_ts))
     await asyncio.to_thread(container.session_repo.save, state)
 
     # Path A/B must not block ambient transcription response (tunnel + rules + LLM).
-    asyncio.create_task(
-        _finalize_ambient_path_a(
-            session_id=session_id,
-            chunk_id=chunk.chunk_id,
-            transcript=transcript,
-            end_ts=end_ts,
-            container=container,
-            processed_at=now,
-        )
+    # However, in AWS Lambda, the execution environment freezes immediately after returning
+    # the HTTP response. To prevent background tasks from dropping, we must await them
+    # synchronously when deployed to Lambda.
+    task = _finalize_ambient_path_a(
+        session_id=session_id,
+        chunk_id=chunk.chunk_id,
+        transcript=transcript,
+        end_ts=end_ts,
+        container=container,
+        processed_at=now,
     )
+    if os.environ.get("AWS_LAMBDA_FUNCTION_NAME"):
+        await task
+    else:
+        asyncio.create_task(task)
 
     analysis = state.latest_analysis or runtime.path_a_snapshot.build_analysis(
         state, transcript, chunk.chunk_id
@@ -278,7 +286,7 @@ async def transcribe_audio(
                 start=segment.start,
                 end=segment.end,
                 text=segment.text,
-                speaker=_segment_speaker(segment),
+                speaker=cast(Literal["therapist", "patient"], _segment_speaker(segment)),
             )
             for segment in diarized_segments
         ]
@@ -300,7 +308,7 @@ async def _finalize_ambient_path_a(
     transcript: str,
     end_ts: float,
     container: ServiceContainer,
-    processed_at,
+    processed_at: datetime,
 ) -> None:
     """Run Path A + sparse Path B after STT returned — never block the mic loop.
 
@@ -330,7 +338,7 @@ async def _finalize_ambient_path_a(
             # drop Path A mutations when the processor has not yet been persisted.
             analysis = runtime.path_a_snapshot.build_analysis(state, transcript, chunk.chunk_id)
             state.latest_analysis = analysis
-            state.client_elapsed_seconds = max(int(state.client_elapsed_seconds or 0), int(end_ts))
+            state.client_elapsed_seconds = max(state.client_elapsed_seconds or 0, int(end_ts))
             state.last_updated = processed_at
             await asyncio.to_thread(container.session_repo.save, state)
             return  # Success — no retry needed.
@@ -432,7 +440,7 @@ async def get_live_pipeline(
     return c.ApiLivePipelineSnapshot(
         session_id=state.session_id,
         billing_region=state.billing_region,
-        elapsed_seconds=int(state.client_elapsed_seconds or 0),
+        elapsed_seconds=state.client_elapsed_seconds or 0,
         path_a=c.ApiPathAStatus(
             status="live",
             entity_count=len(state.detected_entities),

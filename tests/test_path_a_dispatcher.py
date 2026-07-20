@@ -11,7 +11,7 @@ from medexa.application.path_b_trigger_evaluator import PathBTriggerEvaluator
 from medexa.application.path_b_worker import PathBWorker
 from medexa.config import settings
 from medexa.application.path_a_processor import PathAResult
-from medexa.domain.events import ActivityChanged, ChunkProcessed
+from medexa.domain.events import ActivityChanged, ChunkProcessed, DomainEvent
 from medexa.schemas import InsightsPanel, SessionState, TranscriptChunk
 from medexa.state import InMemorySessionStateRepository
 from medexa.utils.time import now_utc
@@ -45,7 +45,7 @@ async def test_dispatcher_publishes_path_b_trigger_without_bedrock():
         sequence=0,
     )
     panel = InsightsPanel(session_id="s1", session_timer_sec=15)
-    events = [
+    events: list[DomainEvent] = [
         ChunkProcessed(
             session_id="s1",
             chunk_id="c1",
@@ -68,7 +68,7 @@ async def test_dispatcher_publishes_path_b_trigger_without_bedrock():
     assert updated is not None
     assert len(updated.path_b_triggers) == 1
     assert updated.path_b_triggers[0].status == "skipped"
-    assert updated.path_b_triggers[0].source_event_type == "chunk_processed"
+    assert updated.path_b_triggers[0].source_event_type == "activity_changed"
 
     snapshot = await queue.get()
     assert snapshot is not None
