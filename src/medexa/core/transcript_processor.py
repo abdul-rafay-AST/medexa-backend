@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from medexa.core.entity_extractor import EntityExtractor
+from typing import Any, Protocol
+
 from medexa.core.suggestion_generator import SuggestionGenerator
 from medexa.schemas import DetectedEntity, SessionState, Suggestion, TranscriptChunk
+
+
+class _EntityExtractorPort(Protocol):
+    def extract(self, text: str, chunk_id: str) -> list[DetectedEntity]: ...
 
 
 class TranscriptProcessor:
@@ -14,7 +19,7 @@ class TranscriptProcessor:
     Kept free of FastAPI/AWS so the whole live pipeline is unit-testable.
     """
 
-    def __init__(self, extractor: EntityExtractor, suggestion_generator: SuggestionGenerator):
+    def __init__(self, extractor: _EntityExtractorPort | Any, suggestion_generator: SuggestionGenerator):
         self._extractor = extractor
         self._suggestions = suggestion_generator
 

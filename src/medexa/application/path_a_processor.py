@@ -24,6 +24,8 @@ from medexa.domain.events import (
 )
 from medexa.domain.transcript_timeline import TimelineEvent
 from medexa.ports.cpt_metadata import CptMetadataPort
+from medexa.regions.sa.detection.entity_extractor import SaEntityExtractor
+from medexa.regions.sa.detection.mapping import validate_sbs_icd_mapping
 from medexa.schemas import Alert, DetectedEntity, InsightsPanel, ProtocolInsight, SessionState, TranscriptChunk
 from medexa.api import mappers as m
 
@@ -48,6 +50,7 @@ class PathAProcessor:
         *,
         enable_ncci: bool = True,
         regional_path_a: RegionalPathAService | None = None,
+        sa_extractor: SaEntityExtractor | None = None,
     ) -> None:
         self._processor = transcript_processor
         self._insights = insights_builder
@@ -56,6 +59,7 @@ class PathAProcessor:
         self._timers = timer_engine
         self._enable_ncci = enable_ncci
         self._regional = regional_path_a
+        self._sa_extractor = sa_extractor
 
     def process(
         self,
@@ -76,6 +80,8 @@ class PathAProcessor:
         }
 
         entities, new_suggestions = self._processor.process(state, chunk, now)
+        if state.billing_region == "SA" and self._sa_extractor is not None:
+            self._merge_sa_detection_insights(state)
         self._reconcile_ncci_alerts(state)
         if self._regional is not None:
             regional_alerts = self._regional.reconcile_chunk(
@@ -109,6 +115,93 @@ class PathAProcessor:
             events=events,
             new_alerts=new_alerts,
         )
+
+    def _merge_sa_detection_insights(self, state: SessionState) -> None:
+        """Push SBS + ICD-10-AM insight cards (approve/ignore) for SA Path A."""
+        assert self._sa_extractor is not None
+        sbs_hits = list(self._sa_extractor.last_sbs_hits)
+        icd_hits = list(self._sa_extractor.last_icd_hits)
+        icd_review_hits = list(self._sa_extractor.last_icd_review_hits)
+        if not sbs_hits and not icd_hits and not icd_review_hits:
+            return
+
+        catalog = self._sa_extractor.detector.catalog
+        approved_icd_codes = [
+            i.code
+            for i in state.insights
+            if i.type == "detected_icd" and i.status == "approved" and i.code
+        ]
+        auto_icd_codes = [h.code for h in icd_hits]
+        all_mapping_icd = list(dict.fromkeys(auto_icd_codes + approved_icd_codes))
+        validations = {
+            v.sbs_code: v
+            for v in validate_sbs_icd_mapping(
+                [h.code for h in sbs_hits],
+                all_mapping_icd,
+                catalog,
+            )
+        }
+
+        fresh: list[ProtocolInsight] = []
+        for hit in sbs_hits:
+            validation = validations.get(hit.code)
+            validation_status = validation.status if validation else None
+            validation_reason = validation.reason if validation else ""
+            phrases = ", ".join(hit.matched_phrases) or hit.matched_text
+            description = hit.guidance or f"Matched: {phrases}."
+            if validation_reason:
+                description = f"{description} {validation_reason}".strip()
+            fresh.append(
+                ProtocolInsight(
+                    insight_id=m._insight_id("detected", hit.code),
+                    type="detected",
+                    label="Detected SBS",
+                    question=f"Bill {hit.label} ({hit.code})?",
+                    description=description,
+                    status="pending",
+                    validation_status=validation_status,
+                    code=hit.code,
+                )
+            )
+
+        for hit in icd_hits:
+            phrases = ", ".join(hit.matched_phrases) or hit.matched_text
+            fresh.append(
+                ProtocolInsight(
+                    insight_id=m._insight_id("detected_icd", hit.code),
+                    type="detected_icd",
+                    label="ICD-10-AM",
+                    question=f"Accept {hit.label} ({hit.code})?",
+                    description=hit.guidance or f"Matched: {phrases}.",
+                    status="pending",
+                    code=hit.code,
+                )
+            )
+
+        for hit in icd_review_hits:
+            phrases = ", ".join(hit.matched_phrases) or hit.matched_text
+            fresh.append(
+                ProtocolInsight(
+                    insight_id=m._insight_id("detected_icd_review", hit.code),
+                    type="detected_icd",
+                    label="ICD-10-AM (Review)",
+                    question=(
+                        f"Confirm {hit.label} ({hit.code})? "
+                        f"Clinician review recommended"
+                    ),
+                    description=(
+                        hit.guidance
+                        or f"Candidate diagnosis — symptom pattern suggests {hit.code} "
+                        f"but diagnosis not confirmed in transcript. Matched: {phrases}."
+                    ),
+                    status="pending",
+                    validation_status="review_recommended",
+                    code=hit.code,
+                )
+            )
+
+        if fresh:
+            state.insights = m.merge_insights(state.insights, fresh)
 
     def _reconcile_ncci_alerts(self, state: SessionState) -> None:
         if not self._enable_ncci:

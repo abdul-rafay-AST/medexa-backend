@@ -51,6 +51,9 @@ from medexa.regions.factory import (
 )
 from medexa.regions.registry import RegionRegistry
 from medexa.regions.runtime import RegionRuntime
+from medexa.regions.sa.detection.detector import SaFileDetector
+from medexa.regions.sa.detection.entity_extractor import SaEntityExtractor
+from medexa.regions.sa.detection.metadata import SaSbsMetadataRegistry
 from medexa.regions.us.loaders import (
     UsBodyRegionNormalizer,
     UsCptMetadataRegistry,
@@ -229,20 +232,35 @@ class ServiceContainer:
         if cached is not None:
             return cached
 
-        # Phase 2 keeps shared US extraction/reference data as the baseline until
-        # Saudi/UAE loaders arrive in Phase 3, while profile flags disable US-only
-        # behavior such as NCCI and the 8-minute rule.
+        # US Path A uses Hybrid CPT/NCCI loaders. SA Path A uses file-based SBS /
+        # ICD-10-AM detection (no LLM). AE keeps US extractors with GCC profile flags.
         data_bundle = self.default_region_bundle
         cpt_index = UsCptRuleIndex(data_bundle)
         cpt_metadata = UsCptMetadataRegistry(data_bundle)
         region_normalizer = UsBodyRegionNormalizer(data_bundle)
         ncci_loader = UsNcciRulesLoader(data_bundle)
         icd_loader = UsIcdLookupLoader(data_bundle)
-        entity_extractor = EntityExtractor(cpt_index, region_normalizer)
-        transcript_processor = TranscriptProcessor(entity_extractor, self.suggestion_generator)
+        entity_extractor: EntityExtractor | SaEntityExtractor = EntityExtractor(
+            cpt_index, region_normalizer
+        )
+        suggestion_generator = self.suggestion_generator
+        sa_extractor: SaEntityExtractor | None = None
+
+        if bundle.billing_region == "SA":
+            sa_detector = SaFileDetector.from_bundle(bundle)
+            sa_extractor = SaEntityExtractor(sa_detector)
+            entity_extractor = sa_extractor
+            cpt_metadata = SaSbsMetadataRegistry(sa_detector.catalog)  # type: ignore[assignment]
+            suggestion_generator = SuggestionGenerator(
+                cpt_metadata,
+                settings.suggestion_cooldown_seconds,
+                ncci_checker=None,
+            )
+
+        transcript_processor = TranscriptProcessor(entity_extractor, suggestion_generator)
         ncci_checker = NcciConflictChecker(ncci_loader)
         rules_analyzer = RulesClinicalAnalyzer(
-            entity_extractor=entity_extractor,
+            entity_extractor=entity_extractor if isinstance(entity_extractor, EntityExtractor) else EntityExtractor(cpt_index, region_normalizer),
             cpt_metadata_loader=cpt_metadata,
             icd_loader=icd_loader,
             ncci_loader=ncci_loader,
@@ -280,6 +298,7 @@ class ServiceContainer:
             self.timer_engine,
             enable_ncci=bundle.profile.uses_ncci,
             regional_path_a=regional_path_a,
+            sa_extractor=sa_extractor,
         )
         path_a_snapshot = PathAClinicalSnapshotBuilder(
             rules_analyzer,
@@ -301,6 +320,7 @@ class ServiceContainer:
             path_a_snapshot=path_a_snapshot,
             pre_auth_validator=pre_auth_validator,
             pre_auth_exchange=build_pre_auth_exchange_adapter(bundle.billing_region),
+            sa_catalog=sa_extractor.detector.catalog if sa_extractor is not None else None,
         )
         self._region_runtimes[bundle.billing_region] = runtime
         return runtime

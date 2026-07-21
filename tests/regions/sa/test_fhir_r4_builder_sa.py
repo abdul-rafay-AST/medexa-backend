@@ -8,7 +8,7 @@ from medexa.adapters.storage.in_memory_storage import InMemoryObjectStorage
 from medexa.api.dependencies import ServiceContainer
 from medexa.application.fhir_export_service import FhirExportService
 from medexa.regions.factory import build_priorauth_fhir_exporter
-from medexa.schemas import BillingLineItem, BillingSummary, SessionState, TimerSegment
+from medexa.schemas import BillingLineItem, BillingSummary, ProtocolInsight, SessionState, TimerSegment
 from medexa.utils.time import now_utc
 
 SERVICES_CS = "http://nphies.sa/terminology/CodeSystem/services"
@@ -40,6 +40,7 @@ def _sample_state_and_summary(session_id: str = "sa-fhir") -> tuple[SessionState
         therapist_id="therapist-1",
         pre_auth_reference="PA-123",
         patient_name="Test Patient",
+        transcript_text="Patient completed physiotherapy for right knee pain.",
         timer_segments=[
             TimerSegment(
                 segment_id="seg-1",
@@ -49,6 +50,26 @@ def _sample_state_and_summary(session_id: str = "sa-fhir") -> tuple[SessionState
                 stop_time=now,
                 accumulated_seconds=1800,
             )
+        ],
+        insights=[
+            ProtocolInsight(
+                insight_id="icd-1",
+                type="detected_icd",
+                label="ICD-10-AM",
+                question="Accept Knee pain (M25.56)?",
+                description="Matched knee pain.",
+                status="approved",
+                code="M25.56",
+            ),
+            ProtocolInsight(
+                insight_id="sbs-1",
+                type="detected",
+                label="Detected SBS",
+                question="Bill Speech audiometry (11306-00-30)?",
+                description="Matched.",
+                status="pending",
+                code="11306-00-30",
+            ),
         ],
     )
     summary = BillingSummary(
@@ -192,3 +213,66 @@ def test_fhir_export_persists_claim_and_priorauth() -> None:
     assert storage.exists(claim_artifact.storage_key or "")
     assert storage.exists(priorauth_artifact.storage_key or "")
     assert priorauth_artifact.profile_id == "nphies-professional-priorauth"
+
+
+def test_claim_fills_detected_diagnoses_and_treatments() -> None:
+    """BillingEngine-parity clinical fill: ICD insights + SBS lines on Claim."""
+    container = ServiceContainer()
+    region = container.region_registry.resolve("SA")
+    builder = NphiesClaimBundleBuilder(region)
+    state, summary = _sample_state_and_summary("sa-clinical")
+    state.insights.append(
+        ProtocolInsight(
+            insight_id="pkg-1",
+            type="detected",
+            label="Detected SBS",
+            question="Bill PT package (98014-00-30)?",
+            description="Matched.",
+            status="approved",
+            code="98014-00-30",
+        )
+    )
+
+    payload = builder.build_claim_bundle(state, summary)
+    claim = _claim_resource(payload)
+
+    assert len(claim["diagnosis"]) == 1
+    dx = claim["diagnosis"][0]["diagnosisCodeableConcept"]["coding"][0]
+    assert dx["code"] == "M25.56"
+    assert dx["display"]
+    assert claim["diagnosis"][0]["type"][0]["coding"][0]["code"] == "principal"
+
+    item_codes = [i["productOrService"]["coding"][0]["code"] for i in claim["item"]]
+    assert "95550-03-00" in item_codes
+    assert "11306-00-30" in item_codes
+    assert "98014-00-30" in item_codes
+    for item in claim["item"]:
+        assert item["quantity"]["value"] >= 1
+        assert item["productOrService"]["coding"][0]["display"]
+        assert item["diagnosisSequence"]
+
+    pkg = next(i for i in claim["item"] if i["productOrService"]["coding"][0]["code"] == "98014-00-30")
+    pkg_ext = next(e for e in pkg["extension"] if str(e["url"]).endswith("extension-package"))
+    assert pkg_ext["valueBoolean"] is True
+
+    infos = {row["category"]["coding"][0]["code"]: row for row in claim["supportingInfo"]}
+    assert "98014-00-30" in (infos["treatment-plan"].get("valueString") or "")
+    assert infos["history-of-present-illness"].get("valueString")
+    assert infos["chief-complaint"]["code"]["coding"][0]["code"] == "M25.56"
+
+
+def test_empty_clinical_session_clears_skeleton_placeholders() -> None:
+    container = ServiceContainer()
+    region = container.region_registry.resolve("SA")
+    builder = NphiesClaimBundleBuilder(region)
+    now = now_utc()
+    state = SessionState(session_id="sa-empty", billing_region="SA")
+    summary = BillingSummary(
+        session_id="sa-empty",
+        total_minutes=0,
+        total_units=0,
+        generated_at=now,
+    )
+    claim = _claim_resource(builder.build_claim_bundle(state, summary))
+    assert claim["diagnosis"] == []
+    assert claim["item"] == []

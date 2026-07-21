@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from medexa.adapters.fhir._common import (
@@ -15,11 +15,13 @@ from medexa.adapters.fhir._common import (
     new_resource_ids,
     rewrite_references,
 )
+from medexa.adapters.fhir.sa.clinical_claim_fill import apply_clinical_claim_fill
 from medexa.regions.bundle import RegionBundle
+from medexa.regions.sa.detection.catalog import SaBillingCatalog, load_sa_catalog
 from medexa.schemas import BillingSummary, SessionState
 
 
-@dataclass(frozen=True)
+@dataclass
 class NphiesClaimBundleBuilder:
     """Builds a NPHIES-compliant professional claim-request Bundle.
 
@@ -28,9 +30,13 @@ class NphiesClaimBundleBuilder:
     so every mandatory NPHIES element (extension-episode, full supportingInfo,
     item extension-maternity/extension-patientInvoice, encounter-claim-AMB
     profile, ``services`` CodeSystem) is always present.
+
+    Clinical diagnosis + treatment lines are filled from the session the same
+    way as BillingEngine ``nphies_claim_builder`` (ICD insights + SBS lines).
     """
 
     bundle: RegionBundle
+    _catalog: SaBillingCatalog | None = field(default=None, init=False, repr=False)
 
     def profile_id(self) -> str:
         profile = self._profile()
@@ -38,6 +44,14 @@ class NphiesClaimBundleBuilder:
 
     def _profile(self) -> dict[str, Any]:
         return load_fhir_profile(self.bundle, "fhir/fhir_r4_profile_sa.json")
+
+    def _sa_catalog(self) -> SaBillingCatalog | None:
+        if self._catalog is None:
+            try:
+                self._catalog = load_sa_catalog(self.bundle)
+            except Exception:
+                self._catalog = None
+        return self._catalog
 
     def build_claim_bundle(self, state: SessionState, summary: BillingSummary) -> dict[str, Any]:
         profile = self._profile()
@@ -77,7 +91,13 @@ class NphiesClaimBundleBuilder:
             "Physical Medicine & Rehabilitation Specialty"
         )
 
-        self._fill_items(claim, summary)
+        apply_clinical_claim_fill(
+            claim,
+            state,
+            summary,
+            self._sa_catalog(),
+            include_patient_invoice=True,
+        )
 
         patient = find_resource(template, "Patient")
         patient["identifier"][0]["value"] = state.member_id or state.mrn or state.patient_id or ""
@@ -107,36 +127,3 @@ class NphiesClaimBundleBuilder:
             encounter["period"]["end"] = fhir_instant(summary.generated_at)
 
         return template
-
-    @staticmethod
-    def _fill_items(claim: dict[str, Any], summary: BillingSummary) -> None:
-        base_item = claim["item"][0]
-        items: list[dict[str, Any]] = []
-
-        for index, line in enumerate(summary.line_items, start=1):
-            item = deep_copy_template(base_item)
-            item["sequence"] = index
-            item["productOrService"]["coding"][0]["system"] = (
-                "http://nphies.sa/terminology/CodeSystem/services"
-            )
-            item["productOrService"]["coding"][0]["code"] = line.cpt_code
-            item["productOrService"]["coding"][0]["display"] = line.display_name
-            item["quantity"]["value"] = line.units
-
-            for ext in item.get("extension", []):
-                if ext["url"].endswith("extension-package"):
-                    ext["valueBoolean"] = False
-                if ext["url"].endswith("extension-maternity"):
-                    ext["valueBoolean"] = False
-
-            invoice_ext = find_extension(item, "extension-patientInvoice")
-            if invoice_ext is not None:
-                invoice_ext["valueIdentifier"]["system"] = (
-                    "https://medexa.internal/identifiers/patient-invoice"
-                )
-                invoice_ext["valueIdentifier"]["value"] = f"{summary.session_id}-{index}"
-
-            items.append(item)
-
-        if items:
-            claim["item"] = items

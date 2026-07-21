@@ -18,6 +18,7 @@ from medexa.domain.fhir_export import FhirExportArtifact, PreAuthReconciliationR
 from medexa.ports.deep_evaluation_port import DeepEvaluationPort
 from medexa.regions.factory import build_fhir_exporter
 from medexa.regions.runtime import RegionRuntime
+from medexa.regions.sa.billing.sa_timer_hooks import resolve_packages_after_stop
 from medexa.schemas import BillingSummary, SessionState
 
 
@@ -71,6 +72,8 @@ class FinalizeSessionOrchestrator:
             state.client_elapsed_seconds = body.total_seconds
 
         self.timer_engine.stop_all_running(state, now)
+        if runtime.sa_catalog:
+            resolve_packages_after_stop(state, runtime.sa_catalog)
         state.status = "ended"
         state.finalized_at = now
         state.last_updated = now

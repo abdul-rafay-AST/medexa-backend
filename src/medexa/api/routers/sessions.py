@@ -17,6 +17,7 @@ from medexa.api.routers._common import (
 )
 from medexa.logging_setup import get_logger
 from medexa.domain.billing_region import normalize_billing_region
+from medexa.regions.sa.billing.sa_timer_hooks import resolve_packages_after_stop
 from medexa.schemas import PatientDisplay, SessionState
 from medexa.utils.time import now_utc
 
@@ -147,6 +148,9 @@ async def update_state(
         state.status = "paused"
     elif req.status in ("stopped", "idle"):
         container.timer_engine.stop_all_running(state, billing_now(state))
+        runtime = container.runtime_for_state(state.billing_region)
+        if runtime.sa_catalog:
+            resolve_packages_after_stop(state, runtime.sa_catalog)
         state.status = "ended" if req.status == "stopped" else state.status
 
     await refresh_and_publish(state, container)

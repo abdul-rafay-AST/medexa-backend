@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from medexa.api import contracts as c
 from medexa.api.dependencies import ServiceContainer, get_container
 from medexa.api.routers._common import build_timer_state, billing_now, refresh_and_publish, require_state
+from medexa.regions.sa.billing.sa_timer_hooks import resolve_packages_after_stop
 
 router = APIRouter(prefix="/sessions", tags=["timers"])
 
@@ -63,6 +64,9 @@ async def stop_session_timer(
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
     container.timer_engine.stop_all_running(state, billing_now(state))
+    runtime = container.runtime_for_state(state.billing_region)
+    if runtime.sa_catalog:
+        resolve_packages_after_stop(state, runtime.sa_catalog)
     state.status = "paused"
     container.session_repo.save(state)
     await refresh_and_publish(state, container)
@@ -115,6 +119,9 @@ async def stop_cpt_timer(
 ) -> c.ApiTimerState:
     state = require_state(session_id, container)
     container.timer_engine.stop_all_running(state, billing_now(state))
+    runtime = container.runtime_for_state(state.billing_region)
+    if runtime.sa_catalog:
+        resolve_packages_after_stop(state, runtime.sa_catalog)
     state.active_cpt = None
     state.active_body_region = None
     state.cpt_timer_source = None

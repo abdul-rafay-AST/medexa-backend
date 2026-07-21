@@ -65,6 +65,19 @@
         "bedrock:InvokeModelWithResponseStream"
       ],
       "Resource": "*"
+    },
+    {
+      "Sid": "SaRegionConfigS3Read",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::medexa-storage",
+        "arn:aws:s3:::medexa-storage/regions/sa/*",
+        "arn:aws:s3:::medexa-storage/config/regions/sa/*"
+      ]
     }
   ]
 }

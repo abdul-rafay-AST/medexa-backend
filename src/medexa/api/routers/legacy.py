@@ -25,6 +25,7 @@ from medexa.api.models import (
 from medexa.api.routers._common import refresh_and_publish, require_state
 from medexa.adapters.realtime.in_process_broker import sse_encode_stream
 from medexa.logging_setup import get_logger
+from medexa.regions.sa.billing.sa_timer_hooks import resolve_packages_after_stop
 from medexa.schemas import TranscriptChunk
 from medexa.utils.time import now_utc
 
@@ -109,6 +110,9 @@ async def stop_timer(
     state = require_state(session_id, container)
     if not container.timer_engine.stop_segment(state, segment_id, now_utc()):
         raise HTTPException(status_code=404, detail="Running segment not found")
+    runtime = container.runtime_for_state(state.billing_region)
+    if runtime.sa_catalog:
+        resolve_packages_after_stop(state, runtime.sa_catalog)
     await refresh_and_publish(state, container)
     return {"status": "timer_stopped", "segment_id": segment_id}
 
@@ -119,6 +123,9 @@ async def switch_timer(
 ) -> dict[str, Any]:
     state = require_state(session_id, container)
     segment = container.timer_engine.switch_segment(state, req.cpt_code, req.body_region, now_utc())
+    runtime = container.runtime_for_state(state.billing_region)
+    if runtime.sa_catalog:
+        resolve_packages_after_stop(state, runtime.sa_catalog)
     await refresh_and_publish(state, container)
     return {"status": "timer_switched", "segment_id": segment.segment_id, "cpt_code": req.cpt_code}
 
@@ -181,8 +188,10 @@ async def end_session(
     state = require_state(session_id, container)
     now = now_utc()
     container.timer_engine.stop_all_running(state, now)
-    state.status = "ended"
     runtime = container.runtime_for_state(state.billing_region)
+    if runtime.sa_catalog:
+        resolve_packages_after_stop(state, runtime.sa_catalog)
+    state.status = "ended"
     summary = runtime.billing_summary_builder.build(state, now)
     state.last_updated = now
     container.session_repo.save(state)

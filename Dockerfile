@@ -27,6 +27,15 @@ RUN mkdir -p /app/data/sessions
 COPY config ./config
 COPY scripts ./scripts
 
+# Fail the image build if required Saudi Path A flatfiles are missing.
+RUN test -f /app/config/regions/sa/codes/medexa_sbs_lookup.json \
+ && test -f /app/config/regions/sa/codes/medexa_icd10_lookup.json \
+ && test -f /app/config/regions/sa/codes/sbs_v3_snomed.json \
+ && test -f /app/config/regions/sa/codes/icd10_am_ksa.json \
+ && test -f /app/config/regions/sa/codes/unique_icd10_codes.json \
+ && test -f /app/config/regions/sa/rules/sbs_icd10_mapping.json \
+ && test -f /app/config/regions/sa/region_profile.json
+
 EXPOSE 8000
 
 # App Runner / ECS / ALB health checks — does not call Bedrock (fast).
