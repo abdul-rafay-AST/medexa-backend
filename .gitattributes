@@ -1,2 +1,4 @@
 MEDEXA[[:space:]]CPT[[:space:]]FILES/cpt_icd10_info_filtered.json filter=lfs diff=lfs merge=lfs -text
 data/cpt_files/*.json filter=lfs diff=lfs merge=lfs -text
+config/regions/sa/codes/*.json filter=lfs diff=lfs merge=lfs -text
+config/regions/sa/rules/sbs_icd10_mapping.json filter=lfs diff=lfs merge=lfs -text

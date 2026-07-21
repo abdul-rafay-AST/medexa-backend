@@ -4,8 +4,8 @@ provider:
   name: aws
   runtime: python3.10
   region: us-east-2
-  memorySize: 1024
-  timeout: 30
+  memorySize: 2048
+  timeout: 60
   environment:
     MEDEXA_HOST: "0.0.0.0"
     MEDEXA_PORT: "8000"
@@ -16,9 +16,25 @@ provider:
     MEDEXA_S3_BUCKET: "medexa-storage"
     MEDEXA_TRANSCRIBE_S3_BUCKET: "medexa-storage"
     MEDEXA_CORS_ALLOW_ORIGINS: "*" # Change to your frontend URL in production
+    # SA region assets: baked under config/regions/sa. For packages over Lambda
+    # zip limits, set MEDEXA_CONFIG_SOURCE=s3 and sync config/regions/sa to
+    # s3://medexa-storage/regions/sa/ (S3ConfigLoader warm-cache prefix).
+    MEDEXA_CONFIG_SOURCE: "local"
     # Add your secrets below (ideally use AWS SSM or .env locally):
     # MEDEXA_GROQ_API_KEY: "your-key"
     # MEDEXA_DEEPGRAM_API_KEY: "your-key"
+
+package:
+  patterns:
+    - "!node_modules/**"
+    - "!**/*.pyc"
+    - "!**/__pycache__/**"
+    - "!tests/**"
+    - "!**/.pytest_cache/**"
+    - "config/regions/sa/codes/**"
+    - "config/regions/sa/rules/**"
+    - "config/regions/sa/**"
+    - "src/**"
 
 functions:
   api:

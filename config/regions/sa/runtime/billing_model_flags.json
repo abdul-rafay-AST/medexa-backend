@@ -30,9 +30,11 @@
       "member_discovery_enabled": true,
       "licensed_code_sets_required": [
         "ICD-10-AM",
-        "ACHI_or_SBS"
+        "SBS"
       ],
-      "notes": "This file contains internal runtime toggles only. It does not replace official code lists or implementation guides."
+      "file_based_sbs_detection": true,
+      "file_based_icd10_am_detection": true,
+      "notes": "This file contains internal runtime toggles only. It does not replace official code lists or implementation guides. SA Path A uses medexa_sbs_lookup.json + medexa_icd10_lookup.json with SBS–ICD mapping validation (no LLM)."
     }
   ]
 }

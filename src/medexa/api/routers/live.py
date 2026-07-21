@@ -478,6 +478,11 @@ async def get_live_pipeline(
             ),
         ),
         insights=[m.insight_to_contract(i) for i in state.insights],
+        detected_icd10_am=[
+            m.icd10_am_insight_to_contract(i)
+            for i in state.insights
+            if i.type == "detected_icd"
+        ],
         billing_suggestions=[m.suggestion_to_contract(s) for s in state.suggestions],
         assistant_suggestions=[
             m.assistant_suggestion_to_contract(s) for s in state.assistant_suggestions

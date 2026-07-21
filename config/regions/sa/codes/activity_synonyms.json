@@ -1,24 +1,3 @@
-{
-  "source_name": "Medexa Internal - Saudi Activity Synonyms",
-  "source_url": "internal://medexa/config/regions/sa/codes/activity_synonyms.json",
-  "version": "1.0.0",
-  "classification": "INTERNAL_DERIVED",
-  "notes": "Maps transcript language to internal service categories until SBS master codes are imported.",
-  "consultation": "consultation",
-  "initial consultation": "consultation",
-  "follow up consultation": "consultation",
-  "follow-up visit": "consultation",
-  "therapeutic exercise": "therapy_session",
-  "manual therapy": "therapy_session",
-  "physiotherapy": "therapy_session",
-  "physical therapy": "therapy_session",
-  "rehab session": "therapy_session",
-  "mri": "advanced_imaging",
-  "magnetic resonance": "advanced_imaging",
-  "ct scan": "advanced_imaging",
-  "computed tomography": "advanced_imaging",
-  "admission": "inpatient_admission",
-  "inpatient": "inpatient_admission",
-  "surgery": "surgical_procedure",
-  "operative procedure": "surgical_procedure"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:3074c8b23e707da0c71f4349f63e54b9c678872f17492380a6d75a8632ba938a
+size 1009

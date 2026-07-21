@@ -361,6 +361,8 @@ Resources:
                   - CreateS3Bucket
                   - !Ref StorageBucket
                   - !Ref ExistingS3BucketName
+              # local = bake config/regions/* into the image (includes SA SBS/ICD flatfiles).
+              # s3 = load from s3://<bucket>/regions/sa/... via S3ConfigLoader.
               - Name: MEDEXA_CONFIG_SOURCE
                 Value: local
               - Name: MEDEXA_PATH_B_ENABLED
