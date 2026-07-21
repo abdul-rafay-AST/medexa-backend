@@ -193,11 +193,13 @@ class ClinicalAnalysis(BaseModel):
 # ---------------------------------------------------------------------------
 class ProtocolInsight(BaseModel):
     insight_id: str
-    type: Literal["protocol", "detected", "billing"]
+    type: Literal["protocol", "detected", "detected_icd", "billing"]
     label: str
     question: str
     description: str
     status: Literal["pending", "approved", "ignored"] = "pending"
+    validation_status: str | None = None
+    code: str | None = None
 
 
 class SoapSubjective(BaseModel):

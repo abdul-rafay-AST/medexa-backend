@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from medexa.adapters.fhir._common import (
@@ -15,11 +15,13 @@ from medexa.adapters.fhir._common import (
     new_resource_ids,
     rewrite_references,
 )
+from medexa.adapters.fhir.sa.clinical_claim_fill import apply_clinical_claim_fill
 from medexa.regions.bundle import RegionBundle
+from medexa.regions.sa.detection.catalog import SaBillingCatalog, load_sa_catalog
 from medexa.schemas import BillingSummary, SessionState
 
 
-@dataclass(frozen=True)
+@dataclass
 class NphiesPriorAuthBundleBuilder:
     """Builds a NPHIES-compliant professional prior-authorization Bundle.
 
@@ -31,15 +33,25 @@ class NphiesPriorAuthBundleBuilder:
     - Item ``extension-package`` / ``extension-maternity`` default to ``false``
     - Encounter uses ``encounter-auth-*`` (status ``in-progress``)
     - SBS codes bind to ``CodeSystem/services`` (not ``procedures``)
+    - Clinical diagnosis + treatments filled like BillingEngine / claim builder
     """
 
     bundle: RegionBundle
+    _catalog: SaBillingCatalog | None = field(default=None, init=False, repr=False)
 
     def profile_id(self) -> str:
         return "nphies-professional-priorauth"
 
     def _profile(self) -> dict[str, Any]:
         return load_fhir_profile(self.bundle, "fhir/fhir_r4_profile_sa.json")
+
+    def _sa_catalog(self) -> SaBillingCatalog | None:
+        if self._catalog is None:
+            try:
+                self._catalog = load_sa_catalog(self.bundle)
+            except Exception:
+                self._catalog = None
+        return self._catalog
 
     def build_priorauth_bundle(self, state: SessionState, summary: BillingSummary) -> dict[str, Any]:
         profile = self._profile()
@@ -95,7 +107,13 @@ class NphiesPriorAuthBundleBuilder:
             "Physical Medicine & Rehabilitation Specialty"
         )
 
-        self._fill_items(claim, summary)
+        apply_clinical_claim_fill(
+            claim,
+            state,
+            summary,
+            self._sa_catalog(),
+            include_patient_invoice=False,
+        )
 
         patient = find_resource(template, "Patient")
         patient["identifier"][0]["value"] = state.member_id or state.mrn or state.patient_id or ""
@@ -124,29 +142,3 @@ class NphiesPriorAuthBundleBuilder:
         encounter["period"].pop("end", None)
 
         return template
-
-    @staticmethod
-    def _fill_items(claim: dict[str, Any], summary: BillingSummary) -> None:
-        base_item = claim["item"][0]
-        items: list[dict[str, Any]] = []
-
-        for index, line in enumerate(summary.line_items, start=1):
-            item = deep_copy_template(base_item)
-            item["sequence"] = index
-            item["productOrService"]["coding"][0]["system"] = (
-                "http://nphies.sa/terminology/CodeSystem/services"
-            )
-            item["productOrService"]["coding"][0]["code"] = line.cpt_code
-            item["productOrService"]["coding"][0]["display"] = line.display_name
-            item["quantity"]["value"] = line.units
-
-            for ext in item.get("extension", []):
-                if ext["url"].endswith("extension-package"):
-                    ext["valueBoolean"] = False
-                if ext["url"].endswith("extension-maternity"):
-                    ext["valueBoolean"] = False
-
-            items.append(item)
-
-        if items:
-            claim["item"] = items

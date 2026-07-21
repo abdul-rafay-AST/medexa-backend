@@ -1,7 +1,7 @@
 {
   "source_name": "Medexa Internal - Saudi Source Manifest",
   "source_url": "internal://medexa/config/regions/sa/source_manifest.json",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "records": [
     {
       "asset_group": "exchange",
@@ -26,6 +26,78 @@
       "license_required": false,
       "automation_confidence": "medium",
       "notes": "Public page verified; linked code lists and standards may require manual review for stable ingestion."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/medexa_sbs_lookup.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "Medexa SBS lookup (BillingEngine sync)",
+      "official_url": "internal://medexa/config/regions/sa/codes/medexa_sbs_lookup.json",
+      "artifact_type": "JSON trigger-phrase lookup",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Synced from BillingEngine medexa_sbs_lookup.json. File-based SA Path A SBS detection (confidence >= 80). No LLM. Package parents 98010/98014/98016 only."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/medexa_icd10_lookup.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "Medexa ICD-10-AM symptom-inference lookup",
+      "official_url": "internal://medexa/config/regions/sa/codes/medexa_icd10_lookup.json",
+      "artifact_type": "JSON symptom-inference lookup",
+      "login_required": false,
+      "license_required": true,
+      "automation_confidence": "high",
+      "notes": "Synced from BillingEngine medexa_icd10_lookup.json (~15MB). Symptom-inference matcher for SA Path A ICD detection."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/sbs_v3_snomed.json",
+      "classification": "LICENSED_EXTERNAL",
+      "official_source_name": "SBS v3 SNOMED procedure labels",
+      "official_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
+      "artifact_type": "JSON code list",
+      "login_required": false,
+      "license_required": true,
+      "automation_confidence": "medium",
+      "notes": "Synced from BillingEngine SBS_v3_SNOMED.json. Display labels for detected SBS codes."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/icd10_am_ksa.json",
+      "classification": "LICENSED_EXTERNAL",
+      "official_source_name": "IHACPA / Lane Print ICD-10-AM, ACHI, ACS",
+      "official_url": "https://www.ihacpa.gov.au/health-care/products-and-licenses",
+      "artifact_type": "Licensed electronic code lists",
+      "login_required": false,
+      "license_required": true,
+      "automation_confidence": "low",
+      "notes": "Synced from BillingEngine ICD10-AM-KSA.json. ICD-10-AM descriptions for KSA."
+    },
+    {
+      "asset_group": "codes",
+      "backend_file": "codes/unique_icd10_codes.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "Unique ICD-10-AM display labels",
+      "official_url": "internal://medexa/config/regions/sa/codes/unique_icd10_codes.json",
+      "artifact_type": "JSON code list",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Synced from BillingEngine Unique-ICD10-Codes.json. Preferred ICD display labels (override AM when present)."
+    },
+    {
+      "asset_group": "rules",
+      "backend_file": "rules/sbs_icd10_mapping.json",
+      "classification": "INTERNAL_DERIVED",
+      "official_source_name": "SBS–ICD-10 medical necessity mapping",
+      "official_url": "internal://medexa/config/regions/sa/rules/sbs_icd10_mapping.json",
+      "artifact_type": "JSON mapping",
+      "login_required": false,
+      "license_required": false,
+      "automation_confidence": "high",
+      "notes": "Synced from BillingEngine SBS-ICD10-Mapping.json. Validates detected SBS against Direct_ICD10_Codes; clinician accept/reject decides."
     },
     {
       "asset_group": "codes",

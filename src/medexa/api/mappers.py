@@ -157,10 +157,10 @@ def analysis_to_contract(
         live.append(
             c.ApiLiveSuggestion(
                 id=insight.insight_id,
-                type=insight.type if insight.type != "detected" else "detected",
+                type=insight.type if insight.type in {"protocol", "detected", "detected_icd", "billing"} else "detected",
                 title=insight.label,
                 description=insight.description,
-                action_label="Review",
+                action_label="Accept" if insight.type == "detected_icd" else "Review",
                 status={  # type: ignore[arg-type]
                     "approved": "applied",
                     "ignored": "ignored",
@@ -277,6 +277,20 @@ def insight_to_contract(i: ProtocolInsight) -> c.ApiInsight:
         question=i.question,
         description=i.description,
         status=i.status,
+        validation_status=i.validation_status,
+        code=i.code,
+    )
+
+
+def icd10_am_insight_to_contract(i: ProtocolInsight) -> c.ApiDetectedIcd10Am:
+    return c.ApiDetectedIcd10Am(
+        id=i.insight_id,
+        code=i.code or "",
+        label=i.label,
+        question=i.question,
+        description=i.description,
+        status=i.status,
+        validation_status=i.validation_status,
     )
 
 

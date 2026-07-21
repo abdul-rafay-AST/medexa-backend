@@ -119,11 +119,13 @@ class ApiTranscript(CamelModel):
 # ---------------------------------------------------------------------------
 class ApiInsight(CamelModel):
     id: str
-    type: Literal["protocol", "detected", "billing"]
+    type: Literal["protocol", "detected", "detected_icd", "billing"]
     label: str
     question: str
     description: str
     status: Literal["pending", "approved", "ignored"] = "pending"
+    validation_status: str | None = None
+    code: str | None = None
 
 
 class ApiSuggestion(CamelModel):
@@ -131,6 +133,18 @@ class ApiSuggestion(CamelModel):
     title: str
     text: str
     applied: bool = False
+
+
+class ApiDetectedIcd10Am(CamelModel):
+    """Compact ICD-10-AM card for Vercel medexa-fe live pipeline (accept/reject)."""
+
+    id: str
+    code: str
+    label: str
+    question: str
+    description: str
+    status: Literal["pending", "approved", "ignored"] = "pending"
+    validation_status: str | None = None
 
 
 class ApiAssistantSuggestion(CamelModel):
@@ -204,7 +218,7 @@ class ApiCptTimerSuggestion(BaseModel):
 
 class ApiLiveSuggestion(BaseModel):
     id: str
-    type: Literal["billing", "protocol", "detected", "alert"]
+    type: Literal["billing", "protocol", "detected", "detected_icd", "alert"]
     title: str
     description: str
     action_label: str = "Review"
@@ -310,7 +324,13 @@ class ApiExtractedEntity(CamelModel):
 
 
 class ApiLivePipelineSnapshot(CamelModel):
-    """Single pollable view of Path A / B / C status for local testing UIs."""
+    """Single pollable view of Path A / B / C status for local testing UIs.
+
+    SA FE contract notes (Vercel medexa-fe):
+    - ``insights`` with ``type=detected`` are SBS procedure cards (approve/ignore).
+    - ``detectedIcd10Am`` is the compact ICD-10-AM accept/reject section.
+    - Reuse ``POST .../insights/{id}/approve`` and ``/ignore`` for both.
+    """
 
     session_id: str
     billing_region: str = "US"
@@ -319,6 +339,7 @@ class ApiLivePipelineSnapshot(CamelModel):
     path_b: ApiPathBStatus = ApiPathBStatus()
     path_c: ApiPathCStatus = ApiPathCStatus()
     insights: list[ApiInsight] = []
+    detected_icd10_am: list[ApiDetectedIcd10Am] = []
     billing_suggestions: list[ApiSuggestion] = []
     assistant_suggestions: list[ApiAssistantSuggestion] = []
     entities: list[ApiExtractedEntity] = []
