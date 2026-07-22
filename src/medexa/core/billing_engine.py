@@ -14,7 +14,11 @@ from datetime import datetime
 from medexa.core.billing_timer_engine import BillingTimerEngine
 from medexa.core.eight_minute_rule import EightMinuteRuleCalculator
 from medexa.core.ncci_conflict_checker import NcciConflictChecker
-from medexa.ports.cpt_metadata import CptMetadataPort
+from medexa.ports.cpt_metadata import (
+    BillingCategoryPort,
+    CptGeneralInfoPort,
+    CptMetadataPort,
+)
 from medexa.schemas import (
     Alert,
     BillingLineItem,
@@ -44,6 +48,8 @@ class BillingEngine:
         eight_minute_calculator: EightMinuteRuleCalculator,
         cpt_metadata: CptMetadataPort,
         ncci_checker: NcciConflictChecker,
+        cpt_general_info: CptGeneralInfoPort | None = None,
+        billing_category: BillingCategoryPort | None = None,
         *,
         use_eight_minute_rule: bool = True,
     ) -> None:
@@ -51,7 +57,41 @@ class BillingEngine:
         self._calc = eight_minute_calculator
         self._meta = cpt_metadata
         self._ncci = ncci_checker
+        self._general_info = cpt_general_info
+        self._category = billing_category
         self._use_eight_minute_rule = use_eight_minute_rule
+
+    def _get_cpt_billing_rule(self, cpt_code: str) -> str | None:
+        """Resolve billingRule for a CPT by checking category then general info.
+
+        Checks billing category first (more specific), then falls back to
+        general info if no category match is found.
+        """
+        rule = None
+        if self._category is not None:
+            rule = self._category.get_billing_rule(cpt_code)
+        if rule is None and self._general_info is not None:
+            rule = self._general_info.get_billing_rule(cpt_code)
+        return rule
+
+    @staticmethod
+    def _is_untimed_billing_rule(billing_rule: str | None) -> bool:
+        """Check if a billing rule is an untimed/non-time-based rule.
+
+        These rules bill a fixed number of units (typically 1) regardless
+        of time spent and should not contribute to timed pool calculations.
+        """
+        if billing_rule is None:
+            return False
+        return billing_rule in (
+            "untimed_per_day",
+            "untimed_per_session",
+            "untimed_per_procedure",
+            "untimed_per_encounter",
+            "untimed_per_episode",
+            "area_based",
+            "time_band_select",
+        )
 
     def billable_seconds_by_cpt(self, state: SessionState, now: datetime) -> dict[str, int]:
         totals: dict[str, int] = {}
@@ -65,10 +105,17 @@ class BillingEngine:
     def timed_minutes_by_cpt(self, state: SessionState, now: datetime) -> dict[str, int]:
         minutes: dict[str, int] = {}
         for seg in state.timer_segments:
-            if not seg.is_billable or not self._meta.is_timed(seg.cpt_code):
+            if not seg.is_billable:
+                continue
+            cpt = seg.cpt_code
+            billing_rule = self._get_cpt_billing_rule(cpt)
+            if billing_rule is not None:
+                if self._is_untimed_billing_rule(billing_rule):
+                    continue
+            elif not self._meta.is_timed(cpt):
                 continue
             sec = self._timer.accumulated_seconds(seg, now)
-            minutes[seg.cpt_code] = minutes.get(seg.cpt_code, 0) + sec // 60
+            minutes[cpt] = minutes.get(cpt, 0) + sec // 60
         return minutes
 
     def timed_pool_seconds(self, state: SessionState, now: datetime) -> int:
@@ -104,11 +151,19 @@ class BillingEngine:
         total_units = 0
 
         for cpt, sec in sorted(metrics.billable_seconds_by_cpt.items()):
-            timed = self._meta.is_timed(cpt)
-            if timed and self._use_eight_minute_rule:
-                units = eight_min.units_by_cpt.get(cpt, 0) if eight_min else 0
+            billing_rule = self._get_cpt_billing_rule(cpt)
+
+            if billing_rule is not None and self._is_untimed_billing_rule(billing_rule):
+                units = 1 if sec > 0 else 0
+            elif self._meta.is_timed(cpt) and self._use_eight_minute_rule and eight_min is not None:
+                units = eight_min.units_by_cpt.get(cpt, 0)
             else:
                 units = 1 if sec > 0 else 0
+
+            timed = self._meta.is_timed(cpt)
+            if billing_rule is not None and self._is_untimed_billing_rule(billing_rule):
+                timed = False
+
             line_items.append(
                 BillingLineItem(
                     cpt_code=cpt,

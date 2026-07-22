@@ -1,21 +1,23 @@
-from typing import List
+from typing import Any, List
 import uuid
 
 from medexa.schemas import Alert
-from medexa.loaders.ncci_rules_loader import NcciRule, NcciRulesLoader
+from medexa.ports.cpt_metadata import CptPtpPort
 from medexa.core.ncci_alert_formatter import format_ncci_conflict_message
+
 
 class NcciConflictChecker:
     """
     Checks active session CPT codes against the NCCI rules engine to flag billing conflicts.
     Generates Alerts that are completely decoupled from network boundaries.
+    Depends on CptPtpPort (hexagonal port) rather than a concrete loader.
     """
-    
-    def __init__(self, rules_loader: NcciRulesLoader):
-        self._rules_loader = rules_loader
 
-    def check_conflict(self, cpt_a: str, cpt_b: str) -> NcciRule | None:
-        return self._rules_loader.check_conflict(cpt_a, cpt_b)
+    def __init__(self, ptp_port: CptPtpPort):
+        self._ptp_port = ptp_port
+
+    def check_conflict(self, cpt_a: str, cpt_b: str) -> dict[str, Any] | None:
+        return self._ptp_port.check_conflict(cpt_a, cpt_b)
 
     def check_conflicts(
         self,
@@ -47,7 +49,7 @@ class NcciConflictChecker:
                 if cpt_a == cpt_b:
                     continue
 
-                rule = self._rules_loader.check_conflict(cpt_a, cpt_b)
+                rule = self._ptp_port.check_conflict(cpt_a, cpt_b)
                 if not rule:
                     continue
 

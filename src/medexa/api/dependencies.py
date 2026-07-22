@@ -43,6 +43,12 @@ from medexa.core.ambient_speaker_diarizer import AmbientSpeakerDiarizer
 from medexa.core.deepgram_speaker_mapper import DeepgramSpeakerRoleMapper
 from medexa.core.speaker_role_classifier import SpeakerRoleClassifier, format_labeled_utterance
 from medexa.core.transcript_processor import TranscriptProcessor
+from medexa.loaders.cpt_aoc_info_loader import CptAocInfoLoader
+from medexa.loaders.cpt_general_info_loader import CptGeneralInfoLoader
+from medexa.loaders.cpt_icd10_info_loader import CptIcd10InfoLoader
+from medexa.loaders.cpt_mue_info_loader import CptMueInfoLoader
+from medexa.loaders.cpt_ptp_info_loader import CptPtpInfoLoader
+from medexa.loaders.pt_ot_slp_billing_categories_loader import PtOtSlpBillingCategoriesLoader
 from medexa.loaders.mue_limits_loader import MueLimitsLoader
 from medexa.regions.factory import (
     build_pre_auth_exchange_adapter,
@@ -114,13 +120,20 @@ class ServiceContainer:
         self.default_region_bundle = self.region_registry.resolve("US")
         self.eight_minute_calculator = EightMinuteRuleCalculator()
         self.timer_engine = BillingTimerEngine()
+        codes_dir = self.default_region_bundle.asset_paths.region_dir / "codes"
+        self.cpt_general_info = CptGeneralInfoLoader(codes_dir / "cpt_general_info 4.json")
+        self.cpt_icd10_info = CptIcd10InfoLoader(codes_dir / "cpt_icd10_info 2.json")
+        self.cpt_aoc_info = CptAocInfoLoader(codes_dir / "cpt_aoc_info 6.json")
+        self.cpt_mue_info = CptMueInfoLoader(codes_dir / "cpt_mue_info 4.json")
+        self.pt_ot_slp_categories = PtOtSlpBillingCategoriesLoader(codes_dir / "pt_ot_slp_billing_categories 5.json")
+        self.ptp_loader = CptPtpInfoLoader(codes_dir / "cpt_ptp_info 4.json")
         self.hybrid_cpt_index = UsCptRuleIndex(self.default_region_bundle)
         self.cpt_metadata = UsCptMetadataRegistry(self.default_region_bundle)
         self.mue_limits = MueLimitsLoader(cpt_dir)
         self.region_normalizer = UsBodyRegionNormalizer(self.default_region_bundle)
         self.ncci_loader = UsNcciRulesLoader(self.default_region_bundle)
         self.icd_loader = UsIcdLookupLoader(self.default_region_bundle)
-        self.ncci_checker = NcciConflictChecker(self.ncci_loader)
+        self.ncci_checker = NcciConflictChecker(self.ptp_loader)
         self.suggestion_generator = SuggestionGenerator(
             self.cpt_metadata,
             settings.suggestion_cooldown_seconds,
@@ -258,7 +271,7 @@ class ServiceContainer:
             )
 
         transcript_processor = TranscriptProcessor(entity_extractor, suggestion_generator)
-        ncci_checker = NcciConflictChecker(ncci_loader)
+        ncci_checker = NcciConflictChecker(self.ptp_loader)
         rules_analyzer = RulesClinicalAnalyzer(
             entity_extractor=entity_extractor if isinstance(entity_extractor, EntityExtractor) else EntityExtractor(cpt_index, region_normalizer),
             cpt_metadata_loader=cpt_metadata,
@@ -272,6 +285,8 @@ class ServiceContainer:
             self.eight_minute_calculator,
             cpt_metadata,
             ncci_checker,
+            cpt_general_info=self.cpt_general_info,
+            billing_category=self.pt_ot_slp_categories,
             use_eight_minute_rule=bundle.profile.uses_eight_minute_rule,
         )
         insights_builder = InsightsBuilder(
