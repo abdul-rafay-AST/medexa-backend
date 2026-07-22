@@ -3,11 +3,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from medexa.ports.cpt_metadata import CptPtpPort
-
 logger = logging.getLogger(__name__)
 
-class CptPtpInfoLoader(CptPtpPort):
+class CptPtpInfoLoader:
     def __init__(self, config_path: Path):
         self._cpt_data: Dict[str, Dict[str, Any]] = {}
         
@@ -102,59 +100,6 @@ class CptPtpInfoLoader(CptPtpPort):
             return self._bundles_others_index[cpt_code][related_cpt]
             
         return None
-
-    def check_conflict(self, cpt_a: str, cpt_b: str) -> Optional[Dict[str, Any]]:
-        """
-        Check for a PTP/NCCI conflict between two CPT codes.
-
-        Reuses the existing pre-indexed data to determine direction:
-        which code is bundled (column-2) and which is payable (column-1).
-        Returns a dict matching the NcciRule shape if a conflict exists,
-        or None if no conflict is found.
-        """
-        # Check if cpt_a is bundled into cpt_b (cpt_a = column-2, cpt_b = column-1)
-        if cpt_a in self._bundled_into_index and cpt_b in self._bundled_into_index[cpt_a]:
-            modifier = self._bundled_into_index[cpt_a][cpt_b]
-            return self._build_conflict_result(cpt_a, cpt_b, modifier)
-
-        # Check if cpt_b is bundled into cpt_a (cpt_b = column-2, cpt_a = column-1)
-        if cpt_b in self._bundled_into_index and cpt_a in self._bundled_into_index[cpt_b]:
-            modifier = self._bundled_into_index[cpt_b][cpt_a]
-            return self._build_conflict_result(cpt_b, cpt_a, modifier)
-
-        # Check if cpt_a bundles cpt_b (cpt_b = column-2, cpt_a = column-1)
-        if cpt_a in self._bundles_others_index and cpt_b in self._bundles_others_index[cpt_a]:
-            modifier = self._bundles_others_index[cpt_a][cpt_b]
-            return self._build_conflict_result(cpt_b, cpt_a, modifier)
-
-        # Check if cpt_b bundles cpt_a (cpt_a = column-2, cpt_b = column-1)
-        if cpt_b in self._bundles_others_index and cpt_a in self._bundles_others_index[cpt_b]:
-            modifier = self._bundles_others_index[cpt_b][cpt_a]
-            return self._build_conflict_result(cpt_a, cpt_b, modifier)
-
-        return None
-
-    def _build_conflict_result(
-        self, bundled_code: str, payable_code: str, modifier_indicator: str
-    ) -> Dict[str, Any]:
-        """Build a conflict result dict matching the NcciRule shape."""
-        cpt_a = min(bundled_code, payable_code)
-        cpt_b = max(bundled_code, payable_code)
-        explanation = (
-            f"{bundled_code} is bundled into {payable_code} under NCCI. "
-            f"Modifier indicator: {modifier_indicator}."
-        )
-        modifier_59_possible = modifier_indicator in ("0", "1")
-        return {
-            "cpt_a": cpt_a,
-            "cpt_b": cpt_b,
-            "payable_code": payable_code,
-            "bundled_code": bundled_code,
-            "conflict_type": "ptp_bundle",
-            "body_region_sensitive": modifier_indicator == "0",
-            "modifier_59_possible": modifier_59_possible,
-            "explanation": explanation,
-        }
 
     def get_all_codes(self) -> List[str]:
         return list(self._cpt_data.keys())

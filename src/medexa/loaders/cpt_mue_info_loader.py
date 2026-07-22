@@ -3,11 +3,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from medexa.ports.cpt_metadata import CptMuePort
-
 logger = logging.getLogger(__name__)
 
-class CptMueInfoLoader(CptMuePort):
+class CptMueInfoLoader:
     def __init__(self, config_path: Path):
         self._cpt_data: Dict[str, Dict[str, Any]] = {}
         self._load(config_path)

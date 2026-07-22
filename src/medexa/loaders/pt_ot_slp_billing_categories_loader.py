@@ -3,11 +3,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from medexa.ports.cpt_metadata import BillingCategoryPort
-
 logger = logging.getLogger(__name__)
 
-class PtOtSlpBillingCategoriesLoader(BillingCategoryPort):
+class PtOtSlpBillingCategoriesLoader:
     def __init__(self, config_path: Path):
         self._cpt_data: Dict[str, Dict[str, Any]] = {}
         self._raw_data: Dict[str, Any] = {}

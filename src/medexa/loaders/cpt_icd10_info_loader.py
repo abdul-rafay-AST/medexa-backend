@@ -3,11 +3,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
-from medexa.ports.cpt_metadata import CptIcd10Port
-
 logger = logging.getLogger(__name__)
 
-class CptIcd10InfoLoader(CptIcd10Port):
+class CptIcd10InfoLoader:
     def __init__(self, config_path: Path):
         # Store raw info if needed for get_cpt_info
         self._cpt_data: Dict[str, Dict[str, Any]] = {}
