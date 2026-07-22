@@ -1,0 +1,332 @@
+{
+  // NPHIES Eligibility Request Bundle — Medexa SA template
+  // Official: https://portal.nphies.sa/ig/usecase-eligibility.html
+  // Profile: StructureDefinition/eligibility-request
+  // Runtime loader uses: eligibility-request.template.json (same structure, no comments)
+  //
+  // Legend for empties left on purpose (reject if still empty on live NPHIES submit):
+  //   [MEDEXA]     = filled by Medexa session / builder today or soon
+  //   [CLINIC]     = clinic/provider config (licenses, org name, address)
+  //   [INTAKE/EHR] = patient intake form or future EHR
+  //   [PAYER_DIR]  = insurer directory / eligibility response enrichment
+  //   [RUNTIME]    = generated at build time (UUIDs, timestamps, internal refs)
+
+  "resourceType": "Bundle",
+  "id": "", // [RUNTIME] UUID for this transmission — builder stamps
+  "meta": {
+    "profile": [
+      "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/bundle|1.0.0" // STATIC NPHIES
+    ]
+  },
+  "type": "message", // STATIC
+  "timestamp": "", // [RUNTIME] FHIR instant — builder stamps
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:c3f7ade1-9932-4a1c-8b4e-2d1f6e0a9b47", // [RUNTIME] remapped
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "c3f7ade1-9932-4a1c-8b4e-2d1f6e0a9b47", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/message-header|1.0.0" // STATIC
+          ]
+        },
+        "eventCoding": {
+          "system": "http://nphies.sa/terminology/CodeSystem/ksa-message-events",
+          "code": "eligibility-request" // STATIC — not claim/priorauth
+        },
+        "destination": [
+          {
+            "endpoint": "https://nphies.sa/fhir/$process-message", // STATIC
+            "receiver": {
+              "type": "Organization",
+              "identifier": {
+                "system": "http://nphies.sa/license/payer-license",
+                "value": "" // [MEDEXA→PAYER_DIR] state.payer_id today; real NPHIES payer-license later. REJECT if empty live.
+              }
+            }
+          }
+        ],
+        "sender": {
+          "type": "Organization",
+          "identifier": {
+            "system": "http://nphies.sa/license/provider-license",
+            "value": "" // [CLINIC] provider-license from clinic config; session.therapist_id is temporary. REJECT if empty live.
+          }
+        },
+        "source": {
+          "endpoint": "https://medexa.internal/nphies" // STATIC Medexa endpoint (clinic URL later)
+        },
+        "focus": [
+          {
+            "reference": "http://yourclinic.com/CoverageEligibilityRequest/ELIG-123" // [RUNTIME] rewired to urn:uuid
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/CoverageEligibilityRequest/ELIG-123",
+      "resource": {
+        "resourceType": "CoverageEligibilityRequest",
+        "id": "", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/eligibility-request|1.0.0" // STATIC
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://medexa.internal/identifiers/eligibility-request", // STATIC Medexa system
+            "value": "" // [MEDEXA] state.session_id (or dedicated eligibility request id). REJECT if empty live.
+          }
+        ],
+        "status": "active", // STATIC — BV-00538
+        "priority": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+              "code": "normal", // STATIC default
+              "display": "Normal"
+            }
+          ]
+        },
+        "purpose": [
+          "validation", // STATIC — check coverage in-force
+          "benefits" // STATIC — return benefit details (unique codes — ksa-purpose-unique-code)
+        ],
+        "patient": {
+          "reference": "" // [RUNTIME] Patient/{id}
+        },
+        "servicedPeriod": {
+          "start": "", // [MEDEXA] session.created_at / planned service date — BV-00437. REJECT if empty live.
+          "end": "" // [MEDEXA] same day or planned end; optional if start alone via servicedDate
+        },
+        "created": "", // [RUNTIME] builder now. REJECT if empty live.
+        "provider": {
+          "reference": "" // [RUNTIME] Organization/provider
+        },
+        "insurer": {
+          "reference": "" // [RUNTIME] Organization/insurer
+        },
+        "insurance": [
+          {
+            "focal": true, // STATIC
+            "coverage": {
+              "reference": "" // [RUNTIME] Coverage/{id} — required for validation/benefits purpose
+            }
+          }
+        ]
+        // NOTE: item[] omitted on purpose. Empty benefit-category codes cause soft/hard issues.
+        // Add item only when category is known (NPHIES benefit-category). Optional 0..*.
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Patient/PAT-123",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/patient|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "" // [INTAKE/EHR] NAT | PRC | PPN. REJECT if empty live.
+                }
+              ]
+            },
+            "system": "http://nphies.sa/identifier/iqama", // default Iqama system; switch with ID type
+            "value": "" // [INTAKE/EHR] national ID / iqama. Medexa may temporarily use member_id/mrn. REJECT if empty live.
+          }
+        ],
+        "active": true, // STATIC
+        "name": [
+          {
+            "use": "official",
+            "text": "", // [MEDEXA] state.patient_name
+            "family": "", // [MEDEXA] parsed from patient_name
+            "given": [
+              "" // [MEDEXA] parsed from patient_name
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "" // [INTAKE/EHR] soft — often optional
+          }
+        ],
+        "gender": "", // [INTAKE/EHR] male|female|unknown. REJECT if empty live.
+        "_gender": {
+          "extension": [
+            {
+              "url": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/extension-ksa-administrative-gender",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://nphies.sa/terminology/CodeSystem/ksa-administrative-gender",
+                    "code": "" // [INTAKE/EHR] KSA gender. REJECT if empty live.
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "birthDate": "", // [INTAKE/EHR] YYYY-MM-DD. REJECT if empty live.
+        "maritalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": "" // [INTAKE/EHR] U|M|…. REJECT if empty live.
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Coverage/COV-123",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/coverage|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://medexa.internal/identifiers/member-id",
+            "value": "" // [MEDEXA] state.member_id. REJECT if empty live.
+          }
+        ],
+        "status": "active", // STATIC
+        "type": {
+          "coding": [
+            {
+              "system": "http://nphies.sa/terminology/CodeSystem/coverage-type",
+              "code": "EHCPOL", // STATIC default extended healthcare
+              "display": "extended healthcare"
+            }
+          ]
+        },
+        "subscriber": {
+          "reference": "" // [RUNTIME] usually Patient/{id} when relationship=self
+        },
+        "beneficiary": {
+          "reference": "" // [RUNTIME] Patient/{id}
+        },
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": "" // [INTAKE/EHR or PAYER_DIR] self|spouse|child. REJECT if empty live.
+            }
+          ]
+        },
+        "payor": [
+          {
+            "reference": "" // [RUNTIME] Organization/insurer
+          }
+        ],
+        "class": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                  "code": "plan" // STATIC
+                }
+              ]
+            },
+            "value": "", // [PAYER_DIR / eligibility response] plan code. Often REJECT if empty.
+            "name": "" // [PAYER_DIR] plan display name
+          }
+        ],
+        "network": "" // [PAYER_DIR / eligibility response] network id. Often REJECT if empty.
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Organization/PR-123",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/provider-organization|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://nphies.sa/license/provider-license",
+            "value": "" // [CLINIC] real provider-license. REJECT if empty live.
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://nphies.sa/terminology/CodeSystem/organization-type",
+                "code": "prov", // STATIC
+                "display": "Healthcare Provider"
+              }
+            ]
+          }
+        ],
+        "name": "", // [CLINIC] clinic legal name. REJECT if empty live.
+        "address": [
+          {
+            "use": "work",
+            "text": "", // [CLINIC] soft
+            "city": "", // [CLINIC] soft
+            "country": "Saudi Arabia" // STATIC
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Organization/INS-123",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "", // [RUNTIME]
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/insurer-organization|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://nphies.sa/license/payer-license",
+            "value": "" // [PAYER_DIR] real payer-license. REJECT if empty live.
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://nphies.sa/terminology/CodeSystem/organization-type",
+                "code": "ins", // STATIC
+                "display": "Insurance Company"
+              }
+            ]
+          }
+        ],
+        "name": "", // [PAYER_DIR] insurer name. REJECT if empty live.
+        "address": [
+          {
+            "use": "work",
+            "text": "", // soft
+            "city": "", // soft
+            "country": "Saudi Arabia" // STATIC
+          }
+        ]
+      }
+    }
+  ]
+}

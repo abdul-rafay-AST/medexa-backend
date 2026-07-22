@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 SOURCE_URL = "https://www.chi.gov.sa/en/MarketSectors/Pages/InsuranceCompanies.aspx"
-OUTPUT = Path(__file__).resolve().parents[1] / "config/regions/sa/payers/ksa_chi_payers.json"
+OUTPUT = Path(__file__).resolve().parents[1] / "config/regions/sa/reference/ksa_chi_payers.json"
 LINK_PATTERN = re.compile(r"<a[^>]+href=\"([^\"]+)\"[^>]*>([^<]+)</a>", re.IGNORECASE)
 
 

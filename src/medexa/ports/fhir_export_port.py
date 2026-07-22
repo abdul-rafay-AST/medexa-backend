@@ -21,3 +21,11 @@ class PriorAuthFhirExportPort(Protocol):
     def build_priorauth_bundle(
         self, state: SessionState, summary: BillingSummary
     ) -> dict[str, Any]: ...
+
+
+class EligibilityFhirExportPort(Protocol):
+    """Builds a region-specific FHIR R4 coverage eligibility request Bundle."""
+
+    def profile_id(self) -> str: ...
+
+    def build_eligibility_bundle(self, state: SessionState) -> dict[str, Any]: ...

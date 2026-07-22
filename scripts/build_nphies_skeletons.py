@@ -361,16 +361,11 @@ def main() -> None:
     claim = patch_claim_bundle(load_jsonc(CLAIM_JSONC))
     priorauth = patch_priorauth_bundle(load_jsonc(PRIORAUTH_JSONC))
 
-    claim_json = OUT_DIR / "professional-claim-request-bundle.template.json"
-    priorauth_json = OUT_DIR / "professional-priorauth-request-bundle.template.json"
+    claim_json = OUT_DIR / "claim-request.template.json"
+    priorauth_json = OUT_DIR / "priorauth-request.template.json"
 
     write_json(claim_json, claim)
     write_json(priorauth_json, priorauth)
-
-    claim_jsonc = OUT_DIR / "professional-claim-bundle-skeleton.jsonc"
-    priorauth_jsonc = OUT_DIR / "professional-priorauth-bundle-skeleton.jsonc"
-    write_json(claim_jsonc, claim)
-    write_json(priorauth_jsonc, priorauth)
     write_json(CLAIM_JSONC, claim)
     write_json(PRIORAUTH_JSONC, priorauth)
 
@@ -390,8 +385,6 @@ def main() -> None:
 
     print(f"Wrote {claim_json}")
     print(f"Wrote {priorauth_json}")
-    print(f"Wrote {claim_jsonc}")
-    print(f"Wrote {priorauth_jsonc}")
     print(f"Updated {CLAIM_JSONC}")
     print(f"Updated {PRIORAUTH_JSONC}")
 

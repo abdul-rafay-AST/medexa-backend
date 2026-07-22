@@ -4,28 +4,35 @@
   "version": "1.2.0",
   "records": [
     {
-      "asset_group": "exchange",
-      "backend_file": "exchange/nphies_transaction_catalog.json",
+      "asset_group": "runtime",
+      "backend_file": "region_profile.json",
+      "classification": "INTERNAL",
+      "notes": "Loaded at region bootstrap."
+    },
+    {
+      "asset_group": "fhir",
+      "backend_file": "fhir/fhir_r4_profile_sa.json",
+      "classification": "INTERNAL",
+      "notes": "Points builders at NPHIES templates and code systems."
+    },
+    {
+      "asset_group": "fhir",
+      "backend_file": "fhir/templates/",
       "classification": "INTERNAL_DERIVED",
-      "official_source_name": "NPHIES Healthcare Financial Services Implementation Guide",
       "official_url": "https://portal.nphies.sa/ig/index.html",
-      "artifact_type": "HTML Implementation Guide",
-      "login_required": false,
-      "license_required": false,
-      "automation_confidence": "high",
-      "notes": "Used as public technical baseline for Saudi claims exchange."
+      "notes": "Runtime templates for eligibility, prior-auth, and claim request bundles."
+    },
+    {
+      "asset_group": "pre_auth",
+      "backend_file": "pre_auth/",
+      "classification": "INTERNAL",
+      "notes": "Session field and pre-auth service rules used by Saudi validators."
     },
     {
       "asset_group": "rules",
-      "backend_file": "rules/claim_validation_policy.json",
-      "classification": "INTERNAL_DERIVED",
-      "official_source_name": "Saudi Billing System Knowledge Center",
-      "official_url": "https://www.chi.gov.sa/en/knowledge-center/Pages/saudi-billing-systems.aspx",
-      "artifact_type": "Public Web Page with linked XLSX/PDF references",
-      "login_required": false,
-      "license_required": false,
-      "automation_confidence": "medium",
-      "notes": "Public page verified; linked code lists and standards may require manual review for stable ingestion."
+      "backend_file": "rules/",
+      "classification": "INTERNAL",
+      "notes": "Diagnosis/procedure and documentation rules used by Saudi validators."
     },
     {
       "asset_group": "codes",
@@ -112,28 +119,24 @@
       "notes": "Do not fabricate. Requires proper licensing and import process."
     },
     {
-      "asset_group": "payers",
-      "backend_file": "payers/ksa_chi_payers.json",
-      "classification": "OFFICIAL_PUBLIC",
-      "official_source_name": "CHI Market Sectors / Insurance Companies",
-      "official_url": "https://www.chi.gov.sa/en/MarketSectors/Pages/InsuranceCompanies.aspx",
-      "artifact_type": "Public web directory",
-      "login_required": false,
-      "license_required": false,
-      "automation_confidence": "medium",
-      "notes": "Fetch via scripts/fetch_chi_payers.py when network access to chi.gov.sa is available."
+      "asset_group": "codes",
+      "backend_file": "codes/activity_synonyms.json",
+      "classification": "INTERNAL",
+      "notes": "Activity synonym map for transcript matching."
     },
     {
-      "asset_group": "exchange",
-      "backend_file": "exchange/nphies_fhir_valueset_index.json",
+      "asset_group": "reference",
+      "backend_file": "reference/nphies_fhir_valueset_index.json",
       "classification": "OFFICIAL_PUBLIC",
-      "official_source_name": "NPHIES FHIR ValueSets",
       "official_url": "https://portal.nphies.sa/ig/artifacts.html",
-      "artifact_type": "FHIR IG HTML expansion tables",
-      "login_required": false,
-      "license_required": false,
-      "automation_confidence": "high",
-      "notes": "Built by scripts/build_nphies_valueset_index.py from official expansion tables."
+      "notes": "Generated reference index; not loaded at runtime. Built by scripts/build_nphies_valueset_index.py."
+    },
+    {
+      "asset_group": "reference",
+      "backend_file": "reference/ksa_chi_payers.json",
+      "classification": "OFFICIAL_PUBLIC",
+      "official_url": "https://www.chi.gov.sa/en/MarketSectors/Pages/InsuranceCompanies.aspx",
+      "notes": "Generated CHI payer directory stub; not loaded at runtime. Built by scripts/fetch_chi_payers.py."
     }
   ]
 }

@@ -5,10 +5,15 @@ from medexa.adapters.pre_auth.ae.stub_uae_pre_auth_adapter import StubUaePreAuth
 from medexa.adapters.pre_auth.sa.stub_nphies_adapter import StubNphiesAdapter
 from medexa.adapters.fhir.ae.fhir_r4_builder import UaeFhirR4Builder
 from medexa.adapters.fhir.sa.claim_bundle_builder import NphiesClaimBundleBuilder
+from medexa.adapters.fhir.sa.eligibility_bundle_builder import NphiesEligibilityBundleBuilder
 from medexa.adapters.fhir.sa.priorauth_bundle_builder import NphiesPriorAuthBundleBuilder
 from medexa.domain.billing_region import BillingRegion
 from medexa.ports.conflict_checker_port import RegionalConflictCheckerPort
-from medexa.ports.fhir_export_port import FhirExportPort, PriorAuthFhirExportPort
+from medexa.ports.fhir_export_port import (
+    EligibilityFhirExportPort,
+    FhirExportPort,
+    PriorAuthFhirExportPort,
+)
 from medexa.ports.pre_auth import PreAuthExchangePort, PreAuthValidatorPort
 from medexa.regions.ae.rules.pre_auth_validator import UaeConflictChecker, UaePreAuthValidator
 from medexa.regions.bundle import RegionBundle
@@ -63,4 +68,11 @@ def build_priorauth_fhir_exporter(bundle: RegionBundle) -> PriorAuthFhirExportPo
     """Saudi NPHIES prior-auth request builder. UAE has no equivalent yet."""
     if bundle.billing_region == "SA":
         return NphiesPriorAuthBundleBuilder(bundle)
+    return None
+
+
+def build_eligibility_fhir_exporter(bundle: RegionBundle) -> EligibilityFhirExportPort | None:
+    """Saudi NPHIES coverage eligibility request builder."""
+    if bundle.billing_region == "SA":
+        return NphiesEligibilityBundleBuilder(bundle)
     return None

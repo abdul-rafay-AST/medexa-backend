@@ -94,7 +94,7 @@ def build_index() -> dict[str, object]:
 
 
 def main() -> int:
-    output = Path(__file__).resolve().parents[1] / "config/regions/sa/exchange/nphies_fhir_valueset_index.json"
+    output = Path(__file__).resolve().parents[1] / "config/regions/sa/reference/nphies_fhir_valueset_index.json"
     payload = build_index()
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2), encoding="utf-8")

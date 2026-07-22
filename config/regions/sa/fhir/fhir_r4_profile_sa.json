@@ -4,6 +4,7 @@
   "bundle_type": "message",
   "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-claim|1.0.0",
   "priorauth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-priorauth|1.0.0",
+  "eligibility_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/eligibility-request|1.0.0",
   "message_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/message-header|1.0.0",
   "claim_type_system": "http://terminology.hl7.org/CodeSystem/claim-type",
   "claim_type_code": "professional",
@@ -12,7 +13,8 @@
   "service_code_system": "http://nphies.sa/terminology/CodeSystem/services",
   "diagnosis_code_system": "http://hl7.org/fhir/sid/icd-10-am",
   "currency": "SAR",
-  "claim_request_template": "fhir/templates/professional-claim-request-bundle.template.json",
-  "priorauth_request_template": "fhir/templates/professional-priorauth-request-bundle.template.json",
+  "claim_request_template": "fhir/templates/claim-request.template.json",
+  "priorauth_request_template": "fhir/templates/priorauth-request.template.json",
+  "eligibility_request_template": "fhir/templates/eligibility-request.template.json",
   "template_manifest": "fhir/templates/template_manifest.json"
 }

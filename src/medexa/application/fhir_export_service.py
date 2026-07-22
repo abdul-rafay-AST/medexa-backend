@@ -7,14 +7,18 @@ from dataclasses import dataclass
 
 from medexa.aws.paths import fhir_export_key
 from medexa.domain.fhir_export import FhirExportArtifact
-from medexa.ports.fhir_export_port import FhirExportPort, PriorAuthFhirExportPort
+from medexa.ports.fhir_export_port import (
+    EligibilityFhirExportPort,
+    FhirExportPort,
+    PriorAuthFhirExportPort,
+)
 from medexa.ports.object_storage import ObjectStoragePort
 from medexa.schemas import BillingSummary, SessionState
 
 
 @dataclass(frozen=True)
 class FhirExportService:
-    """Persists region-specific FHIR claim / prior-auth bundles to object storage."""
+    """Persists region-specific FHIR claim / prior-auth / eligibility bundles."""
 
     def export_session(
         self,
@@ -38,6 +42,17 @@ class FhirExportService:
         filename: str = "priorauth-bundle.json",
     ) -> FhirExportArtifact:
         bundle = exporter.build_priorauth_bundle(state, summary)
+        return self._persist(state, exporter.profile_id(), bundle, storage, filename)
+
+    def export_eligibility(
+        self,
+        state: SessionState,
+        exporter: EligibilityFhirExportPort,
+        storage: ObjectStoragePort | None,
+        *,
+        filename: str = "eligibility-bundle.json",
+    ) -> FhirExportArtifact:
+        bundle = exporter.build_eligibility_bundle(state)
         return self._persist(state, exporter.profile_id(), bundle, storage, filename)
 
     def _persist(

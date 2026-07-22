@@ -3,11 +3,12 @@ from __future__ import annotations
 from datetime import timedelta
 
 from medexa.adapters.fhir.sa.claim_bundle_builder import NphiesClaimBundleBuilder
+from medexa.adapters.fhir.sa.eligibility_bundle_builder import NphiesEligibilityBundleBuilder
 from medexa.adapters.fhir.sa.priorauth_bundle_builder import NphiesPriorAuthBundleBuilder
 from medexa.adapters.storage.in_memory_storage import InMemoryObjectStorage
 from medexa.api.dependencies import ServiceContainer
 from medexa.application.fhir_export_service import FhirExportService
-from medexa.regions.factory import build_priorauth_fhir_exporter
+from medexa.regions.factory import build_eligibility_fhir_exporter, build_priorauth_fhir_exporter
 from medexa.schemas import BillingLineItem, BillingSummary, ProtocolInsight, SessionState, TimerSegment
 from medexa.utils.time import now_utc
 
@@ -195,6 +196,55 @@ def test_factory_wires_priorauth_exporter() -> None:
     assert isinstance(exporter, NphiesPriorAuthBundleBuilder)
 
 
+def test_nphies_eligibility_bundle_is_structurally_compliant() -> None:
+    container = ServiceContainer()
+    region = container.region_registry.resolve("SA")
+    builder = NphiesEligibilityBundleBuilder(region)
+    state, _summary = _sample_state_and_summary("sa-elig")
+
+    payload = builder.build_eligibility_bundle(state)
+    request = next(
+        e["resource"]
+        for e in payload["entry"]
+        if e["resource"]["resourceType"] == "CoverageEligibilityRequest"
+    )
+    header = next(
+        e["resource"] for e in payload["entry"] if e["resource"]["resourceType"] == "MessageHeader"
+    )
+
+    assert payload["type"] == "message"
+    assert header["eventCoding"]["code"] == "eligibility-request"
+    assert request["meta"]["profile"][0].endswith("eligibility-request|1.0.0")
+    assert request["status"] == "active"
+    assert set(request["purpose"]) == {"validation", "benefits"}
+    assert request["identifier"][0]["value"] == "sa-elig"
+    assert request["servicedPeriod"]["start"]
+    assert request["created"]
+    assert request["patient"]["reference"].startswith("Patient/")
+    assert request["provider"]["reference"].startswith("Organization/")
+    assert request["insurer"]["reference"].startswith("Organization/")
+    assert request["insurance"][0]["coverage"]["reference"].startswith("Coverage/")
+    assert "item" not in request
+
+    resource_types = {entry["resource"]["resourceType"] for entry in payload["entry"]}
+    assert resource_types == {
+        "MessageHeader",
+        "CoverageEligibilityRequest",
+        "Patient",
+        "Coverage",
+        "Organization",
+    }
+    orgs = [e["resource"] for e in payload["entry"] if e["resource"]["resourceType"] == "Organization"]
+    assert len({org["id"] for org in orgs}) == 2
+
+
+def test_factory_wires_eligibility_exporter() -> None:
+    container = ServiceContainer()
+    region = container.region_registry.resolve("SA")
+    exporter = build_eligibility_fhir_exporter(region)
+    assert isinstance(exporter, NphiesEligibilityBundleBuilder)
+
+
 def test_fhir_export_persists_claim_and_priorauth() -> None:
     container = ServiceContainer()
     region = container.region_registry.resolve("SA")
@@ -207,12 +257,18 @@ def test_fhir_export_persists_claim_and_priorauth() -> None:
     priorauth_artifact = FhirExportService().export_priorauth(
         state, summary, NphiesPriorAuthBundleBuilder(region), storage
     )
+    eligibility_artifact = FhirExportService().export_eligibility(
+        state, NphiesEligibilityBundleBuilder(region), storage
+    )
 
     assert claim_artifact.storage_uri is not None
     assert priorauth_artifact.storage_uri is not None
+    assert eligibility_artifact.storage_uri is not None
     assert storage.exists(claim_artifact.storage_key or "")
     assert storage.exists(priorauth_artifact.storage_key or "")
+    assert storage.exists(eligibility_artifact.storage_key or "")
     assert priorauth_artifact.profile_id == "nphies-professional-priorauth"
+    assert eligibility_artifact.profile_id == "nphies-eligibility-request"
 
 
 def test_claim_fills_detected_diagnoses_and_treatments() -> None:
@@ -276,3 +332,4 @@ def test_empty_clinical_session_clears_skeleton_placeholders() -> None:
     claim = _claim_resource(builder.build_claim_bundle(state, summary))
     assert claim["diagnosis"] == []
     assert claim["item"] == []
+

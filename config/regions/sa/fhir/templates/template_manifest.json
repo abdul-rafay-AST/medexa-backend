@@ -1,120 +1,56 @@
 {
-  "source_name": "Medexa Internal - NPHIES Professional Bundle Templates",
-  "source_url": "internal://medexa/config/regions/sa/fhir/templates/template_manifest.json",
-  "version": "1.0.0",
+  "source_name": "Medexa Internal - NPHIES FHIR Bundle Templates",
+  "version": "1.1.0",
   "derived_from": [
     {
       "source_name": "NPHIES Healthcare Financial Services IG Edition 1 v1.0.0",
-      "source_url": "https://portal.nphies.sa/ig/index.html",
-      "classification": "OFFICIAL_PUBLIC"
-    },
-    {
-      "source_name": "NPHIES StructureDefinition-professional-claim",
-      "source_url": "https://portal.nphies.sa/ig/StructureDefinition-professional-claim.html",
-      "classification": "OFFICIAL_PUBLIC"
-    },
-    {
-      "source_name": "NPHIES StructureDefinition-professional-priorauth",
-      "source_url": "https://portal.nphies.sa/ig/StructureDefinition-professional-priorauth.html",
-      "classification": "OFFICIAL_PUBLIC"
+      "source_url": "https://portal.nphies.sa/ig/index.html"
     }
   ],
   "templates": {
-    "professional_claim_request": {
-      "file": "professional-claim-request-bundle.template.json",
-      "skeleton_file": "professional-claim-bundle-skeleton.jsonc",
-      "message_event": "claim-request",
-      "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-claim|1.0.0",
-      "claim_use": "claim",
-      "default_sub_type": "op",
-      "allowed_sub_types": ["op", "emr"],
-      "service_code_system": "http://nphies.sa/terminology/CodeSystem/services",
-      "diagnosis_code_system": "http://hl7.org/fhir/sid/icd-10-am",
-      "required_claim_extensions": ["extension-encounter", "extension-episode"],
-      "required_item_extensions": [
-        "extension-patient-share",
-        "extension-patientInvoice",
-        "extension-maternity"
-      ],
-      "required_supporting_info_categories": [
-        "vital-sign-systolic",
-        "vital-sign-diastolic",
-        "vital-sign-height",
-        "vital-sign-weight",
-        "pulse",
-        "temperature",
-        "respiratory-rate",
-        "oxygen-saturation",
-        "chief-complaint",
-        "patient-history",
-        "history-of-present-illness",
-        "physical-examination",
-        "treatment-plan",
-        "investigation-result"
-      ],
-      "notes": "Runtime builder fills empty/null fields with visit data. Do not POST skeleton directly to NPHIES."
+    "eligibility_request": {
+      "file": "eligibility-request.template.json",
+      "skeleton_file": "eligibility-request.skeleton.jsonc",
+      "message_event": "eligibility-request",
+      "profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/eligibility-request|1.0.0",
+      "default_purpose": ["validation", "benefits"]
     },
-    "professional_priorauth_request": {
-      "file": "professional-priorauth-request-bundle.template.json",
-      "skeleton_file": "professional-priorauth-bundle-skeleton.jsonc",
+    "claim_request": {
+      "file": "claim-request.template.json",
+      "message_event": "claim-request",
+      "profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-claim|1.0.0",
+      "use": "claim",
+      "default_sub_type": "op"
+    },
+    "priorauth_request": {
+      "file": "priorauth-request.template.json",
       "message_event": "priorauth-request",
-      "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-priorauth|1.0.0",
-      "claim_use": "preauthorization",
-      "default_sub_type": "op",
-      "allowed_sub_types": ["op", "emr"],
-      "service_code_system": "http://nphies.sa/terminology/CodeSystem/services",
-      "diagnosis_code_system": "http://hl7.org/fhir/sid/icd-10-am",
-      "required_claim_extensions": ["extension-encounter", "extension-eligibility-response"],
-      "required_item_extensions": ["extension-maternity"],
-      "optional_item_extensions": ["extension-package", "extension-patient-share"],
-      "required_supporting_info_categories": [
-        "vital-sign-systolic",
-        "vital-sign-diastolic",
-        "vital-sign-height",
-        "vital-sign-weight",
-        "pulse",
-        "temperature",
-        "respiratory-rate",
-        "oxygen-saturation",
-        "chief-complaint",
-        "patient-history",
-        "history-of-present-illness",
-        "physical-examination",
-        "treatment-plan",
-        "investigation-result"
-      ],
-      "notes": "Prior-auth does not use extension-episode. Default package=false and maternity=false for PT/OT/SLP rehab."
+      "profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/professional-priorauth|1.0.0",
+      "use": "preauthorization",
+      "default_sub_type": "op"
     }
   },
   "encounter_profiles_by_setting": {
     "ambulatory": {
       "act_code": "AMB",
       "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-claim-AMB|1.0.0",
-      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-AMB|1.0.0",
-      "claim_status": "finished",
-      "auth_status": "in-progress"
+      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-AMB|1.0.0"
     },
     "emergency": {
       "act_code": "EMER",
       "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-claim-EMER|1.0.0",
       "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-EMER|1.0.0",
-      "claim_status": "finished",
-      "auth_status": "in-progress",
       "claim_sub_type": "emr"
     },
     "home_healthcare": {
       "act_code": "HH",
       "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-claim-HH|1.0.0",
-      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-HH|1.0.0",
-      "claim_status": "finished",
-      "auth_status": "in-progress"
+      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-HH|1.0.0"
     },
     "telemedicine": {
       "act_code": "VR",
       "claim_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-claim-VR|1.0.0",
-      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-VR|1.0.0",
-      "claim_status": "finished",
-      "auth_status": "in-progress"
+      "auth_profile": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/encounter-auth-VR|1.0.0"
     }
   }
 }

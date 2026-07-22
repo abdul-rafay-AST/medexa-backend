@@ -1,0 +1,745 @@
+{
+  "source_name": "NPHIES Healthcare Financial Services Implementation Guide",
+  "source_url": "https://portal.nphies.sa/ig/artifacts.html",
+  "version": "1.0.0",
+  "fetched_at": "2026-07-07T11:02:16Z",
+  "classification": "OFFICIAL_PUBLIC",
+  "valuesets": [
+    {
+      "slug": "ValueSet-claim-type",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-claim-type.html",
+      "fetch_status": "ok",
+      "record_count": 5,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-claim-subtype",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-claim-subtype.html",
+      "fetch_status": "ok",
+      "record_count": 3,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-message-events",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-message-events.html",
+      "fetch_status": "ok",
+      "record_count": 0,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-diagnosis-type",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-diagnosis-type.html",
+      "fetch_status": "ok",
+      "record_count": 5,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-coverage-type-sa",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-coverage-type-sa.html",
+      "fetch_status": "ok",
+      "record_count": 0,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-ksa-identifier-patient",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-ksa-identifier-patient.html",
+      "fetch_status": "ok",
+      "record_count": 0,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-adjudication-error",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-adjudication-error.html",
+      "fetch_status": "ok",
+      "record_count": 100,
+      "error": null
+    },
+    {
+      "slug": "ValueSet-claim-processing-outcome",
+      "source_url": "https://portal.nphies.sa/ig/ValueSet-claim-processing-outcome.html",
+      "fetch_status": "ok",
+      "record_count": 0,
+      "error": null
+    }
+  ],
+  "records": [
+    {
+      "valueset_slug": "ValueSet-claim-type",
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "institutional",
+      "display": "Institutional"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-type",
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "oral",
+      "display": "Dental"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-type",
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "pharmacy",
+      "display": "Pharmacy"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-type",
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "professional",
+      "display": "Professional"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-type",
+      "system": "http://terminology.hl7.org/CodeSystem/claim-type",
+      "code": "vision",
+      "display": "Optical"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-subtype",
+      "system": "http://nphies.sa/terminology/CodeSystem/claim-subtype",
+      "code": "emr",
+      "display": "Emergency"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-subtype",
+      "system": "http://nphies.sa/terminology/CodeSystem/claim-subtype",
+      "code": "op",
+      "display": "OutPatient"
+    },
+    {
+      "valueset_slug": "ValueSet-claim-subtype",
+      "system": "http://nphies.sa/terminology/CodeSystem/claim-subtype",
+      "code": "ip",
+      "display": "InPatient"
+    },
+    {
+      "valueset_slug": "ValueSet-diagnosis-type",
+      "system": "http://nphies.sa/terminology/CodeSystem/diagnosis-type",
+      "code": "discharge",
+      "display": "Discharge Diagnosis"
+    },
+    {
+      "valueset_slug": "ValueSet-diagnosis-type",
+      "system": "http://nphies.sa/terminology/CodeSystem/diagnosis-type",
+      "code": "differential",
+      "display": "Differential Diagnosis"
+    },
+    {
+      "valueset_slug": "ValueSet-diagnosis-type",
+      "system": "http://nphies.sa/terminology/CodeSystem/diagnosis-type",
+      "code": "admitting",
+      "display": "Admitting Diagnosis"
+    },
+    {
+      "valueset_slug": "ValueSet-diagnosis-type",
+      "system": "http://nphies.sa/terminology/CodeSystem/diagnosis-type",
+      "code": "principal",
+      "display": "Principal Diagnosis"
+    },
+    {
+      "valueset_slug": "ValueSet-diagnosis-type",
+      "system": "http://nphies.sa/terminology/CodeSystem/diagnosis-type",
+      "code": "secondary",
+      "display": "Secondary Diagnosis"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1191",
+      "display": "Missing element: [Patient] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1190",
+      "display": "Missing element: [Communication.note.text] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1199",
+      "display": "Missing element: [patient.birthDate] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1198",
+      "display": "Missing element: [gender.extensionKsaGender] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1197",
+      "display": "Missing element: [patient.gender ] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1196",
+      "display": "Missing element: [patient.name] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1195",
+      "display": "Missing element: [patient.active] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1194",
+      "display": "Missing element: [patient.identifier] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1193",
+      "display": "Missing element: [patient.id] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "260",
+      "display": "Missing element: [Claim.careTeam.role] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1192",
+      "display": "Missing element: [patient.resourceType] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "760",
+      "display": "Missing element: [Claim.insurance.coverage] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "761",
+      "display": "Missing element: [Claim.insurance.preAuthRef] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "762",
+      "display": "Missing element: [Claim.insurance.claimResponse] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "261",
+      "display": "Missing element: [Claim.supportingInfo] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "763",
+      "display": "Missing element: [Claim.accident] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "764",
+      "display": "Missing element: [Claim.accident.Date] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "262",
+      "display": "Missing element: [Claim.supportingInfo.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "765",
+      "display": "Missing element: [Claim.accident.type] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1133",
+      "display": "Missing element: [ClaimResponse.processNote] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "263",
+      "display": "Missing element: [Claim.supportingInfo.category] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "766",
+      "display": "Missing element: [Claim.accident.locationAdress] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "264",
+      "display": "Missing element: [Claim.supportingInfo.code] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1625",
+      "display": "ClaimResponse.item.detail.Sequence detailSequence in the claim response SHALL match item.detail.sequence within the claim.item"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1132",
+      "display": "Missing element: [ClaimResponse.fundsReserve] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "767",
+      "display": "Missing element: [Claim.item] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "34",
+      "display": "Missing element: [CoverageEligibilityResponse.patient] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "265",
+      "display": "Missing element: [Claim.supportingInfo.timingDate] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1189",
+      "display": "Missing element: [Communication.note.time] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1131",
+      "display": "Missing element: [ClaimResponse.total.amount.currency] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "768",
+      "display": "Missing element: [Claim.item.extension.tax] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1130",
+      "display": "Missing element: [ClaimResponse.total.amount.value] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "266",
+      "display": "Missing element: [Claim.supportingInfo.timingPeriod] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1624",
+      "display": "ClaimResponse.item.detail.Sequence detailSequence in the claim response SHALL match item.detail.sequence within the claim.item"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "769",
+      "display": "Missing element: [Claim.item.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "35",
+      "display": "Missing element: [CoverageEligibilityResponse.servicedDate] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "770",
+      "display": "Missing element: [Claim.item.careTeamSequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "267",
+      "display": "Missing element: [Claim.supportingInfo.valueBoolean] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1672",
+      "display": "Services performed outside  the coverage effective period"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "36",
+      "display": "Missing element: [CoverageEligibilityResponse.created] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "268",
+      "display": "Missing element: [Claim.supportingInfo.valueString] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1177",
+      "display": "Missing element: [Communication.subject] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "37",
+      "display": "Missing element: [CoverageEligibilityResponse.request] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "269",
+      "display": "Missing element: [Claim.supportingInfo.valueQuantity] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1176",
+      "display": "Missing element: [Communication.medium] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "12",
+      "display": "Missing element: [entry.CoverageEligibilityRequest] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1671",
+      "display": "The requested medicine(s) is not registered"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "38",
+      "display": "Missing element: [CoverageEligibilityResponse.outcome] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1175",
+      "display": "Missing element: [Communication.priority] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "270",
+      "display": "Missing element: [Claim.supportingInfo.valueAttachment] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "340",
+      "display": "Missing element: [Claim.fundsReserve] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "39",
+      "display": "Missing element: [CoverageEligibilityResponse.disposition] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1174",
+      "display": "Missing element: [Communication.category] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1670",
+      "display": "Service code is inconsistent with the patient's gender"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "13",
+      "display": "Missing element: [CoverageEligibilityRequest.resourceType] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "380",
+      "display": "Missing element: [Claim.item.extension.tax] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "271",
+      "display": "Missing element: [Claim.supportingInfo.valueReference] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1669",
+      "display": "Diagnosis is inconsistent with the patient's gender"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "14",
+      "display": "Missing element: [CoverageEligibilityRequest.id] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "381",
+      "display": "Missing element: [Claim.item.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1668",
+      "display": "Supporting information not related to the patient"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "272",
+      "display": "Missing element: [Claim.supportingInfo.reason] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "382",
+      "display": "Missing element: [Claim.item.careTeamSequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1667",
+      "display": "The service code is invalid given the patient history"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1666",
+      "display": "Provider not licensed during the date of service"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "273",
+      "display": "Missing element: [Claim.diagnosis] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1665",
+      "display": "New born exceeds 30 days of age"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "274",
+      "display": "Missing element: [Claim.diagnosis.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1129",
+      "display": "Missing element: [ClaimResponse.total.amount] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1664",
+      "display": "Policy is cancelled/expired"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "275",
+      "display": "Missing element: [Claim.diagnosis.diagnosisCodeableConcept] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1663",
+      "display": "MEMBER DELETED"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1662",
+      "display": "Tooth number is missing"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "276",
+      "display": "Missing element: [Claim.diagnosis.type] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1682",
+      "display": "The patient information does not match the insurance member details."
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1128",
+      "display": "Missing element: [ClaimResponse.total.category] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "320",
+      "display": "Missing element: [Claim.item.detail.subDetail.unitPrice] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "277",
+      "display": "Missing element: [Claim.insurance] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1111",
+      "display": "Missing element: [ClaimResponse.item.detail.noteNumber] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1127",
+      "display": "Missing element: [ClaimResponse.total] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "278",
+      "display": "Missing element: [Claim.insurance.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1126",
+      "display": "Missing element: [ClaimResponse.item.detail.subDetail.adjudication.amount.currency] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "279",
+      "display": "Missing element: [Claim.insurance.focal] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1125",
+      "display": "Missing element: [ClaimResponse.item.detail.subDetail.adjudication.amount.value] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1595",
+      "display": "Claim serviced SHALL be on OR after the creation date if the claim use=Authorization"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "56",
+      "display": "Missing element: [Claim.status] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "700",
+      "display": "Missing element: [Claim.item.detail.subDetail.sequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "57",
+      "display": "Missing element: [Claim.type] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1124",
+      "display": "Missing element: [ClaimResponse.item.detail.subDetail.adjudication.amount] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "321",
+      "display": "Missing element: [Claim.item.detail.subDetail.net] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1110",
+      "display": "Missing element: [ClaimResponse.item.detail.detailSequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "58",
+      "display": "Missing element: [Claim.subType] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "701",
+      "display": "Missing element: [Claim.item.detail.subDetail.productOrService] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "771",
+      "display": "Missing element: [Claim.item.diagnosisSequence] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "59",
+      "display": "Missing element: [Claim.use] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1123",
+      "display": "Missing element: [ClaimResponse.item.detail.subDetail.adjudication.reason] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1594",
+      "display": "Claim.billablePeriod SHALL be within the encounter start and end date if encounter is provided"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "322",
+      "display": "Missing element: [Claim.item.detail.subDetail.udi] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "60",
+      "display": "Missing element: [Claim.patient] within the message"
+    },
+    {
+      "valueset_slug": "ValueSet-adjudication-error",
+      "system": "http://nphies.sa/terminology/CodeSystem/adjudication-error",
+      "code": "1593",
+      "display": "Claim.subType If Claim type is profesional  ,then the Claim sub-type SHALL not be IP"
+    }
+  ]
+}

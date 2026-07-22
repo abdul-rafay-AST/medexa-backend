@@ -1,0 +1,318 @@
+{
+  "resourceType": "Bundle",
+  "id": "",
+  "meta": {
+    "profile": [
+      "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/bundle|1.0.0"
+    ]
+  },
+  "type": "message",
+  "timestamp": "",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:c3f7ade1-9932-4a1c-8b4e-2d1f6e0a9b47",
+      "resource": {
+        "resourceType": "MessageHeader",
+        "id": "c3f7ade1-9932-4a1c-8b4e-2d1f6e0a9b47",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/message-header|1.0.0"
+          ]
+        },
+        "eventCoding": {
+          "system": "http://nphies.sa/terminology/CodeSystem/ksa-message-events",
+          "code": "eligibility-request"
+        },
+        "destination": [
+          {
+            "endpoint": "https://nphies.sa/fhir/$process-message",
+            "receiver": {
+              "type": "Organization",
+              "identifier": {
+                "system": "http://nphies.sa/license/payer-license",
+                "value": ""
+              }
+            }
+          }
+        ],
+        "sender": {
+          "type": "Organization",
+          "identifier": {
+            "system": "http://nphies.sa/license/provider-license",
+            "value": ""
+          }
+        },
+        "source": {
+          "endpoint": "https://medexa.internal/nphies"
+        },
+        "focus": [
+          {
+            "reference": "http://yourclinic.com/CoverageEligibilityRequest/ELIG-123"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/CoverageEligibilityRequest/ELIG-123",
+      "resource": {
+        "resourceType": "CoverageEligibilityRequest",
+        "id": "",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/eligibility-request|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://medexa.internal/identifiers/eligibility-request",
+            "value": ""
+          }
+        ],
+        "status": "active",
+        "priority": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/processpriority",
+              "code": "normal",
+              "display": "Normal"
+            }
+          ]
+        },
+        "purpose": [
+          "validation",
+          "benefits"
+        ],
+        "patient": {
+          "reference": ""
+        },
+        "servicedPeriod": {
+          "start": "",
+          "end": ""
+        },
+        "created": "",
+        "provider": {
+          "reference": ""
+        },
+        "insurer": {
+          "reference": ""
+        },
+        "insurance": [
+          {
+            "focal": true,
+            "coverage": {
+              "reference": ""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Patient/PAT-123",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/patient|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": ""
+                }
+              ]
+            },
+            "system": "http://nphies.sa/identifier/iqama",
+            "value": ""
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "use": "official",
+            "text": "",
+            "family": "",
+            "given": [
+              ""
+            ]
+          }
+        ],
+        "telecom": [
+          {
+            "system": "phone",
+            "value": ""
+          }
+        ],
+        "gender": "",
+        "_gender": {
+          "extension": [
+            {
+              "url": "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/extension-ksa-administrative-gender",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://nphies.sa/terminology/CodeSystem/ksa-administrative-gender",
+                    "code": ""
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "birthDate": "",
+        "maritalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+              "code": ""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Coverage/COV-123",
+      "resource": {
+        "resourceType": "Coverage",
+        "id": "",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/coverage|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://medexa.internal/identifiers/member-id",
+            "value": ""
+          }
+        ],
+        "status": "active",
+        "type": {
+          "coding": [
+            {
+              "system": "http://nphies.sa/terminology/CodeSystem/coverage-type",
+              "code": "EHCPOL",
+              "display": "extended healthcare"
+            }
+          ]
+        },
+        "subscriber": {
+          "reference": ""
+        },
+        "beneficiary": {
+          "reference": ""
+        },
+        "relationship": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+              "code": ""
+            }
+          ]
+        },
+        "payor": [
+          {
+            "reference": ""
+          }
+        ],
+        "class": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                  "code": "plan"
+                }
+              ]
+            },
+            "value": "",
+            "name": ""
+          }
+        ],
+        "network": ""
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Organization/PR-123",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/provider-organization|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://nphies.sa/license/provider-license",
+            "value": ""
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://nphies.sa/terminology/CodeSystem/organization-type",
+                "code": "prov",
+                "display": "Healthcare Provider"
+              }
+            ]
+          }
+        ],
+        "name": "",
+        "address": [
+          {
+            "use": "work",
+            "text": "",
+            "city": "",
+            "country": "Saudi Arabia"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://yourclinic.com/Organization/INS-123",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "",
+        "meta": {
+          "profile": [
+            "http://nphies.sa/fhir/ksa/nphies-fs/StructureDefinition/insurer-organization|1.0.0"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://nphies.sa/license/payer-license",
+            "value": ""
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://nphies.sa/terminology/CodeSystem/organization-type",
+                "code": "ins",
+                "display": "Insurance Company"
+              }
+            ]
+          }
+        ],
+        "name": "",
+        "address": [
+          {
+            "use": "work",
+            "text": "",
+            "city": "",
+            "country": "Saudi Arabia"
+          }
+        ]
+      }
+    }
+  ]
+}

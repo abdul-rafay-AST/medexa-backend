@@ -5,15 +5,18 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from medexa.adapters.fhir._common import (
+    SERVICES_CODE_SYSTEM,
     deep_copy_template,
+    fill_shared_party_resources,
     find_extension,
-    find_organization,
     find_resource,
     fhir_instant,
     load_bundle_template,
     load_fhir_profile,
     new_resource_ids,
     rewrite_references,
+    set_rehab_care_team_qualification,
+    stamp_bundle_envelope,
 )
 from medexa.adapters.fhir.sa.clinical_claim_fill import apply_clinical_claim_fill
 from medexa.regions.bundle import RegionBundle
@@ -25,12 +28,10 @@ from medexa.schemas import BillingSummary, SessionState
 class NphiesPriorAuthBundleBuilder:
     """Builds a NPHIES-compliant professional prior-authorization Bundle.
 
-    Starts from ``professional-priorauth-request-bundle.template.json``:
-
-    - ``use`` is ``preauthorization`` (not ``claim``)
-    - No ``extension-episode`` (claim-only per NPHIES claim usecase guide)
-    - ``extension-eligibility-response`` links the eligibility check
-    - Item ``extension-package`` / ``extension-maternity`` default to ``false``
+    Differences from claim:
+    - ``use`` is ``preauthorization``
+    - No ``extension-episode`` / patientInvoice
+    - Links ``extension-eligibility-response``
     - Encounter uses ``encounter-auth-*`` (status ``in-progress``)
     - SBS codes bind to ``CodeSystem/services`` (not ``procedures``)
     - Clinical diagnosis + treatments filled like BillingEngine / claim builder
@@ -57,7 +58,7 @@ class NphiesPriorAuthBundleBuilder:
         profile = self._profile()
         template_path = profile.get(
             "priorauth_request_template",
-            "fhir/templates/professional-priorauth-request-bundle.template.json",
+            "fhir/templates/priorauth-request.template.json",
         )
         template = deep_copy_template(load_bundle_template(self.bundle, template_path))
 
@@ -65,20 +66,13 @@ class NphiesPriorAuthBundleBuilder:
         rewrite_references(template, roles)
 
         now = summary.generated_at
-        template["id"] = str(uuid.uuid4())
-        template["timestamp"] = fhir_instant(now)
-
-        message_header = find_resource(template, "MessageHeader")
-        message_header["destination"][0]["receiver"]["identifier"]["value"] = state.payer_id or ""
-        message_header["sender"]["identifier"]["value"] = state.therapist_id or ""
-        message_header["source"]["endpoint"] = "https://medexa.internal/nphies"
+        stamp_bundle_envelope(template, now)
+        fill_shared_party_resources(template, state)
 
         claim = find_resource(template, "Claim")
         claim["identifier"][0]["system"] = "https://medexa.internal/identifiers/authorization"
         claim["identifier"][0]["value"] = state.session_id
         claim["created"] = fhir_instant(now)
-
-        # Professional prior-auth subtype must be op or emr (P-Auth-1 / BV-00365).
         claim["subType"] = {
             "coding": [
                 {
@@ -96,16 +90,18 @@ class NphiesPriorAuthBundleBuilder:
             )
             eligibility_value = ""
             if state.pre_auth_snapshot is not None:
-                eligibility_value = str(getattr(state.pre_auth_snapshot, "reference", "") or "")
+                raw = state.pre_auth_snapshot.raw or {}
+                eligibility_value = str(
+                    raw.get("eligibility_response_id")
+                    or raw.get("reference")
+                    or getattr(state.pre_auth_snapshot, "reference", "")
+                    or ""
+                )
             if not eligibility_value and state.pre_auth_reference:
                 eligibility_value = state.pre_auth_reference
             eligibility_ext["valueReference"]["identifier"]["value"] = eligibility_value
 
-        care_team = claim.get("careTeam", [{}])[0]
-        care_team.get("qualification", {}).get("coding", [{}])[0]["code"] = "16.00"
-        care_team.get("qualification", {}).get("coding", [{}])[0]["display"] = (
-            "Physical Medicine & Rehabilitation Specialty"
-        )
+        set_rehab_care_team_qualification(claim)
 
         apply_clinical_claim_fill(
             claim,
@@ -115,30 +111,9 @@ class NphiesPriorAuthBundleBuilder:
             include_patient_invoice=False,
         )
 
-        patient = find_resource(template, "Patient")
-        patient["identifier"][0]["value"] = state.member_id or state.mrn or state.patient_id or ""
-        if state.patient_name:
-            patient["name"][0]["text"] = state.patient_name
-            parts = state.patient_name.split()
-            patient["name"][0]["family"] = parts[-1] if parts else ""
-            patient["name"][0]["given"] = parts[:-1] or [state.patient_name]
-
-        coverage = find_resource(template, "Coverage")
-        coverage["identifier"][0]["value"] = state.member_id or ""
-        coverage["identifier"][0]["system"] = "https://medexa.internal/identifiers/member-id"
-
-        provider_org = find_organization(template, "provider-organization|1.0.0")
-        insurer_org = find_organization(template, "insurer-organization|1.0.0")
-        if provider_org is not None:
-            provider_org["identifier"][0]["value"] = state.therapist_id or ""
-        if insurer_org is not None:
-            insurer_org["identifier"][0]["value"] = state.payer_id or ""
-
-        practitioner = find_resource(template, "Practitioner")
-        practitioner["identifier"][0]["value"] = state.therapist_id or ""
-
         encounter = find_resource(template, "Encounter")
         encounter["period"]["start"] = fhir_instant(state.created_at)
         encounter["period"].pop("end", None)
 
         return template
+
