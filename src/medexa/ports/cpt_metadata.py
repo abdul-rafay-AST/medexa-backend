@@ -72,7 +72,6 @@ class CptPtpPort(Protocol):
         Returns None if no conflict exists.
         """
 
-
 @runtime_checkable
 class BillingCategoryPort(Protocol):
     """Port for PT/OT/SLP specific billing category constraints."""
