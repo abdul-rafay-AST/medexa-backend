@@ -1,0 +1,164 @@
+[
+    {
+        "cpt_code": "90912",
+        "billingRule": "8_minute_rule",
+        "billingTime": "15 minutes per unit",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "90913"
+        ]
+    },
+    {
+        "cpt_code": "90913",
+        "billingRule": "8_minute_rule",
+        "billingTime": "same as primary",
+        "isAddonCode": true,
+        "parentCode": "90912",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "92607",
+        "billingRule": "full_block_required",
+        "billingTime": "60 minutes",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "92608"
+        ]
+    },
+    {
+        "cpt_code": "92608",
+        "billingRule": "full_block_required",
+        "billingTime": "30 minutes per unit",
+        "isAddonCode": true,
+        "parentCode": "92607",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "97129",
+        "billingRule": "8_minute_rule",
+        "billingTime": "15 minutes per unit",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "97130"
+        ]
+    },
+    {
+        "cpt_code": "97130",
+        "billingRule": "8_minute_rule",
+        "billingTime": "same as primary",
+        "isAddonCode": true,
+        "parentCode": "97129",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "97545",
+        "billingRule": "full_block_required",
+        "billingTime": "2 hours",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "97546"
+        ]
+    },
+    {
+        "cpt_code": "97546",
+        "billingRule": "full_block_required",
+        "billingTime": "60 minutes per unit",
+        "isAddonCode": true,
+        "parentCode": "97545",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "97550",
+        "billingRule": "full_block_required",
+        "billingTime": "30 minutes",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "97551"
+        ]
+    },
+    {
+        "cpt_code": "97551",
+        "billingRule": "full_block_required",
+        "billingTime": "15 minutes per unit",
+        "isAddonCode": true,
+        "parentCode": "97550",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "97597",
+        "billingRule": "area_based",
+        "billingTime": "20 sq cm",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "97598"
+        ]
+    },
+    {
+        "cpt_code": "97598",
+        "billingRule": "area_based",
+        "billingTime": "20 sq cm per unit",
+        "isAddonCode": true,
+        "parentCode": "97597",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "97607",
+        "billingRule": "area_based",
+        "billingTime": "per wound (<=50 sq cm)",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "97608"
+        ]
+    },
+    {
+        "cpt_code": "97608",
+        "billingRule": "area_based",
+        "billingTime": "50 sq cm per unit",
+        "isAddonCode": true,
+        "parentCode": "97607",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "98980",
+        "billingRule": "full_block_required",
+        "billingTime": "20 minutes",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "98981"
+        ]
+    },
+    {
+        "cpt_code": "98981",
+        "billingRule": "full_block_required",
+        "billingTime": "same as primary",
+        "isAddonCode": true,
+        "parentCode": "98980",
+        "addonCodesAllowed": []
+    },
+    {
+        "cpt_code": "G0541",
+        "billingRule": "full_block_required",
+        "billingTime": "30 minutes",
+        "isAddonCode": false,
+        "parentCode": null,
+        "addonCodesAllowed": [
+            "G0542"
+        ]
+    },
+    {
+        "cpt_code": "G0542",
+        "billingRule": "full_block_required",
+        "billingTime": "15 minutes per unit",
+        "isAddonCode": true,
+        "parentCode": "G0541",
+        "addonCodesAllowed": []
+    }
+]

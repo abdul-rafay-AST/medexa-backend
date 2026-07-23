@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from medexa.loaders.ncci_rules_loader import NcciRule
+from typing import Any
 
 
 def format_ncci_conflict_message(
@@ -10,7 +10,7 @@ def format_ncci_conflict_message(
     cpt_b: str,
     *,
     body_region: str | None,
-    rule: NcciRule,
+    rule: dict[str, Any],
 ) -> str:
     """Human-readable NCCI alert with Modifier 59 guidance when applicable."""
     region_label = _format_body_region(body_region)
@@ -27,7 +27,7 @@ def format_ncci_conflict_message(
     return f"{base} {rule['explanation']}"
 
 
-def _ncci_indicator_label(rule: NcciRule) -> str:
+def _ncci_indicator_label(rule: dict[str, Any]) -> str:
     if rule.get("modifier_59_possible"):
         return "Indicator 0 (modifier allowed when distinct)"
     return "Indicator 1 (bundled)"
